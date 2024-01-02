@@ -9,7 +9,7 @@
 class TrainerBase
 {
 public:
-	TrainerBase():GameCaption("gamemd.exe"){
+	TrainerBase():GameCaption("gamemd"){
 	}
 	~TrainerBase() {
 	}

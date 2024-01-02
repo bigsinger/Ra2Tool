@@ -17,7 +17,7 @@ BOOL TrainerBase::GetProcessIDFromName(char *name,LPDWORD id)
     do   
     {   
         //这里的 pszProcessName 为你的进程名称   
-        if(_stricmp(pInfo.szExeFile, name) == 0)   
+        if(StrStrI(pInfo.szExeFile, name))   
         {   
             *id = pInfo.th32ProcessID ;    //id 就是你要的进程PID 了..   
 			return TRUE;
@@ -140,15 +140,16 @@ void TrainerBase::jmpWritProc(LPVOID n,LPVOID m) //写入地址,跳转的地址
 //远程注入
 void TrainerBase::writProcess(LPVOID callF) {
 	getID();
-	LPVOID PowerCallBase_l;
-	PowerCallBase_l=::VirtualAllocEx(pid,NULL,0x256,MEM_COMMIT,PAGE_EXECUTE_READWRITE);
-	WriteProcessMemory(pid,PowerCallBase_l,callF,0x256,NULL);
+	DWORD dwReadWrite = 0;
+	LPVOID PowerCallBase_l = 0;
+	PowerCallBase_l =::VirtualAllocEx(pid,NULL,0x256,MEM_COMMIT,PAGE_EXECUTE_READWRITE);
+	BOOL ret = WriteProcessMemory(pid,PowerCallBase_l,callF,0x256,&dwReadWrite);
 	DWORD ttid = 0;
 	CreateRemoteThread(pid,NULL,0,(LPTHREAD_START_ROUTINE)PowerCallBase_l,0,0,&ttid);
-	Sleep(300);
-	BOOL ret = 0;
-	ret = VirtualFreeEx(pid,PowerCallBase_l,0,MEM_RELEASE);
-	if (ret){ ::Beep(523, 400); }//do
+	//Sleep(300);
+	//BOOL ret = 0;
+	//ret = VirtualFreeEx(pid,PowerCallBase_l,0,MEM_RELEASE);
+	if (ret && dwReadWrite > 0 && ttid>0){ ::Beep(523, 400); }//do
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
