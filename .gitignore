@@ -1,3 +1,15 @@
+.vs/
+*.aps
+*.user
+RATrainer/Debug/*
+RATrainer/Release/*
+Debug/*
+Release/*
+*.rar
+*.zip
+Archive*
+
+
 # Prerequisites
 *.d
 

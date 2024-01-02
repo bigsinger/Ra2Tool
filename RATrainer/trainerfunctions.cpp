@@ -172,8 +172,7 @@ void TrainerFunctions::Map_Assemble()
 		popad                      
 	}
 }
-void TrainerFunctions::AllMap()
-{
+void TrainerFunctions::AllMap() {
 	//µØÍ¼È«¿ª
 	writProcess(Map_Assemble);
 }

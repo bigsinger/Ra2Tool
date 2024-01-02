@@ -62,6 +62,7 @@ void CRATrainerDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CRATrainerDlg, CDialogEx)
+	ON_MESSAGE(WM_HOTKEY, OnHotKey)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
@@ -71,7 +72,7 @@ BEGIN_MESSAGE_MAP(CRATrainerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON4, &CRATrainerDlg::OnBnClickedButton4)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CRATrainerDlg::OnCbnSelchangeCombo1)
 	ON_WM_CLOSE()
-	ON_BN_CLICKED(IDC_BUTTON5, &CRATrainerDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_BUTTON5, &CRATrainerDlg::OnBnClickedButtonAllMap)
 	ON_BN_CLICKED(IDC_BUTTON6, &CRATrainerDlg::OnBnClickedButton6)
 	ON_BN_CLICKED(IDC_BUTTON7, &CRATrainerDlg::OnBnClickedButton7)
 	ON_BN_CLICKED(IDC_BUTTON8, &CRATrainerDlg::OnBnClickedButton8)
@@ -156,9 +157,43 @@ BOOL CRATrainerDlg::OnInitDialog()
 	mSlider.SetTicFreq(1);	//每(n)个单位一个刻度
 
 	//游戏运行检测
-	SetTimer(3,1000,NULL);
+	//SetTimer(3,1000,NULL);
+
+	// 注册热键
+	UINT uHotKey = MAKELONG('M', HOTKEYF_ALT);
+	RegisterHotKey(LOWORD(uHotKey), HIWORD(uHotKey), 1001);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
+}
+//注册热键
+BOOL CRATrainerDlg::RegisterHotKey(WORD wVirtualKeyCode, WORD wModifiers, int nHotId) {
+	BOOL bSuccess = TRUE;
+
+	if ((wModifiers & HOTKEYF_ALT) && !(wModifiers & HOTKEYF_SHIFT)) {
+		//Shift->ALt
+		wModifiers &= ~HOTKEYF_ALT;
+		wModifiers |= MOD_ALT;
+	} else if (!(wModifiers & HOTKEYF_ALT) && (wModifiers & HOTKEYF_SHIFT)) {
+		//Alt->Shift
+		wModifiers &= ~HOTKEYF_SHIFT;
+		wModifiers |= MOD_SHIFT;
+	}
+	if (::RegisterHotKey(m_hWnd, nHotId, wModifiers, wVirtualKeyCode) == FALSE) {
+		bSuccess = FALSE;
+		AfxMessageBox("热键冲突，请检查是否有其它程序注册了此热键!");
+	}
+
+	return bSuccess;
+}
+
+//热键消息响应函数
+LRESULT CRATrainerDlg::OnHotKey(WPARAM wParam, LPARAM lParam) {
+	if (wParam == 1001) {
+		OnBnClickedButtonAllMap(); //地图全开
+	} else if (wParam == 1002) {
+		
+	}
+	return 0;
 }
 
 void CRATrainerDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -463,18 +498,16 @@ inline const char * const BoolToString(bool b)
 	return b ? "true" : "false";
 }
 //地图全开
-void CRATrainerDlg::OnBnClickedButton5()
+void CRATrainerDlg::OnBnClickedButtonAllMap()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	// 
-	if (!trainer.IsGameRunning(RUNNING_ALERT)) { return; }
-	DWORD Player;
+	//if (!trainer.IsGameRunning(RUNNING_ALERT)) { return; }
+	DWORD Player = 0;
 	trainer.readMemory(0x00A83D4C,&Player);
-	if(Player==0){::MessageBox(NULL,"必须先开始战斗!!","提示:",NULL);return;}
-	// trainer.AllMap();
-	bool ret = trainer.AutoAssemble(trainer.pid, allMap, 1);
-	Sleep(300);
-	trainer.AutoAssemble(trainer.pid, allMap, 0);
+	if(Player==0){::Beep(659, 400);}//mi
+	trainer.AllMap();
+	//bool ret = trainer.AutoAssemble(trainer.pid, allMap, 1);
+	//Sleep(300);
+	//trainer.AutoAssemble(trainer.pid, allMap, 0);
 	// char* ver = trainer.Ver();
 	//::MessageBox(NULL, BoolToString(ret), "提示:", NULL);
 }

@@ -138,8 +138,7 @@ void TrainerBase::jmpWritProc(LPVOID n,LPVOID m) //写入地址,跳转的地址
 }
 
 //远程注入
-void TrainerBase::writProcess(LPVOID callF)
-{
+void TrainerBase::writProcess(LPVOID callF) {
 	getID();
 	LPVOID PowerCallBase_l;
 	PowerCallBase_l=::VirtualAllocEx(pid,NULL,0x256,MEM_COMMIT,PAGE_EXECUTE_READWRITE);
@@ -147,9 +146,9 @@ void TrainerBase::writProcess(LPVOID callF)
 	DWORD ttid = 0;
 	CreateRemoteThread(pid,NULL,0,(LPTHREAD_START_ROUTINE)PowerCallBase_l,0,0,&ttid);
 	Sleep(300);
-	BOOL test;
-	test = VirtualFreeEx(pid,PowerCallBase_l,0,MEM_RELEASE);
-	if (test==false){MessageBox(NULL,"请开启游戏!!","提示:",NULL);}
+	BOOL ret = 0;
+	ret = VirtualFreeEx(pid,PowerCallBase_l,0,MEM_RELEASE);
+	if (ret){ ::Beep(523, 400); }//do
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
