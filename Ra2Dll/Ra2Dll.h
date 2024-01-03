@@ -19,7 +19,7 @@ public:
 
 extern RA2DLL_API int nRa2Dll;
 
-RA2DLL_API int fnRa2Dll(void);
+extern "C" RA2DLL_API int fnRa2Dll(void);
 
 //地图全开
 void openAllMap();

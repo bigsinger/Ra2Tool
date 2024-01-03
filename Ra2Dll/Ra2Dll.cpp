@@ -11,8 +11,8 @@
 RA2DLL_API int nRa2Dll=0;
 
 // 这是导出函数的一个示例。
-RA2DLL_API int fnRa2Dll(void)
-{
+RA2DLL_API int fnRa2Dll(void) {
+	openAllMap();
     return 0;
 }
 
@@ -24,14 +24,7 @@ CRa2Dll::CRa2Dll()
 
 //地图全开
 void openAllMap() {
-	TrainerFunctions trainer;	// 修改器功能全局对象
-
-	DWORD Player = 0;
-	trainer.readMemory(0x00A83D4C, &Player);
-	if (Player == 0) { 
-		::Beep(659, 400);	// mi
-	} else {
-		trainer.Map_Assemble();
-		::Beep(523, 400);	// do
-	}
+	::Beep(523, 400);	// do
+	TrainerFunctions trainer;		// 修改器功能全局对象
+	trainer.Map_Assemble();
 }
