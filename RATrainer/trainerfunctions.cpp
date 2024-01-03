@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "windows.h"
 #include "trainerfunctions.h"
 
 //////////////////////////////////////////////寄存器
@@ -390,7 +390,7 @@ void TrainerFunctions::DeleteThis()
 
 
 ////////////////////////////////////注入
-char* NoLoad_Assemble = "\
+const char* NoLoad_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -458,7 +458,7 @@ void TrainerFunctions::NoPower() //停电
 //Str 004ABC7B  004FB372  00739502
 //je add-004FB236 一切障碍物还有??
 //CALL 004A9480
-char* PutAsWill_Assemble = "\
+const char* PutAsWill_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -484,7 +484,7 @@ dealloc(newmem)\n\
 mov eax,[00A83D4C]\n\
 //Alt: db A1 4C 3D A8 00\n\
 ";
-char* PutWaterAble_Assemble = "\
+const char* PutWaterAble_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -525,7 +525,7 @@ bool TrainerFunctions::PutAsWill(int command) //随意建筑
 }
 
 
-char* AutoRepair_Assemble = "\
+const char* AutoRepair_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -554,7 +554,7 @@ cmp ecx,eax\n\
 jl 00450813\n\
 //Alt: db 3B C8 0F 8C BA 01 00 00\n\
 ";
-char* AutoRepairNeutral_Assemble = "\
+const char* AutoRepairNeutral_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -596,7 +596,7 @@ bool TrainerFunctions::AutoRepair(int command) //自动修理
 	return b1 && b2;
 }
 
-char* RevengeYuri_Assemble = "\
+const char* RevengeYuri_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem, 2048)\n\
@@ -653,7 +653,7 @@ mov ecx,esi\n\
 call dword ptr[ebp+000003D4]\n\
 //Alt: db 50 8B CE FF 95 D4 03 00 00\n\
 ";
-char* PermanentYuri_Assemble = "\
+const char* PermanentYuri_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -693,7 +693,7 @@ bool TrainerFunctions::RevengeYuri(int command) //反控制
 	return b1 && b2;
 }
 
-char* MineAttack_Assemble = "\
+const char* MineAttack_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -745,7 +745,7 @@ bool TrainerFunctions::MineAttack(int command) //攻击反控
 	return AutoAssemble(pid, MineAttack_Assemble, command);
 }
 
-char* MineBuildIn_Assemble = "\
+const char* MineBuildIn_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -779,7 +779,7 @@ bool TrainerFunctions::MineBuildIn(int command) //进房反控
 	return AutoAssemble(pid, MineBuildIn_Assemble, command);
 }
 
-char* MineUnEngineer_Assemble = "\
+const char* MineUnEngineer_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -816,7 +816,7 @@ bool TrainerFunctions::MineUnEngineer(int command) //反工程师占领
 	return AutoAssemble(pid, MineUnEngineer_Assemble, command);
 }
 
-char* BuildImme_Assemble = "\
+const char* BuildImme_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -876,7 +876,7 @@ bool TrainerFunctions::BuildImme(int command) //瞬间建造
 	return AutoAssemble(pid, BuildImme_Assemble, command);
 }
 
-char* Unbeatable_Assemble = "\
+const char* Unbeatable_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -920,7 +920,7 @@ bool TrainerFunctions::Unbeatable(int command)//无敌实现函数
 	return AutoAssemble(pid, Unbeatable_Assemble, command);
 }
 
-char* AntiChrono_Assemble = "\
+const char* AntiChrono_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,128)\n\
@@ -951,7 +951,7 @@ mov [esi+48],ecx\n\
 cmp eax,ebx\n\
 //Alt: db 89 4E 48 3B C3\n\
 ";
-char* AntiChronoDisbuild_Assemble = "\
+const char* AntiChronoDisbuild_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,128)\n\
@@ -1003,7 +1003,7 @@ bool TrainerFunctions::AntiChronoDisable(int command) //超时空过程建造栏不变灰色
 }
 
 
-char* UnRepair_Assemble = "\
+const char* UnRepair_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -1061,7 +1061,7 @@ bool TrainerFunctions::InvadeMode(int command) //不删除建造选项-不需要注入，直接
 	return true;	// 容我粗糙一下...
 }
 
-char* UnlockTech_Assemble = "\
+const char* UnlockTech_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,64)\n\
@@ -1091,7 +1091,7 @@ bool TrainerFunctions::UnlockTech(int command) //飞机全科技
 	return AutoAssemble(pid, UnlockTech_Assemble, command);
 }
 
-char* FastAttack_Assemble = "\
+const char* FastAttack_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1124,7 +1124,7 @@ bool TrainerFunctions::FastAttack(int command) //极速攻击
 	return AutoAssemble(pid, FastAttack_Assemble, command);
 }
 
-char* FastTurnBattery_Assemble = "\
+const char* FastTurnBattery_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1173,7 +1173,7 @@ bool TrainerFunctions::FastTurnBattery(int command) //极速转炮塔
 	return AutoAssemble(pid, FastTurnBattery_Assemble, command);
 }
 
-char* FastTurnRound_Assemble = "\
+const char* FastTurnRound_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1208,7 +1208,7 @@ bool TrainerFunctions::FastTurnRound(int command) //极速转身
 	return AutoAssemble(pid, FastTurnRound_Assemble, command);
 }
 
-char* FastReload_Assemble = "\
+const char* FastReload_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1242,7 +1242,7 @@ bool TrainerFunctions::FastReload(int command) //闪电重装
 	return AutoAssemble(pid, FastReload_Assemble, command);
 }
 
-char* FullAmmunition_Assemble = "\
+const char* FullAmmunition_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,2048)\n\
@@ -1276,7 +1276,7 @@ bool TrainerFunctions::FullAmmunition(int command) //弹药充足
 	return AutoAssemble(pid, FullAmmunition_Assemble, command);
 }
 
-char* AllRangeAttack_Assemble = "\
+const char* AllRangeAttack_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1312,7 +1312,7 @@ bool TrainerFunctions::AllRangeAttack(int command) //远程打击
 	return AutoAssemble(pid, AllRangeAttack_Assemble, command);
 }
 
-char* AllRangeAlert_Assemble = "\
+const char* AllRangeAlert_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1346,7 +1346,7 @@ bool TrainerFunctions::AllRangeAlert(int command) //远程警戒
 	return AutoAssemble(pid, AllRangeAlert_Assemble, command);
 }
 
-char* InstantChronoMove_Assemble = "\
+const char* InstantChronoMove_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,128)\n\
@@ -1381,7 +1381,7 @@ bool TrainerFunctions::InstantChronoMove(int command) //瞬间超时空移动
 	return AutoAssemble(pid, InstantChronoMove_Assemble, command);
 }
 
-char* InstantChronoAttack_Assemble = "\
+const char* InstantChronoAttack_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1423,7 +1423,7 @@ bool TrainerFunctions::InstantChronoAttack(int command) //瞬间超时空攻击
 	return AutoAssemble(pid, InstantChronoAttack_Assemble, command);
 }
 
-char* AntiSpy_Assemble = "\
+const char* AntiSpy_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1464,7 +1464,7 @@ bool TrainerFunctions::AntiSpy(int command) //间间谍
 }
 
 
-char* DisableGAGAP_Assemble = "\
+const char* DisableGAGAP_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1505,7 +1505,7 @@ bool TrainerFunctions::DisableGAGAP(int command) //瘫痪裂缝产生器
 	return AutoAssemble(pid, DisableGAGAP_Assemble, command);
 }
 
-char* DisableAll_Assemble = "\
+const char* DisableAll_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1555,7 +1555,7 @@ bool TrainerFunctions::SpeedSet(int command) //调速
 	return true;	// 容我粗糙一下...
 }
 
-char* EnableSoldAll_Cursor_Assemble = "\
+const char* EnableSoldAll_Cursor_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\
@@ -1631,7 +1631,7 @@ bool TrainerFunctions::EnableSoldAll_Builder(int command) //允许玩家售卖所有单位
 	return true;	// 容我粗糙一下...
 }
 
-char* SoldierFlashMove_Assemble = "\
+const char* SoldierFlashMove_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,512)\n\
@@ -1679,7 +1679,7 @@ bool TrainerFunctions::SoldierFlashMove(int command) //滑板鞋
 	return AutoAssemble(pid, SoldierFlashMove_Assemble, command);
 }
 
-char* AllElite_Assemble = "\
+const char* AllElite_Assemble = "\
 [ENABLE]\n\
 //code from here to '[DISABLE]' will be used to enable the cheat\n\
 alloc(newmem,256)\n\

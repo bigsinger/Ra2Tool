@@ -1,0 +1,2 @@
+#define RA2DLL_API __declspec(dllexport)
+#define RA2DLL_API __declspec(dllimport)

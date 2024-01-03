@@ -1,10 +1,11 @@
 .vs/
 *.aps
 *.user
-RATrainer/Debug/*
-RATrainer/Release/*
+*.pdb
 Debug/*
 Release/*
+*/Debug/*
+*/Release/*
 *.rar
 *.zip
 Archive*

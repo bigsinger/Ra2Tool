@@ -14,11 +14,11 @@ public:
 	~TrainerBase() {
 	}
 
-	const PCHAR GameCaption;        //标题名
+	const char* GameCaption;        //标题名
 	HMODULE hDLL;	// aa_engine.dll
 	HANDLE pid; //进程句柄及权限
 
-	BOOL GetProcessIDFromName(char *name,LPDWORD id);
+	BOOL GetProcessIDFromName(const char *name,LPDWORD id);
 	DWORD getID();
 	BOOL IsGameRunning(DWORD mode);
 	BOOL readMemory(DWORD m,DWORD* dat);
@@ -30,7 +30,7 @@ public:
 	void jmpWritProc(LPVOID n,LPVOID m);
 	void writProcess(LPVOID callF);
 
-	bool AutoAssemble(HANDLE hProcess, char * aa_script, int command);
+	bool AutoAssemble(HANDLE hProcess, const char * aa_script, int command);
 	DWORD GetAddress(HANDLE hProcess, char * address_line);
 	char * Ver();
 };

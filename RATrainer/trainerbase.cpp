@@ -1,12 +1,12 @@
-#include "stdafx.h"
+#include "windows.h"
 #include "Psapi.h"
 #include "tlhelp32.h"
-#include "windows.h"
 #include "trainerbase.h"
+#include <Shlwapi.h>
 #pragma comment(lib,"Psapi.lib")
 
 
-BOOL TrainerBase::GetProcessIDFromName(char *name,LPDWORD id)
+BOOL TrainerBase::GetProcessIDFromName(const char *name,LPDWORD id)
 {
     //获得系统快照句柄 (通俗的讲, 就是得到当前的所有进程)   
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0) ;   
@@ -16,9 +16,8 @@ BOOL TrainerBase::GetProcessIDFromName(char *name,LPDWORD id)
     Process32First(hSnapShot, &pInfo) ; //从第一个进程开始循环   
     do   
     {   
-        //这里的 pszProcessName 为你的进程名称   
-        if(StrStrI(pInfo.szExeFile, name))   
-        {   
+        // 判断进程名是否包含 name 字符串
+		if ( strstr(pInfo.szExeFile, name) ){
             *id = pInfo.th32ProcessID ;    //id 就是你要的进程PID 了..   
 			return TRUE;
 		}   
@@ -155,8 +154,8 @@ void TrainerBase::writProcess(LPVOID callF) {
 ///////////////////////////////////////////////////////////////////////////////////
 
 // 调用AutoAssemble
-bool TrainerBase::AutoAssemble(HANDLE hProcess, char * aa_script, int command) {
-	typedef BOOL(FAR WINAPI *PROC1)(HANDLE, char*, int);
+bool TrainerBase::AutoAssemble(HANDLE hProcess, const char * aa_script, int command) {
+	typedef BOOL(FAR WINAPI *PROC1)(HANDLE, const char*, int);
 	PROC1 pAutoAssemble = (PROC1)GetProcAddress(hDLL, "AutoAssemble");
 	bool isSuccess = (pAutoAssemble)(hProcess, aa_script, command);
 	return isSuccess;
