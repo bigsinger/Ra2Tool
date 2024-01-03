@@ -159,21 +159,11 @@ BOOL TrainerFunctions::TobeGhost() //成为幽灵玩家
 //////////////////////////////////////////////////线程
 //全地图内联代码
 #pragma pack(1)
-void TrainerFunctions::Map_Assemble()
-{
-	_asm
-	{
-		//pushad
-		//mov eax,0x00A83D4C
-		//mov edx,[eax]
-		//mov ecx,0x0087F7E8
-		//push edx
-		//mov eax,0x00577D90
-		//call eax
-		//popad   
-
+void TrainerFunctions::Map_Assemble() {
+	_asm {
 		pushad
-		mov edx, [0x00A83D4C]
+		mov eax, 0x00A83D4C
+		mov edx, [eax]
 		mov ecx, 0x0087F7E8
 		push edx
 		mov eax,0x00577D90
