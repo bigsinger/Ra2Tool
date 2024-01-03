@@ -179,7 +179,6 @@ void TrainerFunctions::Map_Assemble()
 		mov eax,0x00577D90
 		call eax
 		popad
-		ret
 	}
 }
 #pragma pack(1)
