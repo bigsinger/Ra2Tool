@@ -22,6 +22,8 @@ public:
 	BOOL TobeGhost();
 	//创建线程
 	static void Map_Assemble();
+	static void RadarOn_Assemble();
+	static bool isGameRunning();
 	void AllMap();
 	static void NuclearBomb_Assemble();
 	void GetaNuclearBomb();

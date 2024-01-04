@@ -171,12 +171,47 @@ void TrainerFunctions::Map_Assemble() {
 		popad
 	}
 }
-#pragma pack(1)
+
+// 雷达全开 [[0x00A8B230] + 0x34A4] = 1
+void TrainerFunctions::RadarOn_Assemble() {
+	_asm {
+		pushad
+		mov eax, 0x00A8B230
+		mov eax, [eax]
+		mov byte ptr [eax + 0x34A4], 0x1
+		popad
+	}
+}
+
+// 判断游戏是否运行
+ bool TrainerFunctions::isGameRunning() {
+	 bool isRunning = false;
+
+	 __try {
+		 _asm {
+			 pushad
+			 mov eax, 0x00A83D4C
+			 mov eax, [eax]
+			 mov eax, 0x0087F7E8
+			 mov eax, [eax]
+			 popad
+		 }
+
+		 isRunning = true;
+	 } __except (EXCEPTION_EXECUTE_HANDLER) {
+		 isRunning = false;
+	 }
+	 return isRunning;
+}
+
+#pragma pack()
 
 void TrainerFunctions::AllMap() {
 	//地图全开
 	writProcess(Map_Assemble);
 }
+
+
 
 //额外核弹内联代码
 void TrainerFunctions::NuclearBomb_Assemble()

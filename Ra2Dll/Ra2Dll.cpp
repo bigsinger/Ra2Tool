@@ -17,14 +17,17 @@ RA2DLL_API int fnRa2Dll(void) {
 }
 
 // 这是已导出类的构造函数。
-CRa2Dll::CRa2Dll()
-{
+CRa2Dll::CRa2Dll() {
     return;
 }
 
 //地图全开
 void openAllMap() {
-	::Beep(523, 400);	// do
 	TrainerFunctions trainer;		// 修改器功能全局对象
-	trainer.Map_Assemble();
+	if (trainer.isGameRunning()) {
+		trainer.Map_Assemble();
+		trainer.RadarOn_Assemble();
+	} else {
+		::Beep(523, 400);	// do
+	}
 }
