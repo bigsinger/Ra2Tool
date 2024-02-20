@@ -2,8 +2,11 @@
 
 fork from https://github.com/AdjWang/RA2YurisRevengeTrainer
 
+原理参见：[RA2红色警戒红警2辅助](https://zhupite.com/sec/red-alert2.html)
 
 
+
+```
 【使用说明】
 1、运行exe
 2、进入游戏之后按下快捷键【ALT + H】即可，一定要进入游戏，保险起见是在出现基地之后，其他场景没测试过。
@@ -13,4 +16,5 @@ fork from https://github.com/AdjWang/RA2YurisRevengeTrainer
 
 
 2024年1月3日
+```
 
