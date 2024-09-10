@@ -183,6 +183,14 @@ void TrainerFunctions::RadarOn_Assemble() {
 	}
 }
 
+// 箱子：金钱
+void TrainerFunctions::SetBoxAllMoney() {
+	DWORD* p = (DWORD*)0x004833C4;
+	for (size_t i = 0; i < 0x12; i++) {
+		*(p + i) = 0x00482463;
+	}
+}
+
 // 判断游戏是否运行
  bool TrainerFunctions::isGameRunning() {
 	 bool isRunning = false;
