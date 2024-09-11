@@ -185,9 +185,25 @@ void TrainerFunctions::RadarOn_Assemble() {
 
 // 箱子：金钱
 void TrainerFunctions::SetBoxAllMoney() {
-	DWORD* p = (DWORD*)0x004833C4;
-	for (size_t i = 0; i < 0x12; i++) {
+	const size_t MethodTableCount = 0x12;
+	const SIZE_T dwSize = MethodTableCount * sizeof(DWORD);
+	const LPVOID lpAddress = (LPVOID)0x004833C4;
+
+	// 获取当前的保护属性
+	DWORD dwOldProtect = 0;
+	if (!VirtualProtect(lpAddress, dwSize, PAGE_EXECUTE_READWRITE, &dwOldProtect)) {
+		OutputDebugString("Failed 1!");
+		return;
+	}
+
+	DWORD* p = (DWORD*)lpAddress;
+	for (size_t i = 0; i < MethodTableCount; i++) {
 		*(p + i) = 0x00482463;
+	}
+
+	// 恢复原来的保护属性
+	if (!VirtualProtect(lpAddress, dwSize, dwOldProtect, &dwOldProtect)) {
+		OutputDebugString("Failed 2!");
 	}
 }
 
