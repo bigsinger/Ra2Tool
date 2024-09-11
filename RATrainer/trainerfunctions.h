@@ -36,55 +36,6 @@ public:
 	void MineChose();
 	static void DeleteThis_Assemble();
 	void DeleteThis();
-	//代码注入
-	bool NoLoad(int command);
-	void NoPower();		// 开发中，暂停使用
-	bool PutAsWill(int command);
-	bool AutoRepair(int command);
-
-
-	bool RevengeYuri(int command);
-	bool MineAttack(int command);
-	bool MineBuildIn(int command);
-	bool MineUnEngineer(int command);
-	bool BuildImme(int command);
-
-	bool Unbeatable(int command);
-	bool AntiChrono(int command);
-	bool AntiChronoDisable(int command);
-
-	bool UnRepair(int command);
-
-	bool InvadeMode(int command);
-
-	bool UnlockTech(int command);
-
-	bool FastAttack(int command);
-	bool FastTurnBattery(int command);
-	bool FastTurnRound(int command);
-	bool FastReload(int command);
-	bool FullAmmunition(int command);
-
-	bool AllRangeAttack(int command);
-	bool AllRangeAlert(int command);
-
-	bool InstantChronoMove(int command);
-	bool InstantChronoAttack(int command);
-
-	bool AntiSpy(int command);
-
-	bool DisableGAGAP(int command);
-
-	bool DisableAll(int command);
-
-	bool SpeedSet(int command);
-
-	bool EnableSoldAll_Cursor(int command);
-	bool EnableSoldAll_Belong(int command);
-	bool EnableSoldAll_Builder(int command);
-
-	bool SoldierFlashMove(int command);
-
-	bool AllElite(int command);
+	
 
 };
