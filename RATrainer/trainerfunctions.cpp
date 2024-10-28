@@ -193,7 +193,7 @@ void TrainerFunctions::SetBoxAllMoney() {
 
 	// 修改代码保护属性
 	DWORD dwOldProtect = 0;
-	if (VirtualProtect(MethodTableAddr, MethodTableSize, PAGE_EXECUTE_READWRITE, &dwOldProtect) == S_OK) {
+	if (VirtualProtect(MethodTableAddr, MethodTableSize, PAGE_EXECUTE_READWRITE, &dwOldProtect)) {
 
 		DWORD* p = (DWORD*)MethodTableAddr;
 		for (size_t i = 0; i < MethodTableCount; i++) {
@@ -209,14 +209,37 @@ void TrainerFunctions::SetBoxAllMoney() {
 	}
 }
 
-BOOL __cdecl setHook(LPVOID addr, DWORD newFunc) {
-	byte buff;
-	DWORD v4;
+#pragma pack(1)
+#pragma optimize("", off)
+BOOL setHook(LPVOID addr, DWORD newFunc) {
+	byte buff[5];
+	DWORD* offset = (DWORD*) & buff[1];
 	SIZE_T dwWritten[3];
 
-	buff = 0xE9;
-	v4 = newFunc - (DWORD)addr - 5;
-	return WriteProcessMemory(GetCurrentProcess(), addr, &buff, 5u, dwWritten);
+	buff[0] = 0xE9;
+	*offset = newFunc - (DWORD)addr - 5;
+
+	// 修改代码保护属性
+	DWORD dwOldProtect = 0;
+	if (VirtualProtect(addr, 5u, PAGE_EXECUTE_READWRITE, &dwOldProtect)) {
+
+		WriteProcessMemory(GetCurrentProcess(), addr, &buff, 5u, dwWritten);
+
+		// 恢复代码保护属性
+		if (!VirtualProtect(addr, 5u, dwOldProtect, &dwOldProtect)) {
+			DWORD error = GetLastError();
+			CHAR buffer[256];
+			sprintf_s(buffer, sizeof(buffer), "Failed 2! Error Code: %lu", error);
+			OutputDebugStringA(buffer);
+		}
+	} else {
+		DWORD error = GetLastError();
+		CHAR buffer[256];
+		sprintf_s(buffer, sizeof(buffer), "Failed 1! Error Code: %lu", error);
+		OutputDebugStringA(buffer);
+	}
+
+	return true;	
 }
 
 void __cdecl dbgOut(const char* Format, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10) {
@@ -229,14 +252,16 @@ void __cdecl dbgOut(const char* Format, int a2, int a3, int a4, int a5, int a6, 
 }
 
 bool TrainerFunctions::OpenLog() {
-	PVOID oldFunc = NULL;
+	void* oldFunc = NULL;
 	byte bak[5] = {};
 
 	OutputDebugStringA("[Ra2] OpenLog");
-	oldFunc = GetModuleHandleA(0) + 0x68E0;  // = 0x1A38 * 4
+	oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0;  // = 0x1A38 * 4
 	memcpy(&bak, oldFunc, 5u);
-	return setHook(oldFunc, (DWORD)dbgOut);
+	return setHook(oldFunc, (DWORD)&dbgOut);
 }
+#pragma optimize("", on)
+#pragma pack(4)
 
 
 // 判断游戏是否运行
