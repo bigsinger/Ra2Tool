@@ -20,11 +20,15 @@ public:
 	BOOL SuperOn();
 	void WinImme();
 	BOOL TobeGhost();
-	//创建线程
+
 	static void Map_Assemble();
 	static void RadarOn_Assemble();
 	static void SetBoxAllMoney();
 	static bool isGameRunning();
+	static bool OpenLog();
+
+
+
 	void AllMap();
 	static void NuclearBomb_Assemble();
 	void GetaNuclearBomb();

@@ -1,5 +1,6 @@
 #include "windows.h"
 #include "trainerfunctions.h"
+#include <stdio.h>
 
 //////////////////////////////////////////////寄存器
 BOOL TrainerFunctions::rSpeed(DWORD* pSpeed) //读取速度
@@ -207,6 +208,36 @@ void TrainerFunctions::SetBoxAllMoney() {
 		OutputDebugString("Failed 1!");
 	}
 }
+
+BOOL __cdecl setHook(LPVOID addr, DWORD newFunc) {
+	byte buff;
+	DWORD v4;
+	SIZE_T dwWritten[3];
+
+	buff = 0xE9;
+	v4 = newFunc - (DWORD)addr - 5;
+	return WriteProcessMemory(GetCurrentProcess(), addr, &buff, 5u, dwWritten);
+}
+
+void __cdecl dbgOut(const char* Format, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10) {
+	void* retaddr = NULL;
+	char buff1[1024] = {};
+	char buff2[1024] = {};
+	sprintf_s(buff1, Format, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+	sprintf_s(buff2, "[Ra2] %p %s", retaddr, buff1);
+	OutputDebugStringA(buff2);
+}
+
+bool TrainerFunctions::OpenLog() {
+	PVOID oldFunc = NULL;
+	byte bak[5] = {};
+
+	OutputDebugStringA("[Ra2] OpenLog");
+	oldFunc = GetModuleHandleA(0) + 0x68E0;  // = 0x1A38 * 4
+	memcpy(&bak, oldFunc, 5u);
+	return setHook(oldFunc, (DWORD)dbgOut);
+}
+
 
 // 判断游戏是否运行
  bool TrainerFunctions::isGameRunning() {

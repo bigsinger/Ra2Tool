@@ -27,7 +27,7 @@ void openAllMap() {
 	if (trainer.isGameRunning()) {
 		trainer.Map_Assemble();
 		trainer.RadarOn_Assemble();
-		trainer.SetBoxAllMoney();
+		//trainer.SetBoxAllMoney();
 	} else {
 		::Beep(523, 400);	// do
 	}
