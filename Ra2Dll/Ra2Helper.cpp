@@ -87,13 +87,15 @@ BOOL installHook(LPVOID addr, DWORD newFunc) {
 }
 
 void __cdecl log(const char* Format, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9) {
-	char buff1[1024] = {};
-	char buff2[1024] = {};
-	DWORD* pArgs = (DWORD*)((DWORD)&Format - 4);	//&p是参数栈的地址，&p-4是返回地址
+	if (!strstr(Format, "Theme")) {
+		char buff1[1024] = {};
+		char buff2[1024] = {};
+		DWORD* pArgs = (DWORD*)((DWORD)&Format - 4);	//&p是参数栈的地址，&p-4是返回地址
 
-	sprintf_s(buff1, Format, a1, a2, a3, a4, a5, a6, a7, a8, a9);
-	sprintf_s(buff2, "[Ra2] %08X %s", pArgs[0], buff1);
-	OutputDebugStringA(buff2);
+		sprintf_s(buff1, Format, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+		sprintf_s(buff2, "[Ra2] %08X %s", pArgs[0], buff1);
+		OutputDebugStringA(buff2);
+	}
 }
 
 byte backupCode[5] = {};
