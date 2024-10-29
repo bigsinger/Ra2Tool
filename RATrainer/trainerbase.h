@@ -1,10 +1,12 @@
-#ifndef __TRAINERBASE_H__
-#define __TRAINERBASE_H__
-
 #pragma once
 
 #define	RUNNING_SILENT	0
 #define	RUNNING_ALERT	1
+
+
+// ¥Ú”°¥ÌŒÛ–≈œ¢
+void printLastError(DWORD error, const char* tag = NULL);
+
 
 class TrainerBase
 {
@@ -34,5 +36,3 @@ public:
 	DWORD GetAddress(HANDLE hProcess, char * address_line);
 	char * Ver();
 };
-
-#endif //__TRAINERBASE_H__

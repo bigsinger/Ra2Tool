@@ -202,66 +202,52 @@ void TrainerFunctions::SetBoxAllMoney() {
 
 		// 恢复代码保护属性
 		if (!VirtualProtect(MethodTableAddr, MethodTableSize, dwOldProtect, &dwOldProtect)) {
-			OutputDebugString("Failed 2!");
+			printLastError(GetLastError(), "Failed 2!");
 		}
 	} else {
-		OutputDebugString("Failed 1!");
+		printLastError(GetLastError(), "Failed 1!");
 	}
 }
 
-#pragma pack(1)
 #pragma optimize("", off)
-BOOL setHook(LPVOID addr, DWORD newFunc) {
+BOOL installHook(LPVOID addr, DWORD newFunc) {
 	byte buff[5];
 	DWORD* offset = (DWORD*) & buff[1];
-	SIZE_T dwWritten[3];
+	DWORD dwWrittenSize = 0;
+	DWORD dwOldProtect = 0;
 
-	buff[0] = 0xE9;
+	buff[0] = 0xE9;	// jmp
 	*offset = newFunc - (DWORD)addr - 5;
 
-	// 修改代码保护属性
-	DWORD dwOldProtect = 0;
 	if (VirtualProtect(addr, 5u, PAGE_EXECUTE_READWRITE, &dwOldProtect)) {
-
-		WriteProcessMemory(GetCurrentProcess(), addr, &buff, 5u, dwWritten);
-
-		// 恢复代码保护属性
+		WriteProcessMemory(GetCurrentProcess(), addr, &buff, 5u, &dwWrittenSize);
 		if (!VirtualProtect(addr, 5u, dwOldProtect, &dwOldProtect)) {
-			DWORD error = GetLastError();
-			CHAR buffer[256];
-			sprintf_s(buffer, sizeof(buffer), "Failed 2! Error Code: %lu", error);
-			OutputDebugStringA(buffer);
+			printLastError(GetLastError(), "Failed 2!");
 		}
 	} else {
-		DWORD error = GetLastError();
-		CHAR buffer[256];
-		sprintf_s(buffer, sizeof(buffer), "Failed 1! Error Code: %lu", error);
-		OutputDebugStringA(buffer);
+		printLastError(GetLastError(), "Failed 1!");
 	}
 
 	return true;	
 }
 
-void __cdecl dbgOut(const char* Format, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10) {
-	void* retaddr = NULL;
+void __cdecl log(const char* Format, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9) {
 	char buff1[1024] = {};
 	char buff2[1024] = {};
-	sprintf_s(buff1, Format, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-	sprintf_s(buff2, "[Ra2] %p %s", retaddr, buff1);
+	sprintf_s(buff1, Format, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+	sprintf_s(buff2, "[Ra2] %s", buff1);
 	OutputDebugStringA(buff2);
 }
 
+byte backupCode[5] = {};
 bool TrainerFunctions::OpenLog() {
-	void* oldFunc = NULL;
-	byte bak[5] = {};
-
 	OutputDebugStringA("[Ra2] OpenLog");
-	oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0;  // = 0x1A38 * 4
-	memcpy(&bak, oldFunc, 5u);
-	return setHook(oldFunc, (DWORD)&dbgOut);
+
+	void* oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0; // 0x4068E0 是一个空函数，就一个retn
+	memcpy(&backupCode, oldFunc, 5u);
+	return installHook(oldFunc, (DWORD)&log);
 }
 #pragma optimize("", on)
-#pragma pack(4)
 
 
 // 判断游戏是否运行

@@ -3,7 +3,16 @@
 #include "tlhelp32.h"
 #include "trainerbase.h"
 #include <Shlwapi.h>
+#include <stdio.h>
 #pragma comment(lib,"Psapi.lib")
+
+
+// ¥Ú”°¥ÌŒÛ–≈œ¢
+void printLastError(DWORD error, const char* tag/* = NULL*/) {
+	char buffer[1024] = {};
+	sprintf_s(buffer, sizeof(buffer), "Tag: %s, Error Code: %lu", tag, error);
+	OutputDebugStringA(buffer);
+}
 
 
 BOOL TrainerBase::GetProcessIDFromName(const char *name,LPDWORD id)
