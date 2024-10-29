@@ -27,10 +27,7 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\RATrainer\trainerbase.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RATrainer\trainerfunctions.h">
+    <ClInclude Include="Ra2Helper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +41,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\RATrainer\trainerbase.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="..\RATrainer\trainerfunctions.cpp">
+    <ClCompile Include="Ra2Helper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

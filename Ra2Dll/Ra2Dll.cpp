@@ -4,32 +4,23 @@
 #include "pch.h"
 #include "framework.h"
 #include "Ra2Dll.h"
-#include "..\RATrainer\trainerfunctions.h"
+#include "Ra2Helper.h"
 
 
-// 这是导出变量的一个示例
-RA2DLL_API int nRa2Dll=0;
-
-// 这是导出函数的一个示例。
-RA2DLL_API int fnRa2Dll(void) {
-	openAllMap();
-    return 0;
-}
-
-// 这是已导出类的构造函数。
-CRa2Dll::CRa2Dll() {
-    return;
-}
-
-//地图全开
-void openAllMap() {
-	TrainerFunctions trainer;		// 修改器功能全局对象
-	if (trainer.isGameRunning()) {
-		trainer.Map_Assemble();
-		trainer.RadarOn_Assemble();
-		trainer.OpenLog();
+// 功能开启
+void Open() {
+	if (IsGameRunning()) {
+		OpenMap();
+		OpenRadar();
+		OpenLog();
 		//trainer.SetBoxAllMoney();
 	} else {
 		::Beep(523, 400);	// do
 	}
+}
+
+
+RA2DLL_API int fnRa2Dll(void) {
+	Open();
+	return 0;
 }

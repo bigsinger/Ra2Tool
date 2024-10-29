@@ -1,6 +1,6 @@
 # Ra2Tool
 
-fork from https://github.com/AdjWang/RA2YurisRevengeTrainer
+参考：[RA2YurisRevengeTrainer: 红色警戒2 尤里的复仇v1.001 内存修改器](https://github.com/AdjWang/RA2YurisRevengeTrainer)
 
 原理参见：[RA2红色警戒红警2辅助](https://zhupite.com/sec/red-alert2.html)
 

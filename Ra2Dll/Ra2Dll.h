@@ -10,16 +10,5 @@
 #define RA2DLL_API __declspec(dllimport)
 #endif
 
-// 此类是从 dll 导出的
-class RA2DLL_API CRa2Dll {
-public:
-	CRa2Dll(void);
-	// TODO: 在此处添加方法。
-};
-
-extern RA2DLL_API int nRa2Dll;
 
 extern "C" RA2DLL_API int fnRa2Dll(void);
-
-//地图全开
-void openAllMap();
