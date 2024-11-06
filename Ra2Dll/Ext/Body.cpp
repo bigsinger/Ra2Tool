@@ -29,6 +29,10 @@ bool EventExt::AddEvent()
 
 void EventExt::RespondEvent()
 {
+	char buff[1024] = {};
+	sprintf_s(buff, "[YRPP]RespondEvent Type: %d", this->Type);
+	OutputDebugString(buff);
+
 	switch (this->Type)
 	{
 	default:
