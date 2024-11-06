@@ -167,13 +167,26 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ext\Body.h" />
+    <ClInclude Include="Ext\Main.Config.h" />
+    <ClInclude Include="Ext\Main.h" />
+    <ClInclude Include="Ext\NetHack.h" />
+    <ClInclude Include="Ext\version.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Ra2Dll.h" />
     <ClInclude Include="Ra2Helper.h" />
+    <ClInclude Include="Utilities\Debug.h" />
+    <ClInclude Include="Utilities\DumperTypes.h" />
+    <ClInclude Include="Utilities\Macro.h" />
+    <ClInclude Include="Utilities\Patch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Ext\Body.cpp" />
+    <ClCompile Include="Ext\Main.Config.cpp" />
+    <ClCompile Include="Ext\Main.cpp" />
+    <ClCompile Include="Ext\NetHack.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -185,6 +198,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utilities\Debug.cpp" />
+    <ClCompile Include="Utilities\Patch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
