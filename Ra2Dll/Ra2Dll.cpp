@@ -14,11 +14,10 @@
 // 功能开启
 void Open() {
 	if (IsGameRunning()) {
-		{ // NetHack
-			Patch::Apply_CALL(0x7B3D75, NetHack::SendTo);   // UDPInterfaceClass::Message_Handler
-			Patch::Apply_CALL(0x7B3EEC, NetHack::RecvFrom); // UDPInterfaceClass::Message_Handler
-		}
-
+		//{ // NetHack
+		//	Patch::Apply_CALL(0x7B3D75, NetHack::SendTo);   // UDPInterfaceClass::Message_Handler
+		//	Patch::Apply_CALL(0x7B3EEC, NetHack::RecvFrom); // UDPInterfaceClass::Message_Handler
+		//}
 		OpenMap();
 		OpenRadar();
 		OpenLog();
