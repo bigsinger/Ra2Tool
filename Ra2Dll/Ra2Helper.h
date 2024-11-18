@@ -8,5 +8,6 @@ void printLastError(DWORD error, const char* tag = NULL);
 bool OpenLog();
 void OpenMap();
 void OpenRadar();
+void OpenTech();
 void SetBoxAllMoney();
 bool IsGameRunning();

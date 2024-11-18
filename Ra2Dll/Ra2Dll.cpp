@@ -20,7 +20,8 @@ void Open() {
 		//}
 		OpenMap();
 		OpenRadar();
-		OpenLog();
+		OpenTech();
+		//OpenLog();
 		//trainer.SetBoxAllMoney();
 	} else {
 		::Beep(523, 400);	// do

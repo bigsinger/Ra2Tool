@@ -39,6 +39,49 @@ void OpenRadar() {
 	}
 }
 
+void _openTechOne(int objType, int index) {
+	_asm {
+		pushad
+		mov ecx, 0x0087F7E8
+		push index
+		push objType
+		mov eax, 0x006A6300
+		call eax
+		popad
+	}
+}
+
+void _openTechAll(int objType, int count) {
+	_asm {
+		pushad
+		xor esi, esi
+	label:
+		push esi
+		push objType			// 0x7是建筑；0x10(也可能是0xF)是步兵；0x28是车船；0x1F=武器
+		mov ecx, 0x0087F7E8
+		mov eax, 0x006A6300
+		call eax
+		inc esi
+		cmp esi, count			// 可以填一个编号上限值，参考上述ini
+		jle label
+		popad
+	}
+}
+
+void OpenTechMCV() {
+	_openTechOne(0x28, 0);
+	_openTechOne(0x28, 26);
+	_openTechOne(0x28, 54);
+}
+
+// 科技全开
+void OpenTech() {
+	//OpenTechMCV();
+	_openTechAll(7, 69);
+	_openTechAll(0xF, 65);
+	_openTechAll(0x28, 78);
+}
+
 // 所有捡箱子效果：金钱
 void SetBoxAllMoney() {
 	const LPVOID MethodTableAddr = (LPVOID)0x004833C4;
