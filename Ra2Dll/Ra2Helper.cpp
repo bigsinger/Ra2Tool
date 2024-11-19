@@ -70,9 +70,9 @@ void _openTechAll(int objType, int count) {
 
 // 科技全开
 void OpenTech() {
-	//_openTechAll(7, 69);		// 建筑全开
-	//_openTechAll(0x10, 30);	// 步兵全开
-	//_openTechAll(0x28, 40);	// 坦克全开
+	//_openTechAll(7, 69);				// 建筑全开
+	//_openTechAll(0x10, 30);			// 步兵全开
+	//_openTechAll(0x28, 40);			// 坦克全开
 
 	_openTechOne(0x28, 0);		// 盟军基地车
 	_openTechOne(0x28, 26);	// 苏军基地车
@@ -80,7 +80,7 @@ void OpenTech() {
 
 	_openTechOne(0x28, 2);		// 天启
 	_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
-	_openTechOne(0x28, 33);	// 光棱
+	_openTechOne(0x28, 35);	// 光棱坦克
 	_openTechOne(0x28, 36);	// 幻影
 	_openTechOne(0x28, 37);	// 多功能
 }
