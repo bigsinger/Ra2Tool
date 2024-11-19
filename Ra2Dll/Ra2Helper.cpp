@@ -79,8 +79,8 @@ void OpenTech() {
 	//_openTechOne(0x28, 54);			// 尤里基地车
 
 	_openTechOne(0x28, 2);		// 天启
-	_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
-	_openTechOne(0x28, 35);	// 光棱坦克
+	//_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
+	//_openTechOne(0x28, 35);	// 光棱坦克
 	_openTechOne(0x28, 36);	// 幻影
 	_openTechOne(0x28, 37);	// 多功能
 }
