@@ -21,6 +21,7 @@ void Open() {
 		OpenMap();
 		OpenRadar();
 		OpenTech();
+		OpenPsychicDetection();
 		//OpenLog();
 		//trainer.SetBoxAllMoney();
 	} else {

@@ -79,10 +79,32 @@ void OpenTech() {
 	//_openTechOne(0x28, 54);			// 尤里基地车
 
 	_openTechOne(0x28, 2);		// 天启
-	//_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
-	//_openTechOne(0x28, 35);	// 光棱坦克
+	//_openTechOne(0x28, 16);			// 恐怖机器人（蜘蛛）
+	//_openTechOne(0x28, 35);			// 光棱坦克
 	_openTechOne(0x28, 36);	// 幻影
 	_openTechOne(0x28, 37);	// 多功能
+}
+
+// 开启心灵探测
+void OpenPsychicDetection() {
+	_asm {
+		pushad
+		mov eax, 0x00A8ECC8
+		mov eax, [eax]				//选中单位的数量
+		cmp eax, 0					//是否有选中单位
+		je exit1
+		mov eax, dword ptr[0x00A8ECBC]
+		mov eax, [eax]				// +0
+		mov eax, [eax]				// +0
+		cmp eax, 0x007E3EBC			// Building vt
+		jnz exit1
+		mov eax, dword ptr[0x00A8ECBC]
+		mov eax, [eax]				// +0
+		mov eax, [eax + 0x520]		// +0x520
+		mov word ptr[eax + 0x170C], 0x7FFF	// 0x170C PsychicDetectionRadius
+	exit1:
+		popad
+	}
 }
 
 // 所有捡箱子效果：金钱
