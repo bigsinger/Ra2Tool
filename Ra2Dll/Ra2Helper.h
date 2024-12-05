@@ -10,5 +10,6 @@ void OpenMap();
 void OpenRadar();
 void OpenTech();
 void OpenPsychicDetection();
+void GiveMeMoney();
 void SetBoxAllMoney();
 bool IsGameRunning();

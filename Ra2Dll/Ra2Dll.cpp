@@ -20,8 +20,9 @@ void Open() {
 		//}
 		OpenMap();
 		OpenRadar();
-		OpenTech();
+		//OpenTech();
 		OpenPsychicDetection();
+		//GiveMeMoney();
 		//OpenLog();
 		//trainer.SetBoxAllMoney();
 	} else {

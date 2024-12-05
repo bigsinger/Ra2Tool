@@ -109,6 +109,16 @@ void OpenPsychicDetection() {
 	}
 }
 
+void GiveMeMoney() {
+	_asm {
+		pushad
+		mov eax, 0x00A83D4C
+		mov eax, [eax]
+		mov dword ptr[eax + 0x30C], 0x7FFFFFFF
+		popad
+	}
+}
+
 // 所有捡箱子效果：金钱
 void SetBoxAllMoney() {
 	const LPVOID MethodTableAddr = (LPVOID)0x004833C4;
