@@ -3,7 +3,7 @@
 #include "Ra2Helper.h"
 
 
-// ´òÓ¡´íÎóĞÅÏ¢
+// æ‰“å°é”™è¯¯ä¿¡æ¯
 void printLastError(DWORD error, const char* tag/* = NULL*/) {
 	char buffer[1024] = {};
 	sprintf_s(buffer, sizeof(buffer), "Tag: %s, Error Code: %lu", tag, error);
@@ -13,7 +13,7 @@ void printLastError(DWORD error, const char* tag/* = NULL*/) {
 //////////////////////////////////////////////////
 
 
-//È«µØÍ¼ÄÚÁª´úÂë
+//å…¨åœ°å›¾å†…è”ä»£ç 
 #pragma pack(1)
 void OpenMap() {
 	_asm {
@@ -28,7 +28,7 @@ void OpenMap() {
 	}
 }
 
-// À×´ïÈ«¿ª [[0x00A8B230] + 0x34A4] = 1
+// é›·è¾¾å…¨å¼€ [[0x00A8B230] + 0x34A4] = 1
 void OpenRadar() {
 	_asm {
 		pushad
@@ -57,41 +57,43 @@ void _openTechAll(int objType, int count) {
 		xor esi, esi
 	label:
 		push esi
-		push objType			// 0x7ÊÇ½¨Öş£»0x10(Ò²¿ÉÄÜÊÇ0xF)ÊÇ²½±ø£»0x28ÊÇ³µ´¬£»0x1F=ÎäÆ÷
+		push objType			// 0x7æ˜¯å»ºç­‘ï¼›0x10(ä¹Ÿå¯èƒ½æ˜¯0xF)æ˜¯æ­¥å…µï¼›0x28æ˜¯è½¦èˆ¹ï¼›0x1F=æ­¦å™¨
 		mov ecx, 0x0087F7E8
 		mov eax, 0x006A6300
 		call eax
 		inc esi
-		cmp esi, count			// ¿ÉÒÔÌîÒ»¸ö±àºÅÉÏÏŞÖµ£¬²Î¿¼ÉÏÊöini
+		cmp esi, count			// å¯ä»¥å¡«ä¸€ä¸ªç¼–å·ä¸Šé™å€¼ï¼Œå‚è€ƒä¸Šè¿°ini
 		jle label
 		popad
 	}
 }
 
-// ¿Æ¼¼È«¿ª
+// ç§‘æŠ€å…¨å¼€
 void OpenTech() {
-	//_openTechAll(7, 69);				// ½¨ÖşÈ«¿ª
-	//_openTechAll(0x10, 30);			// ²½±øÈ«¿ª
-	//_openTechAll(0x28, 40);			// Ì¹¿ËÈ«¿ª
+	//_openTechAll(7, 69);				// å»ºç­‘å…¨å¼€
+	//_openTechAll(0x10, 30);			// æ­¥å…µå…¨å¼€
+	//_openTechAll(0x28, 40);			// å¦å…‹å…¨å¼€
 
-	_openTechOne(0x28, 0);		// ÃË¾ü»ùµØ³µ
-	_openTechOne(0x28, 26);	// ËÕ¾ü»ùµØ³µ
-	//_openTechOne(0x28, 54);			// ÓÈÀï»ùµØ³µ
+	_openTechOne(0x28, 0);		// ç›Ÿå†›åŸºåœ°è½¦
+	_openTechOne(0x28, 26);	// è‹å†›åŸºåœ°è½¦
+	//_openTechOne(0x28, 54);			// å°¤é‡ŒåŸºåœ°è½¦
 
-	_openTechOne(0x28, 2);		// ÌìÆô
-	//_openTechOne(0x28, 16);			// ¿Ö²À»úÆ÷ÈË£¨Ö©Öë£©
-	//_openTechOne(0x28, 35);			// ¹âÀâÌ¹¿Ë
-	_openTechOne(0x28, 36);	// »ÃÓ°
-	_openTechOne(0x28, 37);	// ¶à¹¦ÄÜ
+	_openTechOne(0x28, 2);		// å¤©å¯
+	_openTechOne(0x28, 14);	// V3
+	//_openTechOne(0x28, 15);	// åŸºæ´›å¤«
+	_openTechOne(0x28, 16);	// ææ€–æœºå™¨äººï¼ˆèœ˜è››ï¼‰
+	_openTechOne(0x28, 34);	// å…‰æ£±å¦å…‹
+	_openTechOne(0x28, 36);	// å¹»å½±
+	_openTechOne(0x28, 37);	// å¤šåŠŸèƒ½
 }
 
-// ¿ªÆôĞÄÁéÌ½²â
+// å¼€å¯å¿ƒçµæ¢æµ‹
 void OpenPsychicDetection() {
 	_asm {
 		pushad
 		mov eax, 0x00A8ECC8
-		mov eax, [eax]				//Ñ¡ÖĞµ¥Î»µÄÊıÁ¿
-		cmp eax, 0					//ÊÇ·ñÓĞÑ¡ÖĞµ¥Î»
+		mov eax, [eax]				//é€‰ä¸­å•ä½çš„æ•°é‡
+		cmp eax, 0					//æ˜¯å¦æœ‰é€‰ä¸­å•ä½
 		je exit1
 		mov eax, 0x00A8ECBC
 		mov eax, [eax]
@@ -119,14 +121,14 @@ void GiveMeMoney() {
 	}
 }
 
-// ËùÓĞ¼ñÏä×ÓĞ§¹û£º½ğÇ®
+// æ‰€æœ‰æ¡ç®±å­æ•ˆæœï¼šé‡‘é’±
 void SetBoxAllMoney() {
 	const LPVOID MethodTableAddr = (LPVOID)0x004833C4;
 	const size_t MethodTableCount = 0x12;
 	const SIZE_T MethodTableSize = MethodTableCount * sizeof(DWORD);
-	const DWORD JumpToAddr = 0x00482463;	// ¼ñµ½µÄÊÇ½ğÇ®µÄÌø×ªµØÖ·
+	const DWORD JumpToAddr = 0x00482463;	// æ¡åˆ°çš„æ˜¯é‡‘é’±çš„è·³è½¬åœ°å€
 
-	// ĞŞ¸Ä´úÂë±£»¤ÊôĞÔ
+	// ä¿®æ”¹ä»£ç ä¿æŠ¤å±æ€§
 	DWORD dwOldProtect = 0;
 	if (VirtualProtect(MethodTableAddr, MethodTableSize, PAGE_EXECUTE_READWRITE, &dwOldProtect)) {
 
@@ -135,7 +137,7 @@ void SetBoxAllMoney() {
 			*(p + i) = JumpToAddr;
 		}
 
-		// »Ö¸´´úÂë±£»¤ÊôĞÔ
+		// æ¢å¤ä»£ç ä¿æŠ¤å±æ€§
 		if (!VirtualProtect(MethodTableAddr, MethodTableSize, dwOldProtect, &dwOldProtect)) {
 			printLastError(GetLastError(), "Failed 2!");
 		}
@@ -170,7 +172,7 @@ void __cdecl log(const char* Format, int a1, int a2, int a3, int a4, int a5, int
 	if (!strstr(Format, "Theme")) {
 		char buff1[1024] = {};
 		char buff2[1024] = {};
-		DWORD* pArgs = (DWORD*)((DWORD)&Format - 4);	//&pÊÇ²ÎÊıÕ»µÄµØÖ·£¬&p-4ÊÇ·µ»ØµØÖ·
+		DWORD* pArgs = (DWORD*)((DWORD)&Format - 4);	//&pæ˜¯å‚æ•°æ ˆçš„åœ°å€ï¼Œ&p-4æ˜¯è¿”å›åœ°å€
 
 		sprintf_s(buff1, Format, a1, a2, a3, a4, a5, a6, a7, a8, a9);
 		sprintf_s(buff2, "[Ra2] %08X %s", pArgs[0], buff1);
@@ -182,14 +184,14 @@ byte backupCode[5] = {};
 bool OpenLog() {
 	OutputDebugStringA("[Ra2] OpenLog");
 
-	void* oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0; // 0x4068E0 ÊÇÒ»¸ö¿Õº¯Êı£¬¾ÍÒ»¸öretn
+	void* oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0; // 0x4068E0 æ˜¯ä¸€ä¸ªç©ºå‡½æ•°ï¼Œå°±ä¸€ä¸ªretn
 	memcpy(&backupCode, oldFunc, 5u);
 	return installHook(oldFunc, (DWORD)&log);
 }
 #pragma optimize("", on)
 
 
-// ÅĞ¶ÏÓÎÏ·ÊÇ·ñÔËĞĞ
+// åˆ¤æ–­æ¸¸æˆæ˜¯å¦è¿è¡Œ
  bool IsGameRunning() {
 	 bool isRunning = false;
 
