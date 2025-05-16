@@ -82,6 +82,7 @@ void OpenTech() {
 	_openTechOne(0x28, 14);	// V3
 	//_openTechOne(0x28, 15);	// 基洛夫
 	_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
+	_openTechOne(0x28, 27);	// 坦克杀手
 	_openTechOne(0x28, 34);	// 光棱坦克
 	_openTechOne(0x28, 36);	// 幻影
 	_openTechOne(0x28, 37);	// 多功能
