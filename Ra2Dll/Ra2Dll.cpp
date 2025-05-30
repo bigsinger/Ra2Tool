@@ -22,6 +22,7 @@ void Open() {
 		OpenRadar();
 		OpenTech();
 		OpenPsychicDetection();
+		ClearBeacons();
 		//GiveMeMoney();
 		//OpenLog();
 		//trainer.SetBoxAllMoney();

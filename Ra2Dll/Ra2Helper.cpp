@@ -93,24 +93,54 @@ void OpenPsychicDetection() {
 	_asm {
 		pushad
 		mov eax, 0x00A8ECC8
-		mov eax, [eax]				//选中单位的数量
-		cmp eax, 0					//是否有选中单位
+		mov eax, [eax]					//选中单位的数量
+		cmp eax, 0						//是否有选中单位
 		je exit1
 		mov eax, 0x00A8ECBC
 		mov eax, [eax]
-		mov eax, [eax]				// +0
-		mov eax, [eax]				// +0
-		cmp eax, 0x007E3EBC			// Building vt
+		mov eax, [eax]					// +0
+		mov eax, [eax]					// +0
+		cmp eax, 0x007E3EBC				// Building vt
 		jnz exit1
 		mov eax, 0x00A8ECBC
 		mov eax, [eax]
-		mov eax, [eax]				// +0
-		mov eax, [eax + 0x520]		// +0x520
+		mov eax, [eax]					// +0
+		mov eax, [eax + 0x520]			// +0x520
 		mov word ptr[eax + 0x170C], 0x7FFF	// 0x170C PsychicDetectionRadius
 	exit1:
 		popad
 	}
 }
+
+// 删除信标：每次调用只清除一个信标
+void _clearBeacon() {
+	_asm {
+		pushad
+		mov ecx, 0x0089C3B0
+		push - 1
+		push 0
+		mov eax, 0x004311C0
+		call eax
+		popad
+	}
+}
+
+// 清除信标：一次批量清除玩家自己的3个信标
+// 004FC1C6: sub_431410(dword_89C3B0, *(_DWORD *)(dword_A83D4C + 0x30));
+void ClearBeacons() {
+	_asm {
+		pushad
+		mov     eax, 0x00A83D4C
+		mov     eax, [eax]
+		mov     eax, [eax + 0x30]
+		push    eax
+		mov     ecx, 0x0089C3B0
+		mov eax, 0x00431410
+		call eax
+		popad
+	}
+}
+
 
 void GiveMeMoney() {
 	_asm {
