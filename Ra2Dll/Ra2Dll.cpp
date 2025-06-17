@@ -5,6 +5,7 @@
 #include "framework.h"
 #include "Ra2Dll.h"
 #include "Ra2Helper.h"
+#include "AutoRepair.h"
 
 #include <Utilities/Debug.h>
 #include <Utilities/Macro.h>
@@ -23,6 +24,7 @@ void Open() {
 		OpenTech();
 		OpenPsychicDetection();
 		ClearBeacons();
+		OpenAutoRepair(); // 自动修理
 		//GiveMeMoney();
 		//OpenLog();
 		//trainer.SetBoxAllMoney();

@@ -14,3 +14,4 @@ void ClearBeacons();
 void GiveMeMoney();
 void SetBoxAllMoney();
 bool IsGameRunning();
+void Uninstall();

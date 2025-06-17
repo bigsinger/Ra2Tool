@@ -1,6 +1,9 @@
-#include "windows.h"
+﻿#include "windows.h"
 #include <stdio.h>
 #include "Ra2Helper.h"
+#include "AutoRepair.h"
+#include <EventClass.h>
+#include <HouseClass.h>
 
 
 // 打印错误信息
@@ -141,6 +144,7 @@ void ClearBeacons() {
 	}
 }
 
+/////////////////////////////////////////
 
 void GiveMeMoney() {
 	_asm {
@@ -177,6 +181,11 @@ void SetBoxAllMoney() {
 	}
 }
 
+// 卸载时调用
+void Uninstall() {
+	CloseAutoRepair();
+}
+
 #pragma optimize("", off)
 BOOL installHook(LPVOID addr, DWORD newFunc) {
 	byte buff[5];
@@ -199,7 +208,7 @@ BOOL installHook(LPVOID addr, DWORD newFunc) {
 	return true;	
 }
 
-void __cdecl log(const char* Format, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9) {
+void __cdecl ra2log(const char* Format, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9) {
 	if (!strstr(Format, "Theme")) {
 		char buff1[1024] = {};
 		char buff2[1024] = {};
@@ -217,7 +226,7 @@ bool OpenLog() {
 
 	void* oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0; // 0x4068E0 是一个空函数，就一个retn
 	memcpy(&backupCode, oldFunc, 5u);
-	return installHook(oldFunc, (DWORD)&log);
+	return installHook(oldFunc, (DWORD)&ra2log);
 }
 #pragma optimize("", on)
 

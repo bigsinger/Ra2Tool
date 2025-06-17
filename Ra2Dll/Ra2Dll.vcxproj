@@ -171,6 +171,7 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutoRepair.h" />
     <ClInclude Include="Ext\Body.h" />
     <ClInclude Include="Ext\Main.Config.h" />
     <ClInclude Include="Ext\Main.h" />
@@ -186,6 +187,7 @@
     <ClInclude Include="Utilities\Patch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AutoRepair.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Ext\Body.cpp" />
     <ClCompile Include="Ext\Main.Config.cpp" />
