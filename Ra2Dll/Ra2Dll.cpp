@@ -21,9 +21,9 @@ void Open() {
 		//}
 		OpenMap();
 		OpenRadar();
-		OpenTech();
+		//OpenTech();
 		OpenPsychicDetection();
-		ClearBeacons();
+		//ClearBeacons();
 		OpenAutoRepair(); // 自动修理
 		//GiveMeMoney();
 		//OpenLog();
