@@ -3,6 +3,7 @@
 // ¥Ú”°¥ÌŒÛ–≈œ¢
 void printLastError(DWORD error, const char* tag = NULL);
 
+extern HINSTANCE g_thisModule;
 
 
 bool OpenLog();
@@ -14,4 +15,6 @@ void ClearBeacons();
 void GiveMeMoney();
 void SetBoxAllMoney();
 bool IsGameRunning();
+
+void Install(); 
 void Uninstall();

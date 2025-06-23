@@ -6,6 +6,8 @@
 #include <HouseClass.h>
 
 
+HINSTANCE g_thisModule = NULL;
+
 // 打印错误信息
 void printLastError(DWORD error, const char* tag/* = NULL*/) {
 	char buffer[1024] = {};
@@ -179,6 +181,10 @@ void SetBoxAllMoney() {
 	} else {
 		printLastError(GetLastError(), "Failed 1!");
 	}
+}
+
+void Install() {
+	InitToolWindow();
 }
 
 // 卸载时调用

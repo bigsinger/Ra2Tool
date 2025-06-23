@@ -22,7 +22,6 @@ void Open() {
 		//}
 		OpenMap();
 		OpenRadar();
-		InitToolWindow();
 		//OpenTech();
 		//OpenPsychicDetection();
 		//ClearBeacons();
