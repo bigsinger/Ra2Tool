@@ -6,6 +6,7 @@
 #include "Ra2Dll.h"
 #include "Ra2Helper.h"
 #include "AutoRepair.h"
+#include "ToolWindow.h"
 
 #include <Utilities/Debug.h>
 #include <Utilities/Macro.h>
@@ -21,10 +22,11 @@ void Open() {
 		//}
 		OpenMap();
 		OpenRadar();
+		InitToolWindow();
 		//OpenTech();
-		OpenPsychicDetection();
+		//OpenPsychicDetection();
 		//ClearBeacons();
-		OpenAutoRepair(); // 自动修理
+		//AutoRepair(); // 自动修理
 		//GiveMeMoney();
 		//OpenLog();
 		//trainer.SetBoxAllMoney();

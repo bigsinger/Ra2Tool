@@ -1,7 +1,7 @@
 ﻿#include "windows.h"
 #include <stdio.h>
 #include "Ra2Helper.h"
-#include "AutoRepair.h"
+#include "ToolWindow.h"
 #include <EventClass.h>
 #include <HouseClass.h>
 
@@ -183,7 +183,7 @@ void SetBoxAllMoney() {
 
 // 卸载时调用
 void Uninstall() {
-	CloseAutoRepair();
+	UnInitToolWindow();
 }
 
 #pragma optimize("", off)

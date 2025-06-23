@@ -30,6 +30,996 @@
     <ClInclude Include="Ra2Helper.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitPlainXlat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitPlainXlatAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitPlainXlatZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitPlainXlatZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\Blitter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransDarken.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransDarkenZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransDarkenZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25Alpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25AlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25AlphaZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25AlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25ZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25ZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent25ZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50Alpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50AlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50AlphaZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50AlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTranslucent50NonzeroAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTranslucent50ZeroAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50ZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50ZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent50ZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75Alpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75AlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75AlphaZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75AlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75ZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75ZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransLucent75ZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTranslucentWriteAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransRemapDest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransRemapXlat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlatAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlatAlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlatAlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlatMultWriteAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlatWriteAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlatZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransXlatZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransZRemapXlat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransZRemapXlatAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransZRemapXlatAlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransZRemapXlatAlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransZRemapXlatZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\BlitTransZRemapXlatZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransDarken.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransDarkenZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransDarkenZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25Alpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25AlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25AlphaZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25AlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25ZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25ZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent25ZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50Alpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50AlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50AlphaZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50AlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50ZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50ZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent50ZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75Alpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75AlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75AlphaZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75AlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75ZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75ZReadWarp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransLucent75ZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransRemapDest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransRemapDestZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransRemapDestZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransRemapXlat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransRemapXlatZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransRemapXlatZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransXlat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransXlatAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransXlatAlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransXlatAlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransXlatZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransXlatZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlatAlpha.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlatAlphaZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlatAlphaZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlatZRead.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlatZReadWrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FileFormats\HVA.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FileFormats\SHP.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FileFormats\VXL.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FileFormats\_Loader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\Cast.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\CompileTime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\Enumerators.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\EnumFlags.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\Iterators.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\Macro.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\String.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\Template.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Helpers\VTable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AbstractClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AbstractTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AircraftClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AircraftTrackerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AircraftTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AirstrikeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AITriggerTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AlphaLightingRemapClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AlphaShapeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AnimClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\AnimTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ArrayClasses.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ASMMacros.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Audio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BasicStructures.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BitFont.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BitText.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BombClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BombListClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BounceClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BuildingClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BuildingLightClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BuildingTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BulletClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BulletTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CampaignClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CaptureManagerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CCFileClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CCINIClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CCToolTip.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CD.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CellClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CellSpread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CheckListClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ColorListClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ColorScheme.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CommandClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ControlClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Conversions.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ConvertClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CRC.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CRT.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Dir.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\DiscreteDistributionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\DiscreteSelectionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\DiskLaserClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\DisplayClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Drawing.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\DriveLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\DropPodLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\DropListClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\EBolt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\EditClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\EMPulseClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\EvadeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\EventClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Facing.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FactoryClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FileSystem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FlyLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FootClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\FPSCounter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Fundamentals.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GadgetClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GameClasses.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GameModeOptionsClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GameOptionsClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GameStrings.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GaugeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GeneralDefinitions.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GeneralStructures.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GenericList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GetCDClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\GScreenClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\HeapClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\HouseClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\HouseTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\IndexClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\InfantryClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\InfantryTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\InputManagerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Interfaces.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Ion.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\IonBlastClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\IPX.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\IPXManagerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\IsometricTileClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\IsometricTileTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\JumpjetLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Kamikaze.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\LaserDrawClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\LightSourceClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\LineTrail.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\LinkClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ListClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\LoadOptionsClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\LoadProgressManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\LocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MapClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MapSeedClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Matrix3D.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Memory.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MessageListClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MissionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MixFileClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MouseClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MPGameModeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\MPTeams.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\NeuronClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Notifications.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ObjectClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ObjectTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\OverlayClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\OverlayTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\PacketClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ParasiteClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ParticleClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ParticleSystemClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ParticleSystemTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ParticleTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\PCX.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Pipes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\PlanningTokenClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\PowerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Powerups.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\PreviewClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ProgressScreenClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\RadarClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\RadarEventClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\RadBeam.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\RadioClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\RadSiteClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Randomizer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\RocketLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\RulesClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ScenarioClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ScriptClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ScriptTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SessionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ShapeButtonClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ShipLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SidebarClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SideClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SlaveManagerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SliderClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SmudgeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SmudgeTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SpawnManagerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SpecificStructures.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SpotlightClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\StageClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Straws.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\StringTable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SuperClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SuperWeaponTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Surface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SwizzleManagerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Syringe.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TacticalClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TActionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TagClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TagTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TargetClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TaskForceClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TeamClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TeamTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TechnoClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TechnoTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TeleportLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TemporalClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TerrainClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TerrainTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TEventClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TextLabelClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Theater.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ThemeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TiberiumClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Timer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ToggleClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\ToolTipManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TransitionTimer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TriColorGaugeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TriggerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TriggerTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TunnelLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\UDPInterfaceClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\UI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\UnitClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\UnitTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Unsorted.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\VeinholeMonsterClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\VocClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\VoxClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\VoxelAnimClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\VoxelAnimTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WarheadTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WaveClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WaypointPathClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WeaponTypeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WinsockInterfaceClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WOLAPIInterfaces.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Wstring.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WWMessageBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WWMouseClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\YRAllocator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\YRCom.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\YRDDraw.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\YRMath.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\YRMathVector.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\YRPP.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\YRPPCore.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoRepair.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Ext\Body.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Ext\Main.Config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Ext\Main.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Ext\NetHack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Ext\version.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Debug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\DumperTypes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Macro.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Patch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ra2Dll.cpp">
@@ -42,6 +1032,33 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Ra2Helper.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(YRppDir)\StaticInits.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoRepair.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Ext\Body.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Ext\Main.Config.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Ext\Main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Ext\NetHack.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Debug.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities\Patch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolWindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

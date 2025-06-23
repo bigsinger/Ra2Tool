@@ -11,14 +11,6 @@ void log(DWORD error, const char* tag/* = NULL*/) {
 	OutputDebugStringA(buffer);
 }
 
-/////////////////////////////////////////
-// 全局变量
-static HANDLE hThreadAutoRepair = NULL;
-static HANDLE hStopEventAutoRepair = NULL;
-static BOOL isAutoRepairOpen = FALSE;
-/////////////////////////////////////////
-
-
 #pragma pack(1)
 
 // YRpp 函数重载有问题，这里再写一遍
@@ -57,55 +49,7 @@ void RepairNextBuilding() {
 	}
 }
 
-
-// 线程函数
-DWORD WINAPI ThreadRepairBuilding(LPVOID lpParam) {
-	while (1) {
-		// 等待1秒，或直到收到停止信号
-		DWORD waitResult = WaitForSingleObject(hStopEventAutoRepair, 1000);
-		if (waitResult == WAIT_OBJECT_0) {
-			break; // 收到停止事件，退出线程
-		}
-
-		RepairNextBuilding();
-	}
-	return 0;
-}
-
 // 开启自动修理功能
-void OpenAutoRepair() {
+void AutoRepair() {
 	RepairNextBuilding();
-	//if (!isAutoRepairOpen) {
-	//	hStopEventAutoRepair = CreateEvent(NULL, TRUE, FALSE, NULL); // 手动重置，初始为非信号
-	//	if (hStopEventAutoRepair) {
-	//		hThreadAutoRepair = CreateThread(NULL, 0, ThreadRepairBuilding, NULL, 0, NULL);
-	//		if (hThreadAutoRepair == NULL) {
-	//			fprintf(stderr, "创建线程失败！\n");
-	//			CloseHandle(hStopEventAutoRepair);
-	//			hStopEventAutoRepair = NULL;
-	//		} else {
-	//			isAutoRepairOpen = TRUE;
-	//			printf("线程已启动。\n");
-	//		}
-	//	}
-	//} else {
-	//	printf("线程已经在运行，无需重复启动。\n");
-	//}
 }
-
-// 关闭自动修理功能
-void CloseAutoRepair() {
-	//if (isAutoRepairOpen) {
-	//	SetEvent(hStopEventAutoRepair); // 通知线程停止
-
-	//	WaitForSingleObject(hThreadAutoRepair, INFINITE);
-	//	CloseHandle(hThreadAutoRepair);
-	//	CloseHandle(hStopEventAutoRepair);
-
-	//	hThreadAutoRepair = NULL;
-	//	hStopEventAutoRepair = NULL;
-	//	isAutoRepairOpen = FALSE;
-	//	printf("线程已优雅退出。\n");
-	//}
-}
-/////////////////////////////////////////
