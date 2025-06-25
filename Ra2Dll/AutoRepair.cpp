@@ -32,13 +32,11 @@ void MakeEventClass(EventClass* eventClass, int houseIndex, EventType eventType,
 #pragma pack()
 
 void RepairNextBuilding() {
-	log(1, "1111");
 	for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
 		BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
-		if (building->Health < building->GetType()->Strength) {
+		if (!building->IsBeingRepaired && building->Health < building->GetType()->Strength) {
 			//if (building->Health / building->GetType()->Strength < 0.7f) {
 			// .text:004AC0D8
-			log(1, "2222");
 			EventClass repairEvent(0, 0);
 			MakeEventClass(&repairEvent, HouseClass::CurrentPlayer->ArrayIndex, EventType::Repair,
 				static_cast<int>(building->UniqueID), static_cast<int>(AbstractType::Abstract));
