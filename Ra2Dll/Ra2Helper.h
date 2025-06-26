@@ -16,5 +16,5 @@ void GiveMeMoney();
 void SetBoxAllMoney();
 bool IsGameRunning();
 
-void Install(); 
+void Install(HMODULE hModule);
 void Uninstall();

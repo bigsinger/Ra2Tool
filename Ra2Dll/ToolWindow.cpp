@@ -1,9 +1,9 @@
-#include <windows.h>
-#include <iostream>
+﻿#include <windows.h>
 #include <process.h>
+#include "Utils.h"
+#include "Ra2Helper.h"
 #include "ToolWindow.h"
 #include "AutoRepair.h"
-#include "Ra2Helper.h"
 
 
 // 快捷键 ID
@@ -52,47 +52,47 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 // 处理 ALT + R 快捷键
 void OnAltR() {
-    AutoRepair();
+	AutoRepair();           // 自动修理
 }
 
 // 处理 ALT + M 快捷键
 void OnAltM() {
-    OpenMap();
-    OpenRadar();
+    GiveMeMoney();          // 钱多多
 }
 
 // 处理 ALT + P 快捷键
 void OnAltP() {
-    OpenPsychicDetection();
+	OpenPsychicDetection(); // 心灵感应
 }
 
 // 处理 ALT + B 快捷键
 void OnAltB() {
-    ClearBeacons();
+	ClearBeacons();         // 清除信标
 }
 
 // 处理 ALT + G 快捷键
 void OnAltG() {
-    OpenTech();
+	OpenTech();             // 科技全开
 }
 
 // 线程函数
 unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
 	//::CoInitialize(NULL);
     const char* className = "RA2ToolWindow";
-
+    HWND hwnd = NULL;
+    MSG msg = {};
     WNDCLASS wc = {};
     wc.lpfnWndProc = WndProc;
     wc.hInstance = g_thisModule;
     wc.lpszClassName = className;
 
     if (!RegisterClass(&wc)) {
-        std::cerr << "Window class registration failed!" << std::endl;
-        return 0;
+        Utils::Log("Window class registration failed!");
+        goto _exit;
     }
 
     // 创建窗口
-    HWND hwnd = CreateWindowEx(
+    hwnd = CreateWindowEx(
         WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,// 扩展样式
         className,                      // 窗口类名
         className,                      // 窗口标题
@@ -105,8 +105,8 @@ unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
     );
 
     if (!hwnd) {
-        std::cerr << "Window creation failed!" << std::endl;
-        return 0;
+        Utils::Log("Window creation failed!");
+        goto _exit;
     }
 
     // 隐藏窗口
@@ -115,37 +115,37 @@ unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
 
     // 注册全局快捷键
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_R, MOD_ALT, 'R')) {
-        std::cerr << "Failed to register ALT + R hotkey!" << std::endl;
-        return 0;
+        Utils::Log("Register ALT + R hotkey Failed!");
+        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_M, MOD_ALT, 'M')) {
-        std::cerr << "Failed to register ALT + M hotkey!" << std::endl;
-        return 0;
+        Utils::Log("Register ALT + M hotkey Failed!");
+        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_P, MOD_ALT, 'P')) {
-        std::cerr << "Failed to register ALT + P hotkey!" << std::endl;
-        return 0;
+        Utils::Log("Register ALT + P hotkey Failed!");
+        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_B, MOD_ALT, 'B')) {
-        std::cerr << "Failed to register ALT + B hotkey!" << std::endl;
-        return 0;
+        Utils::Log("Register ALT + B hotkey Failed!");
+        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_G, MOD_ALT, 'G')) {
-        std::cerr << "Failed to register ALT + G hotkey!" << std::endl;
-        return 0;
+        Utils::Log("Register ALT + G hotkey Failed!");
+		goto _exit;
     }
 
     // 消息循环
-    MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
+_exit:
     //::CoUninitialize();
     return 0;
 }
@@ -168,6 +168,5 @@ void UnInitToolWindow() {
     UnregisterHotKey(hwnd, HOTKEY_ALT_G);
 
     DestroyWindow(hwnd);
-
-    std::cout << "窗口已销毁，程序即将退出..." << std::endl;
+    Utils::Log("Destroy ToolWindow!");
 }

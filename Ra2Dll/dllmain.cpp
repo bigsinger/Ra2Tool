@@ -4,16 +4,11 @@
 #include "Ra2Helper.h"
 #include "AutoRepair.h"
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
-{
-    switch (ul_reason_for_call)
-    {
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
+    switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
-		g_thisModule = hModule;
-        Install();
+        g_thisModule = hModule;
+        Install(hModule);
         break;
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
@@ -23,4 +18,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-

@@ -1,15 +1,10 @@
-#include "windows.h"
-#include <stdio.h>
+﻿#include "windows.h"
+#include "Utils.h"
+#include "Config.h"
 #include "Ra2Helper.h"
 #include <EventClass.h>
 #include <HouseClass.h>
 
-// 打印错误信息
-void log(DWORD error, const char* tag/* = NULL*/) {
-	char buffer[1024] = {};
-	sprintf_s(buffer, sizeof(buffer), "Tag: %s, Error Code: %lu", tag, error);
-	OutputDebugStringA(buffer);
-}
 
 #pragma pack(1)
 
@@ -31,23 +26,27 @@ void MakeEventClass(EventClass* eventClass, int houseIndex, EventType eventType,
 
 #pragma pack()
 
+// .text:004AC0D8
 void RepairNextBuilding() {
+	int count = 0;
 	for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
 		BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
 		if (!building->IsBeingRepaired && building->Health < building->GetType()->Strength) {
 			//if (building->Health / building->GetType()->Strength < 0.7f) {
-			// .text:004AC0D8
 			EventClass repairEvent(0, 0);
 			MakeEventClass(&repairEvent, HouseClass::CurrentPlayer->ArrayIndex, EventType::Repair,
 				static_cast<int>(building->UniqueID), static_cast<int>(AbstractType::Abstract));
 			EventClass::AddEvent(repairEvent);
-			// 每次只修 1 个
-			break;
+			
+			if ((++count) >= Config::GetAutoRepairCount()) {
+				break;
+			}
 		}
 	}
 }
 
 // 开启自动修理功能
 void AutoRepair() {
+	Utils::Log("Auto Repairing");
 	RepairNextBuilding();
 }

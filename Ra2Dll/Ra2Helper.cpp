@@ -4,17 +4,10 @@
 #include "ToolWindow.h"
 #include <EventClass.h>
 #include <HouseClass.h>
-
+#include "Utils.h"
+#include "Config.h"
 
 HINSTANCE g_thisModule = NULL;
-
-// 打印错误信息
-void printLastError(DWORD error, const char* tag/* = NULL*/) {
-	char buffer[1024] = {};
-	sprintf_s(buffer, sizeof(buffer), "Tag: %s, Error Code: %lu", tag, error);
-	OutputDebugStringA(buffer);
-}
-
 //////////////////////////////////////////////////
 
 
@@ -176,14 +169,26 @@ void SetBoxAllMoney() {
 
 		// 恢复代码保护属性
 		if (!VirtualProtect(MethodTableAddr, MethodTableSize, dwOldProtect, &dwOldProtect)) {
-			printLastError(GetLastError(), "Failed 2!");
+			Utils::Log(GetLastError(), "Failed 2!");
 		}
 	} else {
-		printLastError(GetLastError(), "Failed 1!");
+		Utils::Log(GetLastError(), "Failed 1!");
 	}
 }
 
-void Install() {
+void Install(HMODULE hModule) {
+	Utils::Log("Ra2Dll Install");
+
+	// 设置配置文件路径
+	TCHAR szPath[MAX_PATH] = { 0 };
+	Utils::GetStartPath(hModule, szPath, MAX_PATH);
+	_tcscat_s(szPath, MAX_PATH, _T("Ra2Dll.ini"));
+	Config::SetConfigFilePath(szPath);
+
+	if (Config::isOpenRA2Log()) {
+		OpenLog();
+	}
+
 	InitToolWindow();
 }
 
@@ -205,10 +210,10 @@ BOOL installHook(LPVOID addr, DWORD newFunc) {
 	if (VirtualProtect(addr, 5u, PAGE_EXECUTE_READWRITE, &dwOldProtect)) {
 		WriteProcessMemory(GetCurrentProcess(), addr, &buff, 5u, &dwWrittenSize);
 		if (!VirtualProtect(addr, 5u, dwOldProtect, &dwOldProtect)) {
-			printLastError(GetLastError(), "Failed 2!");
+			Utils::Log(GetLastError(), "Failed 2!");
 		}
 	} else {
-		printLastError(GetLastError(), "Failed 1!");
+		Utils::Log(GetLastError(), "Failed 1!");
 	}
 
 	return true;	

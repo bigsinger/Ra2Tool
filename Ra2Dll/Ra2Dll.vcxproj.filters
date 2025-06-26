@@ -993,31 +993,16 @@
     <ClInclude Include="AutoRepair.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Ext\Body.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Ext\Main.Config.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Ext\Main.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Ext\NetHack.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Ext\version.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\Debug.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\DumperTypes.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Utilities\Macro.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Utilities\Patch.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1034,31 +1019,16 @@
     <ClCompile Include="Ra2Helper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="$(YRppDir)\StaticInits.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="AutoRepair.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Ext\Body.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Ext\Main.Config.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Ext\Main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Ext\NetHack.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Utilities\Debug.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Utilities\Patch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="ToolWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
