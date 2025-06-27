@@ -17,7 +17,7 @@ private:
 public:
 	static bool isAutoOpenMap() {
 		if (_iAutoMapFlag == UNINITED_FLAG) {
-			_iAutoMapFlag = ::GetPrivateProfileInt("main", "AutoOpenMap", 1, _configFilePath);
+			_iAutoMapFlag = ::GetPrivateProfileInt("main", "AutoOpenMap", TRUE, _configFilePath);
 		}
 		return _iAutoMapFlag > 0;
 	}
@@ -28,9 +28,21 @@ private:
 public:
 	static bool isOpenRA2Log() {
 		if (_iRA2LogFlag == UNINITED_FLAG) {
-			_iRA2LogFlag = ::GetPrivateProfileInt("main", "log", 0, _configFilePath);
+			_iRA2LogFlag = ::GetPrivateProfileInt("main", "log", FALSE, _configFilePath);
 		}
 		return _iRA2LogFlag > 0;
+	}
+
+
+private:
+	// 是否禁止隐身
+	static int _iRA2DisableDisguise;
+public:
+	static bool isDisableDisguise() {
+		if (_iRA2DisableDisguise == UNINITED_FLAG) {
+			_iRA2DisableDisguise = ::GetPrivateProfileInt("main", "DisableDisguise", TRUE, _configFilePath);
+		}
+		return _iRA2DisableDisguise > 0;
 	}
 
 private:
@@ -39,7 +51,7 @@ private:
 public:
 	static int isDebugMode() {
 		if (_iDebugFlag == UNINITED_FLAG) {
-			_iDebugFlag = ::GetPrivateProfileInt("main", "debug", 0, _configFilePath);
+			_iDebugFlag = ::GetPrivateProfileInt("main", "debug", FALSE, _configFilePath);
 		}
 		return _iDebugFlag > 0;
 	}
@@ -50,7 +62,7 @@ private:
 public:
 	static int GetAutoRepairCount() {
 		if (_iAutoRepairCount == UNINITED_FLAG) {
-			_iAutoRepairCount = ::GetPrivateProfileInt("main", "AutoRepairCount", 0, _configFilePath);
+			_iAutoRepairCount = ::GetPrivateProfileInt("main", "AutoRepairCount", 99, _configFilePath);
 		}
 		return _iAutoRepairCount;
 	}

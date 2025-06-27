@@ -4,8 +4,6 @@
 
 原理参见：[RA2红色警戒红警2辅助](https://zhupite.com/sec/red-alert2.html)
 
-
-
 # 使用说明
 
 - 启动成功后默认全图；
@@ -27,15 +25,15 @@
   ; log 是否开启红警游戏自身的日志输出，用于分析游戏逻辑，默认不开启；
   ; debug 是否开启日志模式，用户排错，默认不开启；
   ; AutoRepairCount 自动维修的建筑数量，默认全部维修，如果每次只维修一个请设置1；
+  ; DisableDisguise 是否禁止隐身，默认1；
   
   [main]
   AutoOpenMap=1
   log=0 
   debug=0
   AutoRepairCount=99
+  DisableDisguise=1
   ```
-  
-  
 
 # 更新记录
 

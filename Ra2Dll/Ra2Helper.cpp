@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include "Ra2Helper.h"
 #include "ToolWindow.h"
+#include <IPX.h>
 #include <EventClass.h>
 #include <HouseClass.h>
+#include <IPXManagerClass.h>
 #include "Utils.h"
 #include "Config.h"
 
@@ -176,6 +178,72 @@ void SetBoxAllMoney() {
 	}
 }
 
+// 强制显身，效果：幻影/间谍/隐身状态会被强显
+void DisableDisguise() {
+	for (int i = 0; i < TechnoTypeClass::Array->Count; i++) {
+		TechnoTypeClass::Array->GetItem(i)->CanDisguise = false;
+	}
+}
+
+void SendGlobalMessage_sub5410F0(IPXManagerClass* self, void* buf, int buflen, int a4, IPXAddressClass* address, int a6, int a7) {
+	__asm {
+		pushad
+		push a7
+		push a6
+		push address
+		push a4
+		push buflen
+		push buf
+		mov ecx, self
+		mov eax, 0x005410F0
+		call eax
+		popad
+	}
+}
+
+int32_t ComputeNameCRC(wchar_t* name) {
+	int32_t crc = 0u;
+	__asm {
+		pushad
+		mov ecx, name
+		mov eax, 0x005DAC00
+		call eax
+		mov crc, eax
+		popad
+	}
+	return crc;
+}
+
+// From .text:0055EDD2
+void SendChatMessage(const wchar_t *message, int nCbSize) {
+#if 0
+	// TODO: use self for now
+	NodeNameType* sender = SessionClass::Instance->Chat[0];
+	GlobalPacketType packet;
+	static_assert(sizeof(packet) == 455);
+	packet.Command = NetCommandType::NET_MESSAGE;
+	wcstombs(packet.Name, sender->Name, sizeof(packet.Name));
+	packet.GlobalPacketData.Message.Unknown = false;
+
+	memcpy(packet.GlobalPacketData.Message.Buf, message, nCbSize);
+	packet.GlobalPacketData.Message.PlayerColor = sender->Color;
+	int32_t name_crc = ComputeNameCRC(SessionClass::Instance->GameName);
+	packet.GlobalPacketData.Message.NameCRC = name_crc;
+
+	// Broadcast.
+	for (uint32_t i = 0; i < IPXManagerClass::Instance->NumConnections; i++) {
+		IPXConnClass* conn = IPXManagerClass::Instance->Connection[i];
+		SendGlobalMessage_sub5410F0(&IPXManagerClass::Instance, &packet, 455, 1,
+			&conn->Address, 0, 0);
+	}
+#endif // 0
+}
+
+void Chat(const wchar_t* message, int nCbSize) {
+	wchar_t msg[256] = L"我很菜 别打我~";
+	SendChatMessage(msg, sizeof(msg));
+}
+
 void Install(HMODULE hModule) {
 	Utils::Log("Ra2Dll Install");
 
@@ -187,6 +255,11 @@ void Install(HMODULE hModule) {
 
 	if (Config::isOpenRA2Log()) {
 		OpenLog();
+	}
+
+	if (Config::isDisableDisguise()) {
+		DisableDisguise();
+		Chat(NULL, 0);
 	}
 
 	InitToolWindow();
