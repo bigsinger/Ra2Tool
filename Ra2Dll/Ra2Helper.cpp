@@ -1,5 +1,6 @@
 ﻿#include "windows.h"
 #include <stdio.h>
+#include "Ra2Header.h"
 #include "Ra2Helper.h"
 #include "ToolWindow.h"
 #include <IPX.h>
@@ -240,7 +241,7 @@ void SendChatMessage(const wchar_t *message, int nCbSize) {
 	GlobalPacketType packet;
 	static_assert(sizeof(packet) == 455);
 	packet.Command = NetCommandType::NET_MESSAGE;
-	wcstombs(packet.Name, sender->Name, sizeof(packet.Name));
+	wcstombs((char *)packet.Name, sender->Name, sizeof(packet.Name));
 	packet.GlobalPacketData.Message.Unknown = false;
 
 	memcpy(packet.GlobalPacketData.Message.Buf, message, nCbSize);
@@ -251,7 +252,7 @@ void SendChatMessage(const wchar_t *message, int nCbSize) {
 	// Broadcast.
 	for (uint32_t i = 0; i < IPXManagerClass::Instance->NumConnections; i++) {
 		IPXConnClass* conn = IPXManagerClass::Instance->Connection[i];
-		SendGlobalMessage_sub5410F0(&IPXManagerClass::Instance, &packet, 455, 1,
+		SendGlobalMessage_sub5410F0(IPXManagerClass::Instance, &packet, 455, 1,
 			&conn->Address, 0, 0);
 	}
 #endif // 0
@@ -277,8 +278,8 @@ void Install(HMODULE hModule) {
 
 	if (Config::isDisableDisguise()) {
 		DisableDisguise();
-		//Chat(NULL, 0);
 	}
+	Chat(NULL, 0);
 
 	InitToolWindow();
 }
