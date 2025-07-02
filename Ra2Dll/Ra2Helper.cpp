@@ -90,25 +90,28 @@ void OpenTech() {
 
 // 开启心灵探测
 void OpenPsychicDetection() {
-	_asm {
-		pushad
-		mov eax, 0x00A8ECC8
-		mov eax, [eax]					//选中单位的数量
-		cmp eax, 0						//是否有选中单位
-		je exit1
-		mov eax, 0x00A8ECBC
-		mov eax, [eax]
-		mov eax, [eax]					// +0
-		mov eax, [eax]					// +0
-		cmp eax, 0x007E3EBC				// Building vt
-		jnz exit1
-		mov eax, 0x00A8ECBC
-		mov eax, [eax]
-		mov eax, [eax]					// +0
-		mov eax, [eax + 0x520]			// +0x520
-		mov word ptr[eax + 0x170C], 0x7FFF	// 0x170C PsychicDetectionRadius
-	exit1:
-		popad
+	__try {
+		_asm {
+			pushad
+			mov eax, 0x00A8ECC8
+			mov eax, [eax]					//选中单位的数量
+			cmp eax, 0						//是否有选中单位
+			je exit1
+			mov eax, 0x00A8ECBC
+			mov eax, [eax]
+			mov eax, [eax]					// +0
+			mov eax, [eax]					// +0
+			cmp eax, 0x007E3EBC				// Building vt
+			jnz exit1
+			mov eax, 0x00A8ECBC
+			mov eax, [eax]
+			mov eax, [eax]					// +0
+			mov eax, [eax + 0x520]			// +0x520
+			mov word ptr[eax + 0x170C], 0x7FFF	// 0x170C PsychicDetectionRadius
+		exit1:
+			popad
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
 	}
 }
 
