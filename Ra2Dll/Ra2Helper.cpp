@@ -183,8 +183,23 @@ void SetBoxAllMoney() {
 
 // 强制显身，效果：幻影/间谍/隐身状态会被强显
 void DisableDisguise() {
+#if 0
+	// 本段代码可能会崩溃
 	for (int i = 0; i < TechnoTypeClass::Array->Count; i++) {
 		TechnoTypeClass::Array->GetItem(i)->CanDisguise = false;
+	}
+#endif // 0
+
+	RulesClass::Instance->DefaultMirageDisguises.Clear();
+	// Unit [37]-MGTK-Mirage Tank
+	TechnoTypeClass* target_unit_type = ObjectTypeClass::GetTechnoType(AbstractType::Unit, 37);
+	RulesClass::Instance->DefaultMirageDisguises.AddItem(reinterpret_cast<TerrainTypeClass*>(target_unit_type));
+
+	for (int i = 0; i < UnitClass::Array->Count; i++) {
+		UnitClass* unit = UnitClass::Array->GetItem(i);
+		if (unit->GetTechnoType() == target_unit_type && unit->Disguise) {
+			unit->Disguise = target_unit_type;
+		}
 	}
 }
 
@@ -262,7 +277,7 @@ void Install(HMODULE hModule) {
 
 	if (Config::isDisableDisguise()) {
 		DisableDisguise();
-		Chat(NULL, 0);
+		//Chat(NULL, 0);
 	}
 
 	InitToolWindow();
