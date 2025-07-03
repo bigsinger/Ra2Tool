@@ -241,7 +241,7 @@ int32_t ComputeNameCRC(wchar_t* name) {
 void SendChatMessage(const wchar_t *message, int nCbSize) {
 #if 0
 	// TODO: use self for now
-	NodeNameType* sender = SessionClass::Instance->Chat[0];
+	NodeNameType* sender = SessionClass::Instance.Chat[0];
 	GlobalPacketType packet;
 	static_assert(sizeof(packet) == 455);
 	packet.Command = NetCommandType::NET_MESSAGE;
@@ -250,13 +250,13 @@ void SendChatMessage(const wchar_t *message, int nCbSize) {
 
 	memcpy(packet.GlobalPacketData.Message.Buf, message, nCbSize);
 	packet.GlobalPacketData.Message.PlayerColor = sender->Color;
-	int32_t name_crc = ComputeNameCRC(SessionClass::Instance->GameName);
+	int32_t name_crc = ComputeNameCRC(SessionClass::Instance.GameName);
 	packet.GlobalPacketData.Message.NameCRC = name_crc;
 
 	// Broadcast.
-	for (uint32_t i = 0; i < IPXManagerClass::Instance->NumConnections; i++) {
-		IPXConnClass* conn = IPXManagerClass::Instance->Connection[i];
-		SendGlobalMessage_sub5410F0(IPXManagerClass::Instance, &packet, 455, 1,
+	for (uint32_t i = 0; i < IPXManagerClass::Instance.NumConnections; i++) {
+		IPXConnClass* conn = IPXManagerClass::Instance.Connection[i];
+		SendGlobalMessage_sub5410F0(&IPXManagerClass::Instance, &packet, 455, 1,
 			&conn->Address, 0, 0);
 	}
 #endif // 0
