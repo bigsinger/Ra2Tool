@@ -268,13 +268,12 @@ void Chat(const wchar_t* message, int nCbSize) {
 }
 
 void Install(HMODULE hModule) {
-	Utils::Log("Ra2Dll Install");
-
 	// 设置配置文件路径
 	TCHAR szPath[MAX_PATH] = { 0 };
 	Utils::GetStartPath(hModule, szPath, MAX_PATH);
 	_tcscat_s(szPath, MAX_PATH, _T("Ra2Dll.ini"));
 	Config::SetConfigFilePath(szPath);
+	Utils::Log("Ra2Dll Install");
 
 	if (Config::isOpenRA2Log()) {
 		OpenLog();
