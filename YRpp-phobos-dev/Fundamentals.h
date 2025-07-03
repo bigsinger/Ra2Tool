@@ -6,7 +6,7 @@ included for them to be available.
 */
 namespace Unsorted
 {
-	static constexpr reference<int, 0xA8ED84> const CurrentFrame { };
+	DEFINE_REFERENCE(int, CurrentFrame, 0xA8ED84)
 
 	// The length of a cell in its isometric projection
 	// If an object's Height is above this value it's considered as in-air

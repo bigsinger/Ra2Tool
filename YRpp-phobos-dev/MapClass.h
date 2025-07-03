@@ -14,7 +14,7 @@ class WeaponTypeClass;
 class GroundType
 {
 public:
-	static constexpr reference<GroundType, 0x89EA40u, 12u> const Array {};
+	DEFINE_ARRAY_REFERENCE(GroundType, [12u], Array, 0x89EA40u)
 
 	static LandType __fastcall GetLandTypeFromName(const char* name)
 		{ JMP_STD(0x48DF80); }
@@ -154,7 +154,7 @@ public:
 class LogicClass : public LayerClass
 {
 public:
-	static constexpr reference<LogicClass, 0x87F778u> const Instance {};
+	DEFINE_REFERENCE(LogicClass, Instance, 0x87F778u)
 
 	virtual bool AddObject(ObjectClass* pObject, bool sorted) override
 		{ JMP_THIS(0x55BAA0); }
@@ -173,19 +173,19 @@ class NOVTABLE MapClass : public GScreenClass
 {
 public:
 	//Static
-	static constexpr constant_ptr<MapClass, 0x87F7E8u> const Instance{};
+	DEFINE_REFERENCE(MapClass, Instance, 0x87F7E8u)
 
-	static constexpr reference<CellClass, 0xABDC50u> const InvalidCell{};
+	DEFINE_REFERENCE(CellClass, InvalidCell, 0xABDC50u)
 
 	static const int MaxCells = 0x40000;
 
 	// this actually points to 5 vectors, one for each layer
-	static constexpr reference<LayerClass, 0x8A0360u, 5u> const ObjectsInLayers{};
+	DEFINE_ARRAY_REFERENCE(LayerClass, [5u], ObjectsInLayers, 0x8A0360u)
 
 	/// <summary>
 	/// Some sort of hardcoded constant lookup matrix with rows (0-8) representing CellClass Passability(Type) and columns are MovementZones, used to determine pathfinding behaviour.
 	/// </summary>
-	static constexpr reference<int[13u], 0x82A594u, 8u> const MovementAdjustArray { };
+	DEFINE_ARRAY_REFERENCE(int, [13][8], MovementAdjustArray, 0x82A594u)
 
 	static LayerClass* GetLayer(Layer lyr)
 	{
@@ -539,7 +539,7 @@ protected:
 
 public:
 	DWORD unknown_10;
-	void* unknown_pointer_14;
+	HashTable<DWORD,DWORD>* unknown_pointer_14;
 	void* MovementZones [13];
 	DWORD somecount_4C;
 	DynamicVectorClass<ZoneConnectionClass> ZoneConnections;
@@ -549,10 +549,8 @@ public:
 	DWORD unknown_74;
 	DWORD unknown_78;
 	DWORD unknown_7C;
-	DWORD unknown_80[3]; // somehow connected to the 3 vectors below
-	DynamicVectorClass<SubzoneTrackingStruct> SubzoneTracking1;
-	DynamicVectorClass<SubzoneTrackingStruct> SubzoneTracking2;
-	DynamicVectorClass<SubzoneTrackingStruct> SubzoneTracking3;
+	HashTable<DWORD, SubzoneConnectionStruct>* unknown_80[3]; // somehow connected to the 3 vectors below
+	DynamicVectorClass<SubzoneTrackingStruct> SubzoneTracking[3];
 	DynamicVectorClass<CellStruct> CellStructs1;
 	RectangleStruct MapRect;
 	RectangleStruct VisibleRect;

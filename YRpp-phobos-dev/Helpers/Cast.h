@@ -13,14 +13,14 @@ class FootClass;
 // either we use abstract_cast everywhere or remove abstract_cast and only use specific_cast and generic_cast.
 // what do you think?
 
-template <typename T>
+template <typename T, bool SkipNullCheck = false>
 __forceinline T specific_cast(AbstractClass* pAbstract) {
 	using Base = std::remove_pointer_t<T>;
 
-	return const_cast<Base*>(specific_cast<const Base*>(static_cast<const AbstractClass*>(pAbstract)));
+	return const_cast<Base*>(specific_cast<const Base*, SkipNullCheck>(static_cast<const AbstractClass*>(pAbstract)));
 };
 
-template <typename T>
+template <typename T, bool SkipNullCheck = false>
 __forceinline T specific_cast(const AbstractClass* pAbstract) {
 	using Base = std::remove_const_t<std::remove_pointer_t<T>>;
 
@@ -33,20 +33,23 @@ __forceinline T specific_cast(const AbstractClass* pAbstract) {
 	static_assert(!std::is_abstract<Base>::value,
 		"specific_cast: Abstract types (not fully implemented classes) are not supported.");
 
-	if(pAbstract && pAbstract->WhatAmI() == Base::AbsID) {
-		return static_cast<T>(pAbstract);
+	if constexpr (!SkipNullCheck)
+	{
+		if (!pAbstract)
+			return nullptr;
 	}
-	return nullptr;
+
+	return pAbstract->WhatAmI() == Base::AbsID ? static_cast<T>(pAbstract) : nullptr;
 };
 
-template <typename T>
+template <typename T, bool SkipNullCheck = false>
 __forceinline T generic_cast(AbstractClass* pAbstract) {
 	using Base = std::remove_pointer_t<T>;
 
-	return const_cast<Base*>(generic_cast<const Base*>(static_cast<const AbstractClass*>(pAbstract)));
+	return const_cast<Base*>(generic_cast<const Base*, SkipNullCheck>(static_cast<const AbstractClass*>(pAbstract)));
 };
 
-template <typename T>
+template <typename T, bool SkipNullCheck = false>
 __forceinline T generic_cast(const AbstractClass* pAbstract) {
 	using Base = std::remove_const_t<std::remove_pointer_t<T>>;
 
@@ -57,20 +60,23 @@ __forceinline T generic_cast(const AbstractClass* pAbstract) {
 		&& std::is_abstract<Base>::value,
 		"generic_cast: T is required to be an abstract type derived from ObjectClass.");
 
-	if(pAbstract && (pAbstract->AbstractFlags & Base::AbsDerivateID) != AbstractFlags::None) {
-		return static_cast<T>(pAbstract);
+	if constexpr (!SkipNullCheck)
+	{
+		if (!pAbstract)
+			return nullptr;
 	}
-	return nullptr;
+
+	return (pAbstract->AbstractFlags & Base::AbsDerivateID) != AbstractFlags::None ? static_cast<T>(pAbstract) : nullptr;
 };
 
-template <typename T>
+template <typename T, bool SkipNullCheck = false>
 __forceinline T abstract_cast(AbstractClass* pAbstract) {
 	using Base = std::remove_pointer_t<T>;
 
-	return const_cast<T>(abstract_cast<const Base*>(static_cast<const AbstractClass*>(pAbstract)));
+	return const_cast<T>(abstract_cast<const Base*, SkipNullCheck>(static_cast<const AbstractClass*>(pAbstract)));
 };
 
-template <typename T>
+template <typename T, bool SkipNullCheck = false>
 __forceinline T abstract_cast(const AbstractClass* pAbstract) {
 	using Base = std::remove_const_t<std::remove_pointer_t<T>>;
 
@@ -84,69 +90,45 @@ __forceinline T abstract_cast(const AbstractClass* pAbstract) {
 		|| !std::is_abstract<Base>::value,
 		"abstract_cast: Abstract types (not fully implemented classes) derived from AbstractTypeClass are not suppored.");
 
-	return specific_cast<T>(pAbstract);
+	return specific_cast<T, SkipNullCheck>(pAbstract);
 };
 
-// non-const versions
+#define ABSTRACT_PARAM pAbstract
+#define GENERIC_CAST(TypePointer, ConstQual, SkipNullCheck) \
+	generic_cast<ConstQual TypePointer, SkipNullCheck>(ABSTRACT_PARAM)
+#define RT_GENERIC_CAST(TypePointer, ConstQual, SkipNullCheck) \
+	reinterpret_cast<ConstQual TypePointer>(GENERIC_CAST(TechnoClass*, ConstQual, SkipNullCheck))
+#define ABSTRACT_CAST(TypePointer, ConstQual, SkipNullCheck, Code) \
+	template <> \
+	__forceinline ConstQual TypePointer abstract_cast<ConstQual TypePointer, SkipNullCheck>(ConstQual AbstractClass* ABSTRACT_PARAM) \
+	{ return Code; }
+#define APPLY_ABSTRACT_CAST(TypePointer) \
+	ABSTRACT_CAST(TypePointer, , true, ABSTRACT_PARAM) \
+	ABSTRACT_CAST(TypePointer, , false, ABSTRACT_PARAM) \
+	ABSTRACT_CAST(TypePointer, const, true, ABSTRACT_PARAM) \
+	ABSTRACT_CAST(TypePointer, const, false, ABSTRACT_PARAM)
+#define APPLY_GC_ABSTRACT_CAST(TypePointer) \
+	ABSTRACT_CAST(TypePointer, , true, GENERIC_CAST(TypePointer, , true)) \
+	ABSTRACT_CAST(TypePointer, , false, GENERIC_CAST(TypePointer, , false)) \
+	ABSTRACT_CAST(TypePointer, const, true, GENERIC_CAST(TypePointer, const, true)) \
+	ABSTRACT_CAST(TypePointer, const, false, GENERIC_CAST(TypePointer, const, false))
+#define APPLY_RT_ABSTRACT_CAST(TypePointer) \
+	ABSTRACT_CAST(TypePointer, , true, RT_GENERIC_CAST(TypePointer, , true)) \
+	ABSTRACT_CAST(TypePointer, , false, RT_GENERIC_CAST(TypePointer, , false)) \
+	ABSTRACT_CAST(TypePointer, const, true, RT_GENERIC_CAST(TypePointer, const, true)) \
+	ABSTRACT_CAST(TypePointer, const, false, RT_GENERIC_CAST(TypePointer, const, false))
 
-template <>
-__forceinline AbstractClass* abstract_cast<AbstractClass*>(AbstractClass* pAbstract) {
-	return pAbstract;
-};
+APPLY_ABSTRACT_CAST(AbstractClass*);
+APPLY_GC_ABSTRACT_CAST(ObjectClass*);
+APPLY_RT_ABSTRACT_CAST(MissionClass*);
+APPLY_RT_ABSTRACT_CAST(RadioClass*);
+APPLY_GC_ABSTRACT_CAST(TechnoClass*);
+APPLY_GC_ABSTRACT_CAST(FootClass*);
 
-template <>
-__forceinline ObjectClass* abstract_cast<ObjectClass*>(AbstractClass* pAbstract) {
-	return generic_cast<ObjectClass*>(pAbstract);
-};
-
-template <>
-__forceinline MissionClass* abstract_cast<MissionClass*>(AbstractClass* pAbstract) {
-	return reinterpret_cast<MissionClass*>(generic_cast<TechnoClass*>(pAbstract));
-};
-
-template <>
-__forceinline RadioClass* abstract_cast<RadioClass*>(AbstractClass* pAbstract) {
-	return reinterpret_cast<RadioClass*>(generic_cast<TechnoClass*>(pAbstract));
-};
-
-template <>
-__forceinline TechnoClass* abstract_cast<TechnoClass*>(AbstractClass* pAbstract) {
-	return generic_cast<TechnoClass*>(pAbstract);
-};
-
-template <>
-__forceinline FootClass* abstract_cast<FootClass*>(AbstractClass* pAbstract) {
-	return generic_cast<FootClass*>(pAbstract);
-};
-
-// const versions
-
-template <>
-__forceinline const AbstractClass* abstract_cast<const AbstractClass*>(const AbstractClass* pAbstract) {
-	return pAbstract;
-};
-
-template <>
-__forceinline const ObjectClass* abstract_cast<const ObjectClass*>(const AbstractClass* pAbstract) {
-	return generic_cast<const ObjectClass*>(pAbstract);
-};
-
-template <>
-__forceinline const MissionClass* abstract_cast<const MissionClass*>(const AbstractClass* pAbstract) {
-	return reinterpret_cast<const MissionClass*>(generic_cast<const TechnoClass*>(pAbstract));
-};
-
-template <>
-__forceinline const RadioClass* abstract_cast<const RadioClass*>(const AbstractClass* pAbstract) {
-	return reinterpret_cast<const RadioClass*>(generic_cast<const TechnoClass*>(pAbstract));
-};
-
-template <>
-__forceinline const TechnoClass* abstract_cast<const TechnoClass*>(const AbstractClass* pAbstract) {
-	return generic_cast<const TechnoClass*>(pAbstract);
-};
-
-template <>
-__forceinline const FootClass* abstract_cast<const FootClass*>(const AbstractClass* pAbstract) {
-	return generic_cast<const FootClass*>(pAbstract);
-};
+#undef APPLY_RT_ABSTRACT_CAST
+#undef APPLY_GC_ABSTRACT_CAST
+#undef APPLY_ABSTRACT_CAST
+#undef ABSTRACT_CAST
+#undef RT_GENERIC_CAST
+#undef GENERIC_CAST
+#undef ABSTRACT_PARAM

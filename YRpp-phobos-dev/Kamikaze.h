@@ -16,7 +16,7 @@ public:
 		CellClass* Cell;
 	};
 
-	static constexpr reference<Kamikaze, 0xABC5F8u> const Instance{};
+	DEFINE_REFERENCE(Kamikaze, Instance, 0xABC5F8u)
 
 	Kamikaze() noexcept : UpdateTimer(100), Nodes()
 	{ }

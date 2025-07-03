@@ -14,7 +14,7 @@ public:
 	static const AbstractType AbsID = AbstractType::ParticleSystem;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<ParticleSystemClass*>, 0xA80208u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<ParticleSystemClass*>, Array, 0xA80208u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;

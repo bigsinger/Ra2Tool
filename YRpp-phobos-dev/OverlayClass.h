@@ -42,7 +42,7 @@ public:
 	static const AbstractType AbsID = AbstractType::Overlay;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<OverlayClass*>, 0xA8EC50u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<OverlayClass*>, Array, 0xA8EC50u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;

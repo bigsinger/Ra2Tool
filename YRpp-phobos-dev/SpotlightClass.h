@@ -9,7 +9,7 @@ class SpotlightClass
 {
 public:
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<SpotlightClass*>, 0xAC1678u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<SpotlightClass*>, Array, 0xAC1678u)
 
 	//Destructor
 	~SpotlightClass()

@@ -2,6 +2,7 @@
 
 #include <TechnoTypeClass.h>
 class OverlayTypeClass;
+class IsometricTileTypeClass;
 
 struct BuildingAnimStruct
 {
@@ -121,8 +122,8 @@ public:
 	int LightBlueTint;
 	Point2D PrimaryFirePixelOffset;
 	Point2D SecondaryFirePixelOffset;
-	OverlayTypeClass *ToOverlay;
-	int ToTile;
+	OverlayTypeClass* ToOverlay;
+	IsometricTileTypeClass* ToTile;
 	char BuildupFile [0x10];
 	int BuildupSound;
 	int PackupSound;

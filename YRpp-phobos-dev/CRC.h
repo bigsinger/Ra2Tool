@@ -109,7 +109,7 @@ public:
 		JMP_THIS(0x4A1DE0);
 	}
 
-	static constexpr reference<unsigned int, 0x81F7B4, 256> const Table {};
+	DEFINE_ARRAY_REFERENCE(unsigned int, [256], Table, 0x81F7B4)
 
 	static int Memory(const void* data, int bytes, int crc)
 	{

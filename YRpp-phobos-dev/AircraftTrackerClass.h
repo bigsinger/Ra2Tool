@@ -12,7 +12,7 @@ class TechnoClass;
 class AircraftTrackerClass
 {
 public:
-	static constexpr reference<AircraftTrackerClass, 0x887888u> Instance { };
+	DEFINE_REFERENCE(AircraftTrackerClass, Instance, 0x887888u)
 
 	// Fills CurrentVector with items from TrackerVectors matching given range around cell.
 	void FillCurrentVector(CellClass* pCell, int range) { JMP_THIS(0x412B40) }

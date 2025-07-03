@@ -23,31 +23,31 @@ struct VoxelStruct
 class FileSystem
 {
 public:
-	static constexpr reference<SHPStruct*, 0xAC1478u> PIPBRD_SHP{};
-	static constexpr reference<SHPStruct*, 0xAC147Cu> PIPS_SHP{};
-	static constexpr reference<SHPStruct*, 0xAC1480u> PIPS2_SHP{};
-	static constexpr reference<SHPStruct*, 0xAC1484u> TALKBUBL_SHP{};
-	static constexpr reference<SHPStruct*, 0x89DDC8u> WRENCH_SHP{};
-	static constexpr reference<SHPStruct*, 0x89DDC4u> POWEROFF_SHP{};
-	static constexpr reference<SHPStruct*, 0xA8F794u> GRFXTXT_SHP{};
-	static constexpr reference<SHPStruct*, 0xB1CF98u> OREGATH_SHP{};
-	static constexpr reference<SHPStruct*, 0xB07BC0u> DARKEN_SHP {};
-	static constexpr reference<SHPStruct*, 0xB0B484u> GCLOCK2_SHP {};
-	static constexpr reference<SHPStruct*, 0x89DDBCu> BUILDINGZ_SHA {};
+	DEFINE_REFERENCE(SHPStruct*, PIPBRD_SHP, 0xAC1478u)
+	DEFINE_REFERENCE(SHPStruct*, PIPS_SHP, 0xAC147Cu)
+	DEFINE_REFERENCE(SHPStruct*, PIPS2_SHP, 0xAC1480u)
+	DEFINE_REFERENCE(SHPStruct*, TALKBUBL_SHP, 0xAC1484u)
+	DEFINE_REFERENCE(SHPStruct*, WRENCH_SHP, 0x89DDC8u)
+	DEFINE_REFERENCE(SHPStruct*, POWEROFF_SHP, 0x89DDC4u)
+	DEFINE_REFERENCE(SHPStruct*, GRFXTXT_SHP, 0xA8F794u)
+	DEFINE_REFERENCE(SHPStruct*, OREGATH_SHP, 0xB1CF98u)
+	DEFINE_REFERENCE(SHPStruct*, DARKEN_SHP, 0xB07BC0u)
+	DEFINE_REFERENCE(SHPStruct*, GCLOCK2_SHP, 0xB0B484u)
+	DEFINE_REFERENCE(SHPStruct*, BUILDINGZ_SHA, 0x89DDBCu)
 
-	static constexpr reference<BytePalette, 0x885780u> TEMPERAT_PAL{};
-	static constexpr reference<BytePalette, 0xABBED0u> ISOx_PAL {};
-	static constexpr reference<BytePalette*, 0xA8F790u> GRFXTXT_PAL{};
+	DEFINE_REFERENCE(BytePalette, TEMPERAT_PAL, 0x885780u)
+	DEFINE_REFERENCE(BytePalette, ISOx_PAL, 0xABBED0u)
+	DEFINE_REFERENCE(BytePalette*, GRFXTXT_PAL, 0xA8F790u)
 
-	static constexpr reference<ConvertClass*, 0x87F6B0u> CAMEO_PAL{};
-	static constexpr reference<ConvertClass*, 0x87F6B4u> UNITx_PAL{};
-	static constexpr reference<ConvertClass*, 0x87F6B8u> x_PAL{};
-	static constexpr reference<ConvertClass*, 0x87F6BCu> GRFTXT_TIBERIUM_PAL{};
-	static constexpr reference<ConvertClass*, 0x87F6C0u> ANIM_PAL{};
-	static constexpr reference<ConvertClass*, 0x87F6C4u> PALETTE_PAL{};
-	static constexpr reference<ConvertClass*, 0x87F6C8u> MOUSE_PAL{};
-	static constexpr reference<ConvertClass*, 0x87F6CCu> SIDEBAR_PAL{};
-	static constexpr reference<ConvertClass*, 0xA8F798u> GRFXTXT_Convert{};
+	DEFINE_REFERENCE(ConvertClass*, CAMEO_PAL, 0x87F6B0u)
+	DEFINE_REFERENCE(ConvertClass*, UNITx_PAL, 0x87F6B4u)
+	DEFINE_REFERENCE(ConvertClass*, x_PAL, 0x87F6B8u)
+	DEFINE_REFERENCE(ConvertClass*, GRFTXT_TIBERIUM_PAL, 0x87F6BCu)
+	DEFINE_REFERENCE(ConvertClass*, ANIM_PAL, 0x87F6C0u)
+	DEFINE_REFERENCE(ConvertClass*, PALETTE_PAL, 0x87F6C4u)
+	DEFINE_REFERENCE(ConvertClass*, MOUSE_PAL, 0x87F6C8u)
+	DEFINE_REFERENCE(ConvertClass*, SIDEBAR_PAL, 0x87F6CCu)
+	DEFINE_REFERENCE(ConvertClass*, GRFXTXT_Convert, 0xA8F798u)
 
 	static void* __fastcall LoadFile(const char* pFileName, bool bLoadAsSHP)
 		{ JMP_STD(0x5B40B0); }

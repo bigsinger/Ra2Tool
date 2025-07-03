@@ -95,7 +95,7 @@ public:
 	// 			return nullptr;
 	//
 	// 		CellStruct cell { m_ID % 1000,m_ID / 1000 };
-	// 		return MapClass::Instance->GetCellAt(cell);
+	// 		return MapClass::Instance.GetCellAt(cell);
 	// 	}
 	// 	else
 	// 	{

@@ -74,6 +74,7 @@ public:
 		{ JMP_THIS(0x528A10); }
 	int GetString(const char* pSection, const char* pKey, char* pBuffer,size_t szBufferSize)
 		{ return ReadString(pSection, pKey, pBuffer, pBuffer, szBufferSize); }
+
 	//Writes an ANSI string.
 	bool WriteString(const char* pSection, const char* pKey, const char* pString)
 		{ JMP_THIS(0x528660); }
@@ -329,20 +330,20 @@ class NOVTABLE CCINIClass : public INIClass
 {
 public:
 	//STATIC
-	static constexpr reference<DWORD, 0xB77E00u> const RulesHash{};
-	static constexpr reference<DWORD, 0xB77E04u> const ArtHash{};
-	static constexpr reference<DWORD, 0xB77E08u> const AIHash{};
+	DEFINE_REFERENCE(DWORD, RulesHash, 0xB77E00u)
+	DEFINE_REFERENCE(DWORD, ArtHash, 0xB77E04u)
+	DEFINE_REFERENCE(DWORD, AIHash, 0xB77E08u)
 
 	// westwood genius shines again
 
 	// this is a pointer in the class
-	static constexpr reference<CCINIClass*, 0x887048u> const INI_Rules{};
+	DEFINE_REFERENCE(CCINIClass*, INI_Rules, 0x887048u)
 
 	// these are static class variables, why the fuck did you differentiate them, WW?
-	static constexpr reference<CCINIClass, 0x887128u> const INI_AI{};
-	static constexpr reference<CCINIClass, 0x887180u> const INI_Art{};
-	static constexpr reference<CCINIClass, 0x887208u> const INI_UIMD{};
-	static constexpr reference<CCINIClass, 0x8870C0u> const INI_RA2MD{};
+	DEFINE_REFERENCE(CCINIClass, INI_AI, 0x887128u)
+	DEFINE_REFERENCE(CCINIClass, INI_Art, 0x887180u)
+	DEFINE_REFERENCE(CCINIClass, INI_UIMD, 0x887208u)
+	DEFINE_REFERENCE(CCINIClass, INI_RA2MD, 0x8870C0u)
 
 	//non-static
 	CCINIClass() : INIClass(false)
@@ -360,7 +361,23 @@ public:
 		if (file.Exists())
 			this->ReadCCFile(&file);
 	}
-	
+
+	static CCINIClass* LoadINIFile(const char* pFileName)
+	{
+		CCINIClass* pINI = GameCreate<CCINIClass>();
+		pINI->LoadFromFile(pFileName);
+		return pINI;
+	}
+
+	static void UnloadINIFile(CCINIClass*& pINI)
+ 	{
+ 		if (pINI)
+ 		{
+ 			GameDelete(pINI);
+ 			pINI = nullptr;
+ 		}
+ 	}
+
 	//Parses an INI file from a CCFile
 	CCINIClass* ReadCCFile(FileClass* pCCFile, bool bDigest = false, bool bLoadComments = false)
 		{ JMP_THIS(0x4741F0); }

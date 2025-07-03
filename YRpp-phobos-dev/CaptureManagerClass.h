@@ -24,7 +24,7 @@ public:
 	static const AbstractType AbsID = AbstractType::CaptureManager;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<CaptureManagerClass*>, 0x89E0F0u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<CaptureManagerClass*>, Array, 0x89E0F0u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;

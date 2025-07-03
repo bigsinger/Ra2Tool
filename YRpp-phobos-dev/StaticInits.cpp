@@ -123,7 +123,7 @@ bool HouseClass::IsIonCannonEligibleTarget(const TechnoClass* const pTechno) con
 
 	// hard difficulty shoots the tank in the factory
 	if(this->AIDifficulty == AIDifficulty::Hard) {
-		for(const auto* pFactory : *FactoryClass::Array) {
+		for(const auto* pFactory : FactoryClass::Array) {
 			if(pFactory->Object == pTechno
 				&& pFactory->Production.Rate
 				&& !pFactory->IsSuspended)

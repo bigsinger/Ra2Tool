@@ -13,7 +13,7 @@ struct LineTrailNode
 class LineTrail
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<LineTrail*>, 0xABCB78u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<LineTrail*>, Array, 0xABCB78u)
 
 	//Constructor, Destructor
 	LineTrail()

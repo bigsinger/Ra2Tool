@@ -8,7 +8,7 @@ public:
 	static const AbstractType AbsID = AbstractType::IsotileType;
 
 	//Array
-	static constexpr constant_ptr<DynamicVectorClass<IsometricTileTypeClass*>, 0xA8ED28u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<IsometricTileTypeClass*>, Array, 0xA8ED28u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;

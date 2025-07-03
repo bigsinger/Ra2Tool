@@ -10,7 +10,7 @@ class NOVTABLE LightSourceClass : public AbstractClass
 {
 public:
 	static const AbstractType AbsID = AbstractType::LightSource;
-	static constexpr constant_ptr<DynamicVectorClass<LightSourceClass*>, 0xABCA10> Array {};
+	DEFINE_REFERENCE(DynamicVectorClass<LightSourceClass*>, Array, 0xABCA10)
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
 

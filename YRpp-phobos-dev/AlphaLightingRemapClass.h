@@ -6,7 +6,7 @@
 class AlphaLightingRemapClass
 {
 public:
-	constexpr static reference<DynamicVectorClass<AlphaLightingRemapClass*>, 0x88A080> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<AlphaLightingRemapClass*>, Array, 0x88A080)
 
 	// Notice:
 	// When a ConvertClass is constructed by the game, it will generate [IntensityCount] color

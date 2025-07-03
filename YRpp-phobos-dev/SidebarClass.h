@@ -66,9 +66,9 @@ class NOVTABLE SidebarClass : public PowerClass
 {
 public:
 	//Static
-	static constexpr constant_ptr<SidebarClass, 0x87F7E8u> const Instance{};
+	DEFINE_REFERENCE(SidebarClass, Instance, 0x87F7E8u)
 
-	static constexpr reference<wchar_t, 0xB07BC4u, 0x42u> const TooltipBuffer{};
+	DEFINE_ARRAY_REFERENCE(wchar_t, [0x42u], TooltipBuffer, 0xB07BC4u)
 
 	void SidebarNeedsRepaint(int mode = 0) {
 		this->SidebarNeedsRedraw = true;
@@ -103,6 +103,9 @@ public:
 	// which tab does the 'th object of that type belong in?
 	static int __fastcall GetObjectTabIdx(AbstractType abs, BuildCat buildCat, bool isNaval)
 		{ JMP_STD(0x6ABCD0); }
+
+	bool Scroll(bool up, int column)
+		{ JMP_THIS(0x6A6A00); }
 
 protected:
 	//Constructor

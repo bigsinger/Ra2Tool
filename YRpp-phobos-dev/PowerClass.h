@@ -6,7 +6,7 @@ class NOVTABLE PowerClass : public RadarClass
 {
 public:
 	//Static
-	static constexpr constant_ptr<PowerClass, 0x87F7E8u> const Instance{};
+	DEFINE_REFERENCE(PowerClass, Instance, 0x87F7E8u)
 
 	//Destructor
 	virtual ~PowerClass() RX;
@@ -22,7 +22,7 @@ protected:
 	//===========================================================================
 
 public:
-	bool unknown_bool_150C;
+	bool PowerNeedRedraw;
 	PROTECTED_PROPERTY(BYTE, align_150D[3])
 	CDTimerClass unknown_timer_1510;
 	DWORD unknown_151C;

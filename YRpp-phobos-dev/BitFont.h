@@ -5,7 +5,7 @@
 class NOVTABLE BitFont
 {
 public:
-	static constexpr reference<BitFont*, 0x89C4D0> Instance {};
+	DEFINE_REFERENCE(BitFont*, Instance, 0x89C4D0)
 
 private:
 	BitFont(const char* pFileName) { JMP_THIS(0x433880); }

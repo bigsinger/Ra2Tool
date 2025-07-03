@@ -4,16 +4,16 @@ class FPSCounter
 {
 public:
 	//!< The number of frames processed in the last second.
-	static constexpr reference<unsigned int, 0xABCD44u> const CurrentFrameRate{};
+	DEFINE_REFERENCE(unsigned int, CurrentFrameRate, 0xABCD44u)
 
 	//!< The total number of frames elapsed.
-	static constexpr reference<unsigned int, 0xABCD48u> const TotalFramesElapsed{};
+	DEFINE_REFERENCE(unsigned int, TotalFramesElapsed, 0xABCD48u)
 
 	//!< The time it took to process TotalFramesElapsed frames.
-	static constexpr reference<unsigned int, 0xABCD4Cu> const TotalTimeElapsed{};
+	DEFINE_REFERENCE(unsigned int, TotalTimeElapsed, 0xABCD4Cu)
 
 	//!< Whether the current fps is considered too low.
-	static constexpr reference<bool, 0xABCD50u> const ReducedEffects{};
+	DEFINE_REFERENCE(bool, ReducedEffects, 0xABCD50u)
 
 	//!< The average frame rate for all frames processed.
 	static inline double GetAverageFrameRate()
@@ -30,10 +30,10 @@ public:
 class Detail {
 public:
 	//!< What is considered the minimum acceptable FPS.
-	static constexpr reference<unsigned int, 0x829FF4u> const MinFrameRate{};
+	DEFINE_REFERENCE(unsigned int, MinFrameRate, 0x829FF4u)
 
 	//!< The zone that needs to be left to change
-	static constexpr reference<unsigned int, 0x829FF8u> const BufferZoneWidth{};
+	DEFINE_REFERENCE(unsigned int, BufferZoneWidth, 0x829FF8u)
 
 	//!< The minimum frame rate considering the buffer zone.
 	static inline unsigned int GetMinFrameRate()

@@ -16,7 +16,7 @@ class NOVTABLE FactoryClass : public AbstractClass
 public:
 	static const AbstractType AbsID = AbstractType::Factory;
 
-	static constexpr constant_ptr<DynamicVectorClass<FactoryClass*>, 0xA83E30u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<FactoryClass*>, Array, 0xA83E30u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -89,7 +89,7 @@ public:
 	static FactoryClass* FindByOwnerAndProduct(
 		HouseClass const* const pHouse, TechnoTypeClass const* const pItem)
 	{
-		for(auto const& pFact : *FactoryClass::Array) {
+		for(auto const& pFact : FactoryClass::Array) {
 			if(pFact->Owner == pHouse) {
 				if(pFact->CountTotal(pItem) > 0) {
 					return pFact;

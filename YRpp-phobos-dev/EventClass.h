@@ -22,29 +22,30 @@ public:
 class EventClass
 {
 public:
-	static constexpr reference<const char*, 0x0082091C, 47> const EventNames {};
+	DEFINE_ARRAY_REFERENCE(const char*, [47], EventNames, 0x0082091C)
 
-	static constexpr reference<EventList<0x80>, 0x00A802C8> OutList {};
-	static constexpr reference<EventList<0x4000>, 0x008B41F8> DoList {};
+	DEFINE_REFERENCE(EventList<0x80>, OutList, 0x00A802C8)
+	DEFINE_REFERENCE(EventList<0x4000>, DoList, 0x008B41F8)
 
 	// If the event is a MegaMission, then add it to this list
-	static constexpr reference<EventList<0x100>, 0x00A83ED0> MegaMissionList {};
+	DEFINE_REFERENCE(EventList<0x100>, MegaMissionList, 0x00A83ED0)
 
 	// this points to CRCs from 0x100 last frames
-	static constexpr reference<DWORD, 0x00B04474, 256> const LatestFramesCRC {};
-	static constexpr reference<DWORD, 0x00AC51FC> const CurrentFrameCRC {};
+	DEFINE_ARRAY_REFERENCE(DWORD, [256], LatestFramesCRC, 0x00B04474)
+	DEFINE_REFERENCE(DWORD, CurrentFrameCRC, 0x00AC51FC)
 
 	static bool AddEvent(const EventClass& event)
 	{
-		if (OutList->Count >= 128)
+		if (OutList.Count >= 128)
 			return false;
 
-		OutList->List[OutList->Tail] = event;
+		OutList.List[OutList.Tail] = event;
 
-		OutList->Timings[OutList->Tail] = static_cast<int>(Imports::TimeGetTime()());
+#pragma warning(suppress: 4996)
+		OutList.Timings[OutList.Tail] = static_cast<int>(Imports::TimeGetTime()());
 
-		++OutList->Count;
-		OutList->Tail = (LOBYTE(OutList->Tail) + 1) & 127;
+		++OutList.Count;
+		OutList.Tail = (LOBYTE(OutList.Tail) + 1) & 127;
 
 		return true;
 	}

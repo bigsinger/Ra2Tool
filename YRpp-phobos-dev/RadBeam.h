@@ -9,7 +9,7 @@ class TechnoClass;
 class RadBeam
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<RadBeam*>, 0xB04A60u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<RadBeam*>, Array, 0xB04A60u)
 
 	// Constructor removed - do not use it, use Allocate instead
 

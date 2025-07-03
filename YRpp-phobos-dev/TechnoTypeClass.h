@@ -74,11 +74,11 @@ struct WeaponStruct
 class NOVTABLE TechnoTypeClass : public ObjectTypeClass
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<TechnoTypeClass*>, 0xA8EB00u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<TechnoTypeClass*>, Array, 0xA8EB00u)
 
 	static __declspec(noinline) TechnoTypeClass* __fastcall Find(const char* pID)
 	{
-		for(auto pItem : *Array) {
+		for(auto pItem : Array) {
 			if(!_strcmpi(pItem->ID, pID)) {
 				return pItem;
 			}
@@ -88,8 +88,8 @@ public:
 
 	static __declspec(noinline) int __fastcall FindIndex(const char* pID)
 	{
-		for(int i = 0; i < Array->Count; ++i) {
-			if(!_strcmpi(Array->Items[i]->get_ID(), pID)) {
+		for(int i = 0; i < Array.Count; ++i) {
+			if(!_strcmpi(Array[i]->get_ID(), pID)) {
 				return i;
 			}
 		}
@@ -158,6 +158,13 @@ public:
 	}
 
 	// weapon related
+	WeaponStruct* GetWeapon(int index)
+	{ JMP_THIS(0x7177C0); }
+
+	WeaponStruct* GetEliteWeapon(int index)
+	{ JMP_THIS(0x7177E0); }
+
+	// weapon related
 	WeaponStruct& GetWeapon(size_t const index, bool const elite) {
 		return elite ? this->EliteWeapon[index] : this->Weapon[index];
 	}
@@ -195,7 +202,7 @@ public:
 	double          ThreatAvoidanceCoefficient;
 	int             SlowdownDistance;
 	DWORD align_2FC;
-	double          unknown_double_300;
+	double          DecelerationFactor;
 	double          AccelerationFactor;
 	int             CloakingSpeed;
 	TypeList<VoxelAnimTypeClass*> DebrisTypes;

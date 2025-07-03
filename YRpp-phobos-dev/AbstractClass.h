@@ -42,24 +42,11 @@ class NOVTABLE AbstractClass : public IPersistStream, public IRTTITypeInfo, publ
 public:
 	static const AbstractType AbsID = AbstractType::Abstract;
 
-	static constexpr constant_ptr<DynamicVectorClass<AbstractClass*>, 0xB0F720u> const Array{};
-	static constexpr reference<IndexClass<int, int>, 0xB0E840u> const TargetIndex{};
+	DEFINE_REFERENCE(DynamicVectorClass<AbstractClass*>, Array, 0xB0F720u)
+	DEFINE_REFERENCE((IndexClass<int, int>), TargetIndex, 0xB0E840u)
 
-	const char* GetRTTIName() const
-	{
-		return AbstractClass::GetRTTIName(this->WhatAmI());
-	}
-
-	static const char* GetRTTIName(AbstractType abs)
-	{
-		constexpr reference<std::pair<const char*, AbstractType>, 0x816EE0, 74> name_val_pairs;
-		for (const auto& [name, rtti] : name_val_pairs())
-		{
-			if (rtti == abs)
-				return name;
-		}
-		return nullptr;
-	}
+	const char* GetRTTIName() const { return GetRTTIName(WhatAmI()); }
+	static const char* GetRTTIName(AbstractType abs) JMP_THIS(0x40DCB0);
 
 	//IUnknown
 	virtual HRESULT __stdcall QueryInterface(REFIID iid, void** ppvObject) R0;
@@ -144,6 +131,12 @@ public:
 		this->GetTargetDirection(&ret, pTarget);
 		return ret;
 	}
+
+	int DistanceFrom(AbstractClass *that) const
+		{ JMP_THIS(0x5F6440); }
+
+	int DistanceFrom3D(AbstractClass *that) const
+		{ JMP_THIS(0x5F6360); }
 
 	//Operators
 	bool operator < (const AbstractClass &rhs) const {

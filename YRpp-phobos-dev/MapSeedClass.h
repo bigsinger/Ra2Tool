@@ -12,7 +12,7 @@ protected:
 		{ JMP_THIS(0x595680); }
 
 public:
-	static constexpr reference<MapSeedClass, 0xABDFD8> const Instance{};
+	DEFINE_REFERENCE(MapSeedClass, Instance, 0xABDFD8)
 
 	virtual ~MapSeedClass()
 		{ JMP_THIS(0x5AC270); }

@@ -20,11 +20,11 @@ static_assert(sizeof(PlanningMemberClass) == 0x10);
 class PlanningNodeClass
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<PlanningNodeClass*>, 0xAC4B30u> const Unknown1 {};
-	static constexpr constant_ptr<DynamicVectorClass<PlanningNodeClass*>, 0xAC4C18u> const Unknown2 {};
-	static constexpr constant_ptr<DynamicVectorClass<PlanningNodeClass*>, 0xAC4C98u> const Unknown3 {};
+	DEFINE_REFERENCE(DynamicVectorClass<PlanningNodeClass*>, Unknown1, 0xAC4B30u)
+	DEFINE_REFERENCE(DynamicVectorClass<PlanningNodeClass*>, Unknown2, 0xAC4C18u)
+	DEFINE_REFERENCE(DynamicVectorClass<PlanningNodeClass*>, Unknown3, 0xAC4C98u)
 
-	static constexpr reference<bool, 0xAC4CF4u> const PlanningModeActive {};
+	DEFINE_REFERENCE(bool, PlanningModeActive, 0xAC4CF4u)
 
 	//===========================================================================
 	//===== Properties ==========================================================
@@ -42,7 +42,7 @@ public:
 class PlanningTokenClass
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<PlanningTokenClass*>, 0xAC4C78u> const Array {};
+	DEFINE_REFERENCE(DynamicVectorClass<PlanningTokenClass*>, Array, 0xAC4C78u)
 
 	//===========================================================================
 	//===== Properties ==========================================================

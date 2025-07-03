@@ -83,7 +83,7 @@ class RulesClass
 {
 public:
 	//Static
-	static constexpr reference<RulesClass*, 0x8871E0u> Instance{};
+	DEFINE_REFERENCE(RulesClass*, Instance, 0x8871E0u)
 
 	// call this for the first INI file only
 	void Init(CCINIClass *pINI)

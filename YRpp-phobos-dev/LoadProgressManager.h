@@ -10,7 +10,7 @@ class Surface;
 class LoadProgressManager
 {
 public:
-	static constexpr reference<LoadProgressManager*, 0xABC9BCu> const Instance{};
+	DEFINE_REFERENCE(LoadProgressManager*, Instance, 0xABC9BCu)
 
 	LoadProgressManager()
 		{ JMP_THIS(0x552A40); }

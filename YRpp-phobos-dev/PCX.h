@@ -16,17 +16,17 @@ protected:
 			{ JMP_THIS(0x6B9D00); }
 
 public:
-	static constexpr reference<PCX, 0xAC4848u> const Instance{};
+	DEFINE_REFERENCE(PCX, Instance, 0xAC4848u)
 
 	static WORD const DefaultTransparentColor = COLOR_PURPLE;
 
 	//Load a PCX file
 	bool LoadFile(const char* pFileName, int flag1 = 2, int flag2 = 0)
 	{
-		if(Instance->GetSurface(pFileName, nullptr)) {
+		if(Instance.GetSurface(pFileName, nullptr)) {
 			return true;
 		}
-		return Instance->ForceLoadFile(pFileName, flag1, flag2);
+		return Instance.ForceLoadFile(pFileName, flag1, flag2);
 	}
 
 	// Get a BSurface for a PCX file. File needs to be loaded some time first!

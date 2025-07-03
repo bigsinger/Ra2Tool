@@ -9,7 +9,7 @@ class NOVTABLE DisplayClass : public MapClass
 {
 public:
 	//Static
-	static constexpr constant_ptr<DisplayClass, 0x87F7E8u> const Instance{};
+	DEFINE_REFERENCE(DisplayClass, Instance, 0x87F7E8u)
 
 	//WIP: DisplayClass::TacticalClass goes HERE
 
@@ -17,7 +17,7 @@ public:
 		{ JMP_THIS(0x692300); }
 
 	// the foundation for placement with green/red
-	void  SetActiveFoundation(CellStruct *Coords)
+	void  SetActiveFoundation(const CellStruct *Coords)
 		{ JMP_THIS(0x4A8BF0); }
 
 	//Destructor
@@ -31,7 +31,7 @@ public:
 	virtual void LoadFromINI(CCINIClass* pINI) RX; //Loads the map from a map file.
 	virtual const wchar_t* GetToolTip(UINT nDlgID) R0;
 	virtual void CloseWindow() RX; //prolly wrong naming
-	virtual void vt_entry_8C() RX;
+	virtual void ClearDragBand() RX;
 	virtual bool MapCell(CellStruct* pMapCoord, HouseClass* pHouse) R0;
 	virtual bool RevealFogShroud(CellStruct* pMapCoord, HouseClass* pHouse, bool bIncreaseShroudCounter) R0;
 	virtual bool MapCellFoggedness(CellStruct* pMapCoord, HouseClass* pHouse) R0;
@@ -40,8 +40,8 @@ public:
 	virtual bool ScrollMap(DWORD dwUnk1, DWORD dwUnk2, DWORD dwUnk3) R0;
 	virtual void Set_View_Dimensions(const RectangleStruct& rect) RX;
 	virtual void vt_entry_AC(DWORD dwUnk) RX;
-	virtual void vt_entry_B0(DWORD dwUnk) RX;
-	virtual void vt_entry_B4(Point2D* pPoint) RX;
+	virtual void RightMouseButtonClick(Point2D* pPoint) RX;
+	virtual void LeftMouseButtonClick(Point2D* pPoint) RX;
 
 	//Decides which mouse pointer to set and then does it.
 	//Mouse is over cell pMapCoords which is bShrouded and holds pObject.
@@ -91,17 +91,17 @@ public:
 	CellStruct* CurrentFoundation_Data;	//Foundation data of the building we're currently placing (note: limited to 120 cells)
 	bool unknown_1180;
 	bool unknown_1181;
-	CellStruct CurrentFoundationCopy_CenterCell; // this is a copy of the CurrentFoundation data above..
+	CellStruct CurrentFoundationCopy_CenterCell; // All the Copies are used in the time between clicking and actual execution
 	CellStruct CurrentFoundationCopy_TopLeftOffset;
 	CellStruct * CurrentFoundationCopy_Data; // (note: limited to 50 [!] cells)
-	DWORD unknown_1190;
-	DWORD unknown_1194;
-	DWORD unknown_1198;
+	ObjectClass *CurrentBuildingCopy;
+	ObjectTypeClass *CurrentBuildingTypeCopy;
+	int CurrentBuildingOwnerArrayIndexCopy;
 	bool FollowObject;
 	ObjectClass* ObjectToFollow;
 	ObjectClass* CurrentBuilding;		//Building we're currently placing
 	ObjectTypeClass* CurrentBuildingType;	//Type of that building
-	DWORD unknown_11AC;
+	int CurrentBuildingOwnerArrayIndex;
 	bool RepairMode;
 	bool SellMode;
 	bool PowerToggleMode;
@@ -109,8 +109,7 @@ public:
 	bool PlaceBeaconMode;
 	int CurrentSWTypeIndex;	//Index of the SuperWeaponType we have currently selected
 	DWORD unknown_11BC;
-	DWORD unknown_11C0;
-	DWORD unknown_11C4;
+	Point2D unknown_11C0;
 	DWORD unknown_11C8;
 	bool unknown_bool_11CC;
 	bool unknown_bool_11CD;
@@ -118,9 +117,7 @@ public:
 	bool DraggingRectangle;
 	bool unknown_bool_11D0;
 	bool unknown_bool_11D1;
-	DWORD unknown_11D4;
-	DWORD unknown_11D8;
-	DWORD unknown_11DC;
-	DWORD unknown_11E0;
+	Point2D unknown_11D4;
+	Point2D unknown_11DC;
 	PROTECTED_PROPERTY(DWORD, padding_11E4);
 };

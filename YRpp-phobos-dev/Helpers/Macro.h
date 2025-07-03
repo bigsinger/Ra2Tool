@@ -29,7 +29,7 @@
 
 // swizzle shorthand
 #define SWIZZLE(var) \
-	SwizzleManagerClass::Instance->Swizzle((void **)&var)
+	SwizzleManagerClass::Instance.Swizzle((void **)&var)
 
 
 #include <cmath>

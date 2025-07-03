@@ -16,7 +16,7 @@ class NOVTABLE FootClass : public TechnoClass
 public:
 	static const auto AbsDerivateID = AbstractFlags::Foot;
 
-	static constexpr constant_ptr<DynamicVectorClass<FootClass*>, 0x8B3DC0u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<FootClass*>, Array, 0x8B3DC0u)
 
 	//IPersistStream
 	//Destructor
@@ -31,6 +31,7 @@ public:
 	//TechnoClass
 	virtual void Destroyed(ObjectClass *Killer) RX;
 	virtual bool ForceCreate(CoordStruct& coord, DWORD dwUnk = 0) R0;
+	virtual AbstractClass* GreatestThreat(ThreatType threat, CoordStruct* pCoord, bool onlyTargetHouseEnemy) override { JMP_THIS(0x4D9920) };
 
 	//FootClass
 	virtual void ReceiveGunner(FootClass* Gunner) RX;
@@ -45,7 +46,7 @@ public:
 	virtual bool vt_entry_4F8() R0;
 	virtual bool MoveTo(CoordStruct* pCrd) R0;
 	virtual bool StopMoving() R0;
-	virtual bool vt_entry_504() R0;
+	virtual bool TryEnterIdle() R0;
 	virtual bool ChronoWarpTo(CoordStruct pDest) R0; // fsds... only implemented for one new YR map trigger, other chrono events repeat the code...
 	virtual void Draw_A_SHP(
 		SHPStruct *SHP, int idxFacing, Point2D * Coords, RectangleStruct *Rectangle,
@@ -62,17 +63,17 @@ public:
 	virtual void UnPanic() RX; //never
 	virtual void PlayIdleAnim(int nIdleAnimNumber) RX;
 	virtual DWORD vt_entry_524() R0;
-	virtual DWORD vt_entry_528(TypeList<BuildingTypeClass*>* bList, DWORD dwUnk2, DWORD dwUnk3) const R0;
-	virtual BuildingClass* vt_entry_52C(BuildingTypeClass* bType, DWORD dwUnk2, DWORD dwUnk3, int* dwUnk4) const R0;
-	virtual DWORD vt_entry_530(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3) const R0;
-	virtual void vt_entry_534(DWORD dwUnk, DWORD dwUnk2) RX;
+	virtual BuildingClass* TryNearestDockBuilding(TypeList<BuildingTypeClass*>* bList, DWORD dwUnk2, DWORD dwUnk3) const R0;
+	virtual BuildingClass* FindCloserDockBuilding(BuildingTypeClass* bType, DWORD dwUnk2, DWORD dwUnk3, int* pDistance) const R0;
+	virtual BuildingClass* FindNearestDockBuilding(BuildingTypeClass* bType, DWORD dwUnk2, DWORD dwUnk3) const R0;
+	virtual void TryCrushCell(const CellStruct& cell, bool warn) RX;
 	virtual int GetCurrentSpeed() const R0;
-	virtual DWORD vt_entry_53C(DWORD dwUnk) R0;
+	virtual AbstractClass* vt_entry_53C(DWORD dwUnk) R0;
 	virtual void vt_entry_540(DWORD dwUnk) RX;
 	virtual void SetSpeedPercentage(double percentage) RX;
 	virtual void vt_entry_548() RX;
 	virtual void vt_entry_54C() RX;
-	virtual bool vt_entry_550(DWORD dwUnk) R0;
+	virtual bool IsLandZoneClear(AbstractClass* pDestination) R0;
 
 	bool CanBeRecruited(HouseClass *ByWhom) const
 		{ JMP_THIS(0x4DA230); }
@@ -103,7 +104,7 @@ public:
 	void AbortMotion()
 		{ JMP_THIS(0x4DF0D0); }
 
-	bool UpdatePathfinding(CellStruct unkCell, CellStruct unkCell2, int unk3)
+	bool UpdatePathfinding(CellStruct destinationCell, BOOL restart, int mode)
 		{ JMP_THIS(0x4D3920); }
 
 	// Removes the first passenger and updates the Gunner.
@@ -118,8 +119,12 @@ public:
 	void EnterAsPassenger(FootClass* pPassenger)
 		{ JMP_THIS(0x4DE630); }
 
+	// Adds to the NavQueue
+	void QueueNavigationList(AbstractClass * target)
+	{ JMP_THIS(0x4DA0E0); }
+
 	// Clears NavQueue
-	void ClearNavQueue()
+	void ClearNavigationList()
 		{ JMP_THIS(0x4DA1C0); }
 
 	// searches cell, sets destination, and returns whether unit is on that cell
@@ -161,7 +166,7 @@ public:
 	CellStruct      LastMapCoords; // ::UpdatePosition uses this to remove threat from last occupied cell, etc
 	CellStruct      LastFlightMapCoords; // which cell was I occupying previously? only for AircraftTracker-tracked stuff
 	CellStruct      CurrentJumpjetMapCoords; // unconfirmed, which cell am I occupying? only for jumpjets
-	CoordStruct     unknown_coords_568;
+	CoordStruct     CurrentTunnelCoords;
 	PROTECTED_PROPERTY(DWORD,   unused_574);
 	double          SpeedPercentage;
 	double          SpeedMultiplier;
@@ -170,30 +175,30 @@ public:
 	AbstractClass*  Destination; // possibly other objects as well
 	AbstractClass*  LastDestination;
 	DECLARE_PROPERTY(DynamicVectorClass<AbstractClass*>, NavQueue); // Stores sequence of movement destinations
-	int             unknown_int_5C4;
-	DWORD           unknown_5C8;
-	DWORD           unknown_5CC;
+	Mission         MegaMission; // only Mission::AttackMove or Mission::None
+	AbstractClass*  MegaDestination; // when AttackMove target is a cell
+	AbstractClass*  MegaTarget; // when AttackMove target is an object
 	BYTE            unknown_5D0;	//unused?
-	bool            unknown_bool_5D1;
+	bool            HaveAttackMoveTarget; // fighting an enemy on the way
 	TeamClass*      Team;
 	FootClass*      NextTeamMember;        //next unit in team
 	DWORD           unknown_5DC;
 	int             PathDirections[24]; // list of directions to move in next, like tube directions
 	DECLARE_PROPERTY(CDTimerClass, PathDelayTimer);
-	int             unknown_int_64C;
+	int             PathWaitTimes;
 	DECLARE_PROPERTY(CDTimerClass, unknown_timer_650);
 	DECLARE_PROPERTY(CDTimerClass, SightTimer);
 	DECLARE_PROPERTY(CDTimerClass, BlockagePathTimer);
 	DECLARE_PROPERTY(ILocomotionPtr, Locomotor);
 	CoordStruct       unknown_point3d_678;
 	signed char       TubeIndex;	//I'm in this tunnel
-	bool              unknown_bool_685;
+	signed char       TubeFaceIndex;
 	signed char       WaypointIndex; // which waypoint in my planning path am I following?
-	bool              unknown_bool_687;
-	bool              unknown_bool_688;
+	bool              ShouldScatterInNextIdle;
+	bool              IsScanLimited;
 	bool              IsInitiated; // Is a fully joined member of a team, used for regroup etc. checks
 	bool              ShouldScanForTarget;
-	bool              unknown_bool_68B;
+	bool              unknown_bool_68B; //unused?
 	bool              IsDeploying;
 	bool              IsFiring;
 	bool              unknown_bool_68E;
@@ -201,7 +206,7 @@ public:
 	bool              ShouldEnterOccupiable; // orders the unit to enter the closest battle bunker
 	bool              ShouldGarrisonStructure; // orders the unit to enter the closest neutral building
 	FootClass*        ParasiteEatingMe; // the tdrone/squid that's eating me
-	DWORD             unknown_698;
+	int               LastBeParasitedStartFrame;
 	ParasiteClass*    ParasiteImUsing;	// my parasitic half, nonzero for, eg, terror drone or squiddy
 	DECLARE_PROPERTY(CDTimerClass, ParalysisTimer); // for squid victims
 	bool              unknown_bool_6AC;
@@ -213,9 +218,9 @@ public:
 	bool              unknown_bool_6B2;
 	bool              unknown_bool_6B3;
 	bool              unknown_bool_6B4;
-	bool              unknown_bool_6B5;
+	bool              IsCrushingSomething;
 	bool              FrozenStill; // frozen in first frame of the proper facing - when magnetron'd or warping
-	bool              unknown_bool_6B7;
+	bool              IsWaitingBlockagePath;
 	bool              unknown_bool_6B8;
 	PROTECTED_PROPERTY(DWORD,   unused_6BC);	//???
 };

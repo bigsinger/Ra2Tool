@@ -13,15 +13,15 @@
 class VoxClass
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<VoxClass*>, 0xB1D4A0u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<VoxClass*>, Array, 0xB1D4A0u)
 
-	static constexpr reference<int, 0xB1D4C8u> const EVAIndex{};
+	DEFINE_REFERENCE(int, EVAIndex, 0xB1D4C8u)
 
 	static VoxClass* Find(const char* pName)
 	{
-		for(int i = 0; i < Array->Count; ++i) {
-			if(!_strcmpi(Array->Items[i]->Name, pName)) {
-				return Array->Items[i];
+		for(int i = 0; i < Array.Count; ++i) {
+			if(!_strcmpi(Array[i]->Name, pName)) {
+				return Array[i];
 			}
 		}
 		return nullptr;
@@ -29,8 +29,8 @@ public:
 
 	static int FindIndex(const char* pName)
 	{
-		for(int i = 0; i < Array->Count; ++i) {
-			if(!_strcmpi(Array->Items[i]->Name, pName)) {
+		for(int i = 0; i < Array.Count; ++i) {
+			if(!_strcmpi(Array[i]->Name, pName)) {
 				return i;
 			}
 		}

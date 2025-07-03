@@ -88,7 +88,7 @@ class Matrix3D
 public:
 
 	//Constructor
-	constexpr Matrix3D() :Data {} { }
+	explicit constexpr Matrix3D() :Data {} { }
 
 	constexpr Matrix3D(const noinit_t&) { }
 
@@ -123,27 +123,20 @@ public:
 	// rotation along axis
 	Matrix3D(Vector3D<float>* axis, float angle) { JMP_THIS(0x5AE750); }
 
-	// copy ctor
-	Matrix3D(const Matrix3D& another)
-	{
-		std::memcpy(this, &another, sizeof(Matrix3D));
-		// JMP_THIS(0x5AE610);
-	}
+	// copy ctor// JMP_THIS(0x5AE610);
+	constexpr Matrix3D(const Matrix3D& another) = default;
+		
+	constexpr Matrix3D(Matrix3D&& another) = default;
 
-	Matrix3D(Matrix3D&& another) = default;
+	constexpr Matrix3D& operator=(const Matrix3D& another) = default;
 
-	Matrix3D& operator=(const Matrix3D& another)
-	{
-		std::memcpy(this, &another, sizeof(Matrix3D));
-		return *this;
-	}
-
-	Matrix3D& operator=(Matrix3D&& another) = default;
+	constexpr Matrix3D& operator=(Matrix3D&& another) = default;
 
 	// operators
 
-	static Matrix3D* __fastcall MatrixMultiply(Matrix3D* ret, const Matrix3D* A, const Matrix3D* B)// { JMP_STD(0x5AF980); }
+	static constexpr Matrix3D* __fastcall MatrixMultiply(Matrix3D* ret, const Matrix3D* A, const Matrix3D* B)// { JMP_STD(0x5AF980); }
 	{
+
 		for (int i = 0; i < 3; ++i)
 		{
 			for (int j = 0; j < 3; ++j)
@@ -162,32 +155,32 @@ public:
 		return ret;
 	}
 
-	Matrix3D operator*(const Matrix3D& B) const
+	constexpr Matrix3D operator*(const Matrix3D& B) const
 	{
 		Matrix3D ret { noinit_t() };
 		MatrixMultiply(&ret, this, &B);
 		return ret;
 	}
 
-	void operator*=(const Matrix3D& another)
+	constexpr void operator*=(const Matrix3D& another)
 	{
 		*this = *this * another;
 	}
 
 //	static Vector3D<float>* __fastcall MatrixApply(Vector3D<float>* ret, const Matrix3D* mat, const Vector3D<float>* vec) { JMP_STD(0x5AFB80); }
-	Vector3D<float> operator*(const Vector3D<float>& point) const
+	constexpr Vector3D<float> operator*(const Vector3D<float>& point) const
 	{
 		return RotateVector(point) + GetTranslation();
 	}
 
-	void MakeIdentity()// { JMP_THIS(0x5AE860); } // 1-matrix
+	constexpr void MakeIdentity()// { JMP_THIS(0x5AE860); } // 1-matrix
 	{
 		for (int i = 0; i < 3; i++)
 			for (int j = 0; j < 4; j++)
 				row[i][j] = i == j ? 1.f : 0.f;
 	}
 
-	void Translate(float x, float y, float z) //{ JMP_THIS(0x5AE890); }
+	constexpr void Translate(float x, float y, float z) //{ JMP_THIS(0x5AE890); }
 	{
 		TranslateX(x);
 		TranslateY(y);
@@ -195,55 +188,55 @@ public:
 	}
 
 	template<typename U>
-	void Translate(Vector3D<U> const& vec) //{ JMP_THIS(0x5AE8F0); }
+	constexpr void Translate(Vector3D<U> const& vec) //{ JMP_THIS(0x5AE8F0); }
 	{
 		Translate(float(vec.X), float(vec.Y), float(vec.Z));
 	}
 
-	void TranslateX(float x) //{ JMP_THIS(0x5AE980); }
+	constexpr void TranslateX(float x) //{ JMP_THIS(0x5AE980); }
 	{
 		for (int i = 0; i < 3; i++)
 			row[i][3] += x * row[i][0];
 	}
 
-	void TranslateY(float y) //{ JMP_THIS(0x5AE9B0); }
+	constexpr void TranslateY(float y) //{ JMP_THIS(0x5AE9B0); }
 	{
 		for (int i = 0; i < 3; i++)
 			row[i][3] += y * row[i][1];
 	}
 
-	void TranslateZ(float z) //{ JMP_THIS(0x5AE9E0); }
+	constexpr void TranslateZ(float z) //{ JMP_THIS(0x5AE9E0); }
 	{
 		for (int i = 0; i < 3; i++)
 			row[i][3] += z * row[i][2];
 	}
 
-	void Scale(float factor) //{ JMP_THIS(0x5AEA10); }
+	constexpr void Scale(float factor) //{ JMP_THIS(0x5AEA10); }
 	{
 		for (float& i : Data)
 			i *= factor;
 	}
 
-	void Scale(float x, float y, float z) //{ JMP_THIS(0x5AEA70); }
+	constexpr void Scale(float x, float y, float z) //{ JMP_THIS(0x5AEA70); }
 	{
 		ScaleX(x);
 		ScaleY(y);
 		ScaleZ(z);
 	}
 
-	void ScaleX(float factor) //{ JMP_THIS(0x5AEAD0); }
+	constexpr void ScaleX(float factor) //{ JMP_THIS(0x5AEAD0); }
 	{
 		for (int i = 0; i < 3; i++)
 			row[i][0] *= factor;
 	}
 
-	void ScaleY(float factor) //{ JMP_THIS(0x5AEAF0); }
+	constexpr void ScaleY(float factor) //{ JMP_THIS(0x5AEAF0); }
 	{
 		for (int i = 0; i < 3; i++)
 			row[i][1] *= factor;
 	}
 
-	void ScaleZ(float factor) //{ JMP_THIS(0x5AEB20); }
+	constexpr void ScaleZ(float factor) //{ JMP_THIS(0x5AEB20); }
 	{
 		for (int i = 0; i < 3; i++)
 			row[i][2] *= factor;
@@ -262,22 +255,22 @@ public:
 	void RotateZ(float theta) { JMP_THIS(0x5AF1A0); }
 	void RotateZ(float Sin, float Cos) { JMP_THIS(0x5AF240); }
 
-	float GetXVal() const //{ JMP_THIS(0x5AF2C0); }
+	constexpr float GetXVal() const //{ JMP_THIS(0x5AF2C0); }
 	{
 		return row[0][3];
 	}
 
-	float GetYVal() const //{ JMP_THIS(0x5AF310); }
+	constexpr float GetYVal() const //{ JMP_THIS(0x5AF310); }
 	{
 		return row[1][3];
 	}
 
-	float GetZVal() const //{ JMP_THIS(0x5AF360); }
+	constexpr float GetZVal() const //{ JMP_THIS(0x5AF360); }
 	{
 		return row[2][3];
 	}
 
-	Vector3D<float> GetTranslation() const
+	constexpr Vector3D<float> GetTranslation() const
 	{
 		return { row[0][3], row[1][3], row[2][3] };
 	}
@@ -287,7 +280,7 @@ public:
 	float GetZRotation() const { JMP_THIS(0x5AF470); }
 
 //	Vector3D<float>* __RotateVector(Vector3D<float>* ret, Vector3D<float>* rotate) const { JMP_THIS(0x5AF4D0); }
-	Vector3D<float> RotateVector(Vector3D<float> const& rotate) const
+	constexpr Vector3D<float> RotateVector(Vector3D<float> const& rotate) const
 	{
 		return {
 			row[0][0] * rotate.X + row[0][1] * rotate.Y + row[0][2] * rotate.Z,
@@ -335,14 +328,12 @@ public:
 		*this = FromQuaternion(q) * *this;
 	}
 
-	static constexpr reference<Matrix3D, 0xB44318> VoxelDefaultMatrix{};
-	static constexpr reference<Matrix3D, 0xB45188, 21> VoxelRampMatrix{};
+	DEFINE_REFERENCE(Matrix3D, VoxelDefaultMatrix, 0xB44318)
+	DEFINE_ARRAY_REFERENCE(Matrix3D, [21], VoxelRampMatrix, 0xB45188)
 
-	static Matrix3D GetIdentity()
+	static constexpr Matrix3D GetIdentity()
 	{
-		Matrix3D mtx { noinit_t() };
-		mtx.MakeIdentity();
-		return mtx;
+		return Matrix3D { 1,0,0,0,0,1,0,0,0,0,1,0 };
 	}
 
 	//Properties

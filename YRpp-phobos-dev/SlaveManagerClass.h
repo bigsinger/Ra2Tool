@@ -38,7 +38,7 @@ public:
 	static const AbstractType AbsID = AbstractType::SlaveManager;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<SlaveManagerClass*>, 0xB0B5F0u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<SlaveManagerClass*>, Array, 0xB0B5F0u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;

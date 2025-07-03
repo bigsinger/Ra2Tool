@@ -7,7 +7,7 @@ class Randomizer
 public:
 	// for any randomization happening inside a match (odds of a survivor, crate, etc), use the ScenarioClass::Random object instead!
 	// this object should only be used for RMG and other randomness outside a match
-	static constexpr reference<Randomizer, 0x886B88u> const Global{};
+	DEFINE_REFERENCE(Randomizer, Global, 0x886B88u)
 
 	int Random()
 		{ JMP_THIS(0x65C780); }

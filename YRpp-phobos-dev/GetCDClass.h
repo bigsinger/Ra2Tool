@@ -5,7 +5,7 @@
 class GetCDClass
 {
 public:
-	static constexpr reference<GetCDClass, 0xA8E8E8u> const Instance{};
+	DEFINE_REFERENCE(GetCDClass, Instance, 0xA8E8E8u)
 
 	int Drives[26];
 	int Count;

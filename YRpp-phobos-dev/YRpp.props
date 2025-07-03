@@ -133,6 +133,8 @@
     <ClInclude Include="$(YRppDir)\ASMMacros.h" />
     <ClInclude Include="$(YRppDir)\Audio.h" />
     <ClInclude Include="$(YRppDir)\BasicStructures.h" />
+    <ClInclude Include="$(YRppDir)\BeaconClass.h" />
+    <ClInclude Include="$(YRppDir)\BeaconManagerClass.h" />
     <ClInclude Include="$(YRppDir)\BitFont.h" />
     <ClInclude Include="$(YRppDir)\BitText.h" />
     <ClInclude Include="$(YRppDir)\BombClass.h" />
@@ -195,6 +197,7 @@
     <ClInclude Include="$(YRppDir)\HeapClass.h" />
     <ClInclude Include="$(YRppDir)\HouseClass.h" />
     <ClInclude Include="$(YRppDir)\HouseTypeClass.h" />
+    <ClInclude Include="$(YRppDir)\HoverLocomotionClass.h" />
     <ClInclude Include="$(YRppDir)\IndexClass.h" />
     <ClInclude Include="$(YRppDir)\InfantryClass.h" />
     <ClInclude Include="$(YRppDir)\InfantryTypeClass.h" />
@@ -302,6 +305,7 @@
     <ClInclude Include="$(YRppDir)\TriColorGaugeClass.h" />
     <ClInclude Include="$(YRppDir)\TriggerClass.h" />
     <ClInclude Include="$(YRppDir)\TriggerTypeClass.h" />
+    <ClInclude Include="$(YRppDir)\TubeClass.h" />
     <ClInclude Include="$(YRppDir)\TunnelLocomotionClass.h" />
     <ClInclude Include="$(YRppDir)\UDPInterfaceClass.h" />
     <ClInclude Include="$(YRppDir)\UI.h" />

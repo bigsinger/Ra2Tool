@@ -64,9 +64,9 @@ class ScenarioClass
 {
 public:
 	//Static
-	static constexpr reference<ScenarioClass*, 0xA8B230u> const Instance{};
-	static constexpr reference<int, 0xA8ED7Cu> const NewINIFormat{};
-	static constexpr reference<TheaterType, 0x822CF8> const LastTheater{};
+	DEFINE_REFERENCE(ScenarioClass*, Instance, 0xA8B230u)
+	DEFINE_REFERENCE(int, NewINIFormat, 0xA8ED7Cu)
+	DEFINE_REFERENCE(TheaterType, LastTheater, 0x822CF8)
 
 
 	static void __fastcall UpdateCellLighting()
@@ -95,6 +95,12 @@ public:
 
 	static bool __fastcall StartScenario(const char* FileName, bool Briefing, int CampaignIndex)
 		{ JMP_STD(0x683AB0); }
+	
+	static void __fastcall PauseGame()
+		{ JMP_STD(0x683EB0); }
+	
+	static void __fastcall ResumeGame()
+		{ JMP_STD(0x683FB0); }
 
 	static void __fastcall AssignHouses()
 		{ JMP_STD(0x687F10); }
@@ -144,7 +150,7 @@ public:
 	int Height;
 	int NumberStartingPoints;
 	Point2D StartingPoints [0x8];
-	int HouseIndices [0x10]; // starting position => HouseClass::Array->GetItem(#)
+	int HouseIndices [0x10]; // starting position => HouseClass::Array.GetItem(#)
 	CellStruct HouseHomeCells [0x8];
 	bool TeamsPresent;
 	int NumCoopHumanStartSpots;

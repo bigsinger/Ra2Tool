@@ -55,7 +55,7 @@ namespace Math
 	using value_return_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
 	template <typename T, typename T2>
-	inline auto min_(T&& value, T2&& value2)
+	inline auto min(T&& value, T2&& value2)
 	{
 		if(value2 < value) {
 			return static_cast<value_return_t<T>>(value2);
@@ -64,7 +64,7 @@ namespace Math
 	}
 
 	template <typename T, typename T2>
-	inline auto max_(T&& value, T2&& value2)
+	inline auto max(T&& value, T2&& value2)
 	{
 		if(value < value2) {
 			return static_cast<value_return_t<T>>(value2);

@@ -22,7 +22,7 @@ class __declspec(align(4)) WinsockInterfaceClass
 {
 public:
 	// Static
-	static constexpr reference<WinsockInterfaceClass*, 0x887628u> const Instance {};
+	DEFINE_REFERENCE(WinsockInterfaceClass*, Instance, 0x887628u)
 
 	bool Init()
 		JMP_THIS(0x7B1DE0);

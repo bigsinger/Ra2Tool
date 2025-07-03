@@ -2,13 +2,15 @@
 
 #include <AircraftClass.h>
 
-enum class SpawnManagerStatus : unsigned int {
+enum class SpawnManagerStatus : unsigned int
+{
 	Idle = 0, // no target or out of range
 	Launching = 1, // one launch in progress
 	CoolDown = 2 // waiting for launch to complete
 };
 
-enum class SpawnNodeStatus : unsigned int {
+enum class SpawnNodeStatus : unsigned int
+{
 	Idle = 0, // docked, waiting for target
 	TakeOff = 1, // missile tilting and launch
 	Preparing = 2, // gathering, waiting
@@ -33,7 +35,7 @@ public:
 	static const AbstractType AbsID = AbstractType::SpawnManager;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<SpawnManagerClass*>, 0xB0B880u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<SpawnManagerClass*>, Array, 0xB0B880u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -71,7 +73,7 @@ public:
 	int CountLaunchingSpawns() const
 		{ JMP_THIS(0x6B7D80); }
 
-	void UnlinkPointer()
+	void UnlinkPointer(AbstractClass* pRemove)
 		{ JMP_THIS(0x6B7C60); }
 
 	//Constructor

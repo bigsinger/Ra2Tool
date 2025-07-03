@@ -1,36 +1,24 @@
 #pragma once
 
-// Used with color schemes and what not.
-
-class HashString
+template<typename key_type, typename value_type>
+struct HashObject
 {
-public:
-	char Name[256];
+	key_type Key;
+	value_type Value;
 };
 
-class HashObject
+template<typename key_type, typename value_type>
+struct HashTable
 {
-public:
-	HashString Key;
-	DWORD Value;
-};
-
-class HashTable
-{
-public:
-	DynamicVectorClass<HashObject>* Buckets;
-	DWORD BucketHashFunction;
+	DynamicVectorClass<HashObject<key_type,value_type>> * Buckets;
+	DWORD (*BucketHashFunction)(const key_type&);
 	int BucketCount;
 	int BucketGrowthStep;
 };
 
-class HashIterator
+struct HashIterator
 {
-public:
 	int BucketIndex;
 	int InBucketIndex;
 	bool OutOfBuckets;
-	bool Unused1;
-	bool Unused2;
-	bool Unused3;
 };

@@ -9,17 +9,17 @@ class AbstractClass;
 // PointerExpired whenever an object of that type expires.
 class PointerExpiredNotification {
 public:
-	static constexpr reference<PointerExpiredNotification, 0xB0F720u> const NotifyInvalidObject{}; // Object class hierarchy
-	static constexpr reference<PointerExpiredNotification, 0xB0F670u> const NotifyInvalidType{}; // AbstractType class hierarchy
-	static constexpr reference<PointerExpiredNotification, 0xB0F5B8u> const NotifyInvalidAnim{}; // AnimClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F6C8u> const NotifyInvalidHouse{}; // HouseClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F618u> const NotifyInvalidTag{}; // TagClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F708u> const NotifyInvalidTrigger{}; // TriggerClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F640u> const NotifyInvalidFactory{}; // FactoryClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F5F0u> const NotifyInvalidWaypoint{}; // WaypointClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F5D8u> const NotifyInvalidTeam{}; // TeamClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F6F0u> const NotifyInvalidNeuron{}; // NeuronClass
-	static constexpr reference<PointerExpiredNotification, 0xB0F658u> const NotifyInvalidActionOrEvent{}; // ActionClass and EventClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidObject, 0xB0F720u) // Object class hierarchy
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidType, 0xB0F670u) // AbstractType class hierarchy
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidAnim, 0xB0F5B8u) // AnimClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidHouse, 0xB0F6C8u) // HouseClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidTag, 0xB0F618u) // TagClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidTrigger, 0xB0F708u) // TriggerClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidFactory, 0xB0F640u) // FactoryClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidWaypoint, 0xB0F5F0u) // WaypointClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidTeam, 0xB0F5D8u) // TeamClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidNeuron, 0xB0F6F0u) // NeuronClass
+	DEFINE_REFERENCE(PointerExpiredNotification, NotifyInvalidActionOrEvent, 0xB0F658u) // ActionClass and EventClass
 
 	inline bool Add(AbstractClass* object) {
 		// add only if doesn't exist

@@ -50,17 +50,17 @@ class MixFileClass : public Node<MixFileClass>
 	};
 
 public:
-	static constexpr reference<List<MixFileClass*>, 0xABEFD8u> const MIXes{};
+	DEFINE_REFERENCE(List<MixFileClass*>, MIXes, 0xABEFD8u)
 
-	static constexpr reference<DynamicVectorClass<MixFileClass*>, 0x884D90u> const Array{};
-	static constexpr reference<DynamicVectorClass<MixFileClass*>, 0x884DC0u> const Array_Alt{};
-	static constexpr reference<DynamicVectorClass<MixFileClass*>, 0x884DA8u> const Maps{};
-	static constexpr reference<DynamicVectorClass<MixFileClass*>, 0x884DE0u> const Movies{};
+	DEFINE_REFERENCE(DynamicVectorClass<MixFileClass*>, Array, 0x884D90u)
+	DEFINE_REFERENCE(DynamicVectorClass<MixFileClass*>, Array_Alt, 0x884DC0u)
+	DEFINE_REFERENCE(DynamicVectorClass<MixFileClass*>, Maps, 0x884DA8u)
+	DEFINE_REFERENCE(DynamicVectorClass<MixFileClass*>, Movies, 0x884DE0u)
 
-	static constexpr reference<MixFileClass, 0x884DD8u> const MULTIMD{};
-	static constexpr reference<MixFileClass, 0x884DDCu> const MULTI{};
+	DEFINE_REFERENCE(MixFileClass, MULTIMD, 0x884DD8u)
+	DEFINE_REFERENCE(MixFileClass, MULTI, 0x884DDCu)
 
-	static constexpr reference<GenericMixFiles, 0x884DF8u> const Generics{};
+	DEFINE_REFERENCE(GenericMixFiles, Generics, 0x884DF8u)
 
 	static void Bootstrap()
 		{ JMP_THIS(0x5301A0); }

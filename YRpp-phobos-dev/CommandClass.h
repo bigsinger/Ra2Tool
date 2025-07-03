@@ -10,8 +10,8 @@ class NOVTABLE CommandClass
 {
 public:
 	// static
-	static constexpr constant_ptr<DynamicVectorClass<CommandClass*>, 0x87F658u> const Array{};
-	static constexpr reference<IndexClass<unsigned short, CommandClass*>, 0x87F680u> const Hotkeys{};
+	DEFINE_REFERENCE(DynamicVectorClass<CommandClass*>, Array, 0x87F658u)
+	DEFINE_REFERENCE((IndexClass<unsigned short, CommandClass*>), Hotkeys, 0x87F680u)
 
 	//CommandClass
 	virtual ~CommandClass() = default;

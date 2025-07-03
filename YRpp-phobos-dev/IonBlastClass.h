@@ -11,7 +11,7 @@
 class IonBlastClass
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<IonBlastClass*>, 0xAA0118u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<IonBlastClass*>, Array, 0xAA0118u)
 
 	static void UpdateAll()
 		{ JMP_STD(0x53D310); }

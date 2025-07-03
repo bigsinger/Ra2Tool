@@ -84,7 +84,7 @@ public:
 
 	static TiberiumClass* Find(int idxOverlayType) {
 		int idx = FindIndex(idxOverlayType);
-		return Array->GetItemOrDefault(idx);
+		return Array.GetItemOrDefault(idx);
 	}
 
 	//Constructor

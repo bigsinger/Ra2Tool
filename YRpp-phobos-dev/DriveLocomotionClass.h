@@ -2,12 +2,16 @@
 
 #pragma once
 
+#include <Helpers/CompileTime.h>
 #include <LocomotionClass.h>
 
 class NOVTABLE DriveLocomotionClass : public LocomotionClass, public IPiggyback
 {
 public:
 	static constexpr uintptr_t ILocoVTable = 0x7E7EB0;
+
+	DEFINE_ARRAY_REFERENCE(const TurnTrackType, [72], TurnTrack, 0x7E7B28)
+	DEFINE_ARRAY_REFERENCE(const RawTrackType, [16], RawTrack, 0x7E7A28)
 
 	// TODO stub virtuals implementations
 

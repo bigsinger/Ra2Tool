@@ -7,7 +7,7 @@ class BitFont;
 class BitText
 {
 public:
-	static constexpr reference<BitText*, 0x89C4B8> Instance {};
+	DEFINE_REFERENCE(BitText*, Instance, 0x89C4B8)
 
 private:
 	BitText() { JMP_THIS(0x434AD0); }

@@ -10,17 +10,17 @@ class Powerups {
 	 */
 
 	// the name of the effect, for INI reading purposes
-	static constexpr reference<const char*, 0x7E523Cu, 19u> const Effects{};
+	DEFINE_ARRAY_REFERENCE(const char* const, [19u], Effects, 0x7E523Cu)
 
 	// the weight of the effect
-	static constexpr reference<int, 0x81DA8Cu, 19u> const Weights{};
+	DEFINE_ARRAY_REFERENCE(int, [19u], Weights, 0x81DA8Cu)
 
 	// the effect-specific argument
-	static constexpr reference<double, 0x89EC28u, 19u> const Arguments{};
+	DEFINE_ARRAY_REFERENCE(double, [19u], Arguments, 0x89EC28u)
 
 	// can this crate appear on water?
-	static constexpr reference<bool, 0x89ECC0u, 19u> const Naval{};
+	DEFINE_ARRAY_REFERENCE(bool, [19u], Naval, 0x89ECC0u)
 
 	// index into AnimTypeClass::Array
-	static constexpr reference<int, 0x81DAD8u, 19u> const Anims{};
+	DEFINE_ARRAY_REFERENCE(int, [19u], Anims, 0x81DAD8u)
 };

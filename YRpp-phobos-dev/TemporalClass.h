@@ -14,7 +14,7 @@ public:
 	static constexpr uintptr_t AbsVTable = 0x7F5180;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<TemporalClass*>, 0xB0EC60u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<TemporalClass*>, Array, 0xB0EC60u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;

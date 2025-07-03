@@ -60,7 +60,7 @@ class BufferStraw : public Straw
 {
 public:
 	explicit BufferStraw() = delete;
-	explicit BufferStraw(void* pBuffer, size_t nLength) : Straw {}, Buffer { pBuffer,nLength }
+	explicit BufferStraw(void* pBuffer, int nLength) : Straw {}, Buffer { pBuffer,nLength }
 	{ }
 
 	virtual ~BufferStraw() override final
@@ -98,7 +98,7 @@ class LCWStraw : public Straw
 {
 public:
 	explicit LCWStraw() = delete;
-	explicit LCWStraw(BOOL bControl, size_t nBlockSize) : Straw {}
+	explicit LCWStraw(BOOL bControl, int nBlockSize) : Straw {}
 	{
 		this->Control = bControl;
 		this->SafetyMargin = nBlockSize / 0x80 + 1;

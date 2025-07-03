@@ -32,24 +32,24 @@ struct VolumeStruct	//pretty uncreative name, but it's all I can come up with at
 class VocClass
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<VocClass*>, 0xB1D378u> const Array {};
+	DEFINE_REFERENCE(DynamicVectorClass<VocClass*>, Array, 0xB1D378u)
 
-	static constexpr reference<bool, 0x8464ACu> const VoicesEnabled {};
+	DEFINE_REFERENCE(bool, VoicesEnabled, 0x8464ACu)
 
 	static VocClass* Find(const char* pName)
 	{
-		for (int i = 0; i < Array->Count; ++i)
+		for (int i = 0; i < Array.Count; ++i)
 		{
-			if (!_strcmpi(Array->Items[i]->Name, pName))
-				return Array->Items[i];
+			if (!_strcmpi(Array[i]->Name, pName))
+				return Array[i];
 		}
 		return nullptr;
 	}
 	/* dunno what gives, but this doesn't work, the one below does
 		static int FindIndexOf(const char* pName)
 		{
-			for(int i = 0; i < Array->get_Count(); i++)
-				if(!_strcmpi((*Array)[i]->get_Name(),pName))return i;
+			for(int i = 0; i < Array.get_Count(); i++)
+				if(!_strcmpi(Array[i]->get_Name(),pName))return i;
 			return -1;
 		}
 	*/

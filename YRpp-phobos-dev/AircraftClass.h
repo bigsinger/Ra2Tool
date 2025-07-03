@@ -15,7 +15,7 @@ public:
 	static constexpr uintptr_t AbsVTable = 0x7E22A4;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<AircraftClass*>, 0xA8E390u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<AircraftClass*>, Array, 0xA8E390u)
 
 	//IFlyControl
 	virtual int __stdcall Landing_Altitude() R0;
@@ -48,6 +48,9 @@ public:
 	AircraftClass(AircraftTypeClass* pType, HouseClass* pOwner) noexcept
 		: AircraftClass(noinit_t())
 	{ JMP_THIS(0x413D20); }
+
+	AbstractClass* FindFireLocation(AbstractClass* pTarget)
+		{ JMP_THIS(0x4197C0); }
 
 protected:
 	explicit __forceinline AircraftClass(noinit_t) noexcept

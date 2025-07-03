@@ -16,7 +16,7 @@
 class MessageListClass
 {
 public:
-	static constexpr reference<MessageListClass, 0xA8BC60u> const Instance{};
+	DEFINE_REFERENCE(MessageListClass, Instance, 0xA8BC60u)
 
 	explicit MessageListClass() noexcept
 		{ JMP_THIS(0x5D39D0); }

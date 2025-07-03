@@ -1,10 +1,8 @@
 #pragma once
 
 #include <wchar.h>
-
 #include <Helpers/CompileTime.h>
 
-class StartingSlotClass;
 
 struct AISlotsStruct
 {
@@ -18,8 +16,8 @@ struct AISlotsStruct
 class GameModeOptionsClass
 {
 public:
-	// this is the same as SessionClass::Instance->Config
-	static constexpr reference<GameModeOptionsClass, 0xA8B250u> const Instance{};
+	// this is the same as SessionClass::Instance.Config
+	DEFINE_REFERENCE(GameModeOptionsClass, Instance, 0xA8B250u)
 
 	int MPModeIndex;
 	int ScenarioIndex;
@@ -38,7 +36,7 @@ public:
 	AISlotsStruct AISlots;
 	bool AlliesAllowed;
 	bool HarvesterTruce;
-	bool CTF;
+	bool CaptureTheFlag;
 	bool FogOfWar;
 	bool MCVRedeploy;
 	wchar_t MapDescription[45];

@@ -29,18 +29,18 @@ public:
 	};
 
 	//global array
-	static constexpr constant_ptr<DynamicVectorClass<ColorScheme*>, 0xB054D0u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<ColorScheme*>, Array, 0xB054D0u)
 /*
  * trap! most schemes are duplicated - ShadeCount 1 and ShadeCount 53
 */
 	static ColorScheme* Find(const char* pID, int ShadeCount = 1) {
 		int index = FindIndex(pID, ShadeCount);
-		return Array->GetItemOrDefault(index);
+		return Array.GetItemOrDefault(index);
 	}
 
 	static int FindIndex(const char* pID, int ShadeCount = 1) {
-		for(int i = 0; i < Array->Count; ++i) {
-			ColorScheme* pItem = Array->GetItem(i);
+		for(int i = 0; i < Array.Count; ++i) {
+			ColorScheme* pItem = Array.GetItem(i);
 			if(!_strcmpi(pItem->ID, pID)) {
 				if(pItem->ShadeCount == ShadeCount) {
 					return i;
@@ -87,4 +87,15 @@ public:
 	PROTECTED_PROPERTY(BYTE,     unknown_314[0x1C]);
 	int   MainShadeIndex;
 	PROTECTED_PROPERTY(BYTE,     unknown_334[0x8]);
+};
+
+struct HashString
+{
+	char Name[256];
+};
+
+struct SchemeNode
+{
+	char Name[256];
+	DynamicVectorClass<ColorScheme*>* Schemes;
 };

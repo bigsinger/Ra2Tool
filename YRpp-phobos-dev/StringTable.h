@@ -66,16 +66,16 @@ struct CSFLanguage
 class StringTable
 {
 public:
-	static constexpr reference<CSFString*, 0xB1CF88u> const LastLoadedString {};
-	static constexpr reference<int, 0xB1CF58u> const MaxLabelLen {};
-	static constexpr reference<int, 0xB1CF6Cu> const LabelCount {};
-	static constexpr reference<int, 0xB1CF70u> const ValueCount {};
-	static constexpr reference<CSFLanguages, 0x845728u> const Language {};
-	static constexpr reference<bool, 0xB1CF80u> const IsLoaded {};
-	static constexpr reference<char*, 0xB1CF68u> const FileName {};
-	static constexpr reference<CSFLabel*, 0xB1CF74u> const Labels {};
-	static constexpr reference<wchar_t**, 0xB1CF78u> const Values {};
-	static constexpr reference<char**, 0xB1CF7Cu> const ExtraValues {};
+	DEFINE_REFERENCE(CSFString*, LastLoadedString, 0xB1CF88u)
+	DEFINE_REFERENCE(int, MaxLabelLen, 0xB1CF58u)
+	DEFINE_REFERENCE(int, LabelCount, 0xB1CF6Cu)
+	DEFINE_REFERENCE(int, ValueCount, 0xB1CF70u)
+	DEFINE_REFERENCE(CSFLanguages, Language, 0x845728u)
+	DEFINE_REFERENCE(bool, IsLoaded, 0xB1CF80u)
+	DEFINE_REFERENCE(char*, FileName, 0xB1CF68u)
+	DEFINE_REFERENCE(CSFLabel*, Labels, 0xB1CF74u)
+	DEFINE_REFERENCE(wchar_t**, Values, 0xB1CF78u)
+	DEFINE_REFERENCE(char**, ExtraValues, 0xB1CF7Cu)
 
 	static const wchar_t* __fastcall LoadString(
 		const char* pLabel,

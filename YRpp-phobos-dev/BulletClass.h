@@ -28,9 +28,9 @@ public:
 	static const AbstractType AbsID = AbstractType::Bullet;
 
 	//Array
-	static constexpr constant_ptr<DynamicVectorClass<BulletClass*>, 0xA8ED40u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<BulletClass*>, Array, 0xA8ED40u)
 
-	static constexpr reference<DynamicVectorClass<BulletClass*>, 0x89DE18u> const ScalableBullets{};
+	DEFINE_REFERENCE(DynamicVectorClass<BulletClass*>, ScalableBullets, 0x89DE18u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -134,7 +134,8 @@ public:
 	BulletVelocity Velocity;
 	DWORD unknown_100;
 	bool unknown_104;
-	DWORD unknown_108;
+	bool CourseLock;
+	int CourseLockCounter;
 	AbstractClass* Target;
 	int Speed;
 	int InheritedColor;

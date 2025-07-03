@@ -132,7 +132,7 @@ class NOVTABLE BufferIOFileClass : public RawFileClass
 {
 public:
 	//Destructor
-	virtual ~BufferIOFileClass() RX;
+	virtual ~BufferIOFileClass() override JMP_THIS(0x431B80);
 	//FileClass
 	virtual const char* SetFileName(const char* pFileName) override JMP_THIS(0x431E80);
 	virtual bool Exists(bool writeShared = false) override JMP_THIS(0x431F10);

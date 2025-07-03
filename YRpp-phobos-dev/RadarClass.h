@@ -1,14 +1,14 @@
 #pragma once
 
 #include <DisplayClass.h>
-
+struct RadarTrackingStruct;
 class NOVTABLE RadarClass : public DisplayClass
 {
 public:
 	//WIP: RadarClass::RTacticalClass goes HERE
 
 	//Static
-	static constexpr constant_ptr<RadarClass, 0x87F7E8u> const Instance{};
+	DEFINE_REFERENCE(RadarClass, Instance, 0x87F7E8u)
 
 	//Destructor
 	virtual ~RadarClass() RX;
@@ -59,7 +59,7 @@ public:
 	DWORD unknown_124C;
 	DWORD unknown_1250;
 	DWORD unknown_1254;
-	DWORD unknown_1258;
+	HashTable<RadarTrackingStruct, TechnoClass*>* unknown_1258;
 	DynamicVectorClass<Point2D> unknown_points_125C;
 	DWORD unknown_1274;
 	DynamicVectorClass<Point2D> FoundationTypePixels[22];

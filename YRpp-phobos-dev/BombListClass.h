@@ -13,7 +13,7 @@ class TechnoClass;
 class BombListClass
 {
 public:
-	static constexpr reference<BombListClass, 0x87F5D8u> const Instance{};
+	DEFINE_REFERENCE(BombListClass, Instance, 0x87F5D8u)
 
 	// draws all the visible bombs, expires the outdated ones
 	void Update()

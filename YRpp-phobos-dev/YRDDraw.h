@@ -195,8 +195,8 @@ public:
 class DirectDrawWrap
 {
 public:
-	static constexpr reference<DirectDrawWrap*, 0x8A0094u> const lpDD {};
-	static constexpr reference<bool, 0x8A0DEFu> const DoSmth {};
+	DEFINE_REFERENCE(DirectDrawWrap*, lpDD, 0x8A0094u)
+	DEFINE_REFERENCE(bool, DoSmth, 0x8A0DEFu)
 
 	static HRESULT WINAPI DDCreate(GUID* lpGUID, DirectDrawWrap** lplpDD, IUnknown* pUnkOuter)
 		JMP_STD(0x7C89D4);

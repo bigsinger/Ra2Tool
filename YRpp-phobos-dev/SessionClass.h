@@ -26,7 +26,7 @@ struct SessionOptionsClass
 
 #pragma pack(push, 1)
 struct NodeNameType {
-	static constexpr constant_ptr<DynamicVectorClass<NodeNameType*>,0xA8DA74> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<NodeNameType*>, Array, 0xA8DA74)
 
 	wchar_t Name[20];
 	sockaddr_in Address;
@@ -55,28 +55,28 @@ static_assert(sizeof(NodeNameType) == 0x85);
 class SessionClass
 {
 public:
-	static constexpr reference<SessionClass, 0xA8B238u> const Instance{};
+	DEFINE_REFERENCE(SessionClass, Instance, 0xA8B238u)
 
 	static bool IsCampaign()
 	{
-		return Instance->GameMode == GameMode::Campaign;
+		return Instance.GameMode == GameMode::Campaign;
 	}
 
 	static bool IsSkirmish()
 	{
-		return Instance->GameMode == GameMode::Skirmish;
+		return Instance.GameMode == GameMode::Skirmish;
 	}
 
 	static bool IsSingleplayer()
 	{
-		return Instance->GameMode == GameMode::Campaign
-			|| Instance->GameMode == GameMode::Skirmish;
+		return Instance.GameMode == GameMode::Campaign
+			|| Instance.GameMode == GameMode::Skirmish;
 	}
 
 	static bool IsMultiplayer()
 	{
-		return Instance->GameMode == GameMode::LAN
-			|| Instance->GameMode == GameMode::Internet;
+		return Instance.GameMode == GameMode::LAN
+			|| Instance.GameMode == GameMode::Internet;
 	}
 
 	// non-virtual

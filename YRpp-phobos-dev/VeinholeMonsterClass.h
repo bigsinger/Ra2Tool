@@ -54,9 +54,9 @@ class NOVTABLE VeinholeMonsterClass : public ObjectClass
 public:
 	static const AbstractType AbsID = AbstractType::VeinholeMonster;
 
-	static constexpr reference<bool*, 0xA83DC8u> const IsCurrentPosAffected {};
-	static constexpr reference<SHPStruct*, 0xB1D2ECu> const VeinSHPData {};
-	static constexpr constant_ptr<DynamicVectorClass<VeinholeMonsterClass*>, 0xB1D290u> const Array {};
+	DEFINE_REFERENCE(bool*, IsCurrentPosAffected, 0xA83DC8u)
+	DEFINE_REFERENCE(SHPStruct*, VeinSHPData, 0xB1D2ECu)
+	DEFINE_REFERENCE(DynamicVectorClass<VeinholeMonsterClass*>, Array, 0xB1D290u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) override JMP_THIS(0x74F2D0);
@@ -127,9 +127,9 @@ public:
 
 		/*
 		//pop back ?
-		for (int i = Array->Count - 1; i >= 0; --i)
+		for (int i = Array.Count - 1; i >= 0; --i)
 		{
-			auto pVeinholes = Array->GetItem(i);
+			auto pVeinholes = Array.GetItem(i);
 			pVeinholes->ClearGrowthData();
 		}
 
@@ -179,7 +179,7 @@ public:
 
 	static void __fastcall UpdateAll()
 	{
-		for (auto const& pVeins : *Array())
+		for (auto const& pVeins : Array)
 		{
 			if (!pVeins->InLimbo)
 				pVeins->Update();

@@ -14,7 +14,7 @@ public:
 	static const AbstractType AbsID = AbstractType::Team;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<TeamClass*>, 0x8B40E8u> const Array {};
+	DEFINE_REFERENCE(DynamicVectorClass<TeamClass*>, Array, 0x8B40E8u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -40,6 +40,9 @@ public:
 
 	void AssignMissionTarget(AbstractClass* pTarget)
 		JMP_THIS(0x6E9050);
+
+	void ScanLimit()
+		JMP_THIS(0x6EC3A0);
 
 	//AbstractClass
 	virtual AbstractType WhatAmI() const RT(AbstractType);

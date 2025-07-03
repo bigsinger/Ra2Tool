@@ -23,8 +23,8 @@ struct ThemeControl
 class NOVTABLE ThemeClass
 {
 public:
-	static constexpr reference<ThemeClass, 0xA83D10> Instance {};
-	static constexpr reference<bool, 0xA8EC74> ScoresPresen {};
+	DEFINE_REFERENCE(ThemeClass, Instance, 0xA83D10)
+	DEFINE_REFERENCE(bool, ScoresPresen, 0xA8EC74)
 
 	const char* GetID(unsigned int index) const
 		JMP_THIS(0x721270);

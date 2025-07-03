@@ -13,17 +13,17 @@ public:
 	class CLSIDs
 	{
 	public:
-		static constexpr reference<CLSID const, 0x7E9A30u> const Drive {};
-		static constexpr reference<CLSID const, 0x7E9A40u> const Hover {};
-		static constexpr reference<CLSID const, 0x7E9A50u> const Tunnel {};
-		static constexpr reference<CLSID const, 0x7E9A60u> const Walk {};
-		static constexpr reference<CLSID const, 0x7E9A70u> const Droppod {};
-		static constexpr reference<CLSID const, 0x7E9A80u> const Fly {};
-		static constexpr reference<CLSID const, 0x7E9A90u> const Teleport {};
-		static constexpr reference<CLSID const, 0x7E9AA0u> const Mech {};
-		static constexpr reference<CLSID const, 0x7E9AB0u> const Ship {};
-		static constexpr reference<CLSID const, 0x7E9AC0u> const Jumpjet {};
-		static constexpr reference<CLSID const, 0x7E9AD0u> const Rocket {};
+		DEFINE_REFERENCE(CLSID const, Drive, 0x7E9A30u)
+		DEFINE_REFERENCE(CLSID const, Hover, 0x7E9A40u)
+		DEFINE_REFERENCE(CLSID const, Tunnel, 0x7E9A50u)
+		DEFINE_REFERENCE(CLSID const, Walk, 0x7E9A60u)
+		DEFINE_REFERENCE(CLSID const, Droppod, 0x7E9A70u)
+		DEFINE_REFERENCE(CLSID const, Fly, 0x7E9A80u)
+		DEFINE_REFERENCE(CLSID const, Teleport, 0x7E9A90u)
+		DEFINE_REFERENCE(CLSID const, Mech, 0x7E9AA0u)
+		DEFINE_REFERENCE(CLSID const, Ship, 0x7E9AB0u)
+		DEFINE_REFERENCE(CLSID const, Jumpjet, 0x7E9AC0u)
+		DEFINE_REFERENCE(CLSID const, Rocket, 0x7E9AD0u)
 	};
 
 	//IUnknown
@@ -177,21 +177,32 @@ public:
 namespace detail
 {
 	template<typename Base>
-	concept LocoHasILocoVtbl = std::derived_from<Base, LocomotionClass> && !std::is_same_v<LocomotionClass, Base> && requires
-	{
-		{ Base::ILocoVTable }->std::convertible_to<const uintptr_t>;
-	};
+	concept LocoIsDerived = std::derived_from<Base, LocomotionClass> && !std::is_same_v<LocomotionClass, Base>;
+
+	template<typename Base>
+	concept LocoHasILocoVtbl = requires { { Base::ILocoVTable }->std::convertible_to<const uintptr_t>; };
 }
 
 template<typename T>
-concept LocoCastEligible = std::is_pointer_v<T> && detail::LocoHasILocoVtbl<std::remove_cvref_t<std::remove_const_t<std::remove_pointer_t<T>>>>;
+concept LocoCastEligible = std::is_pointer_v<T> && detail::LocoIsDerived<std::remove_cvref_t<std::remove_const_t<std::remove_pointer_t<T>>>>;
 
 
 template <LocoCastEligible T>
 __forceinline T locomotion_cast(ILocomotion* iLoco)
 {
 	using Base = std::remove_cvref_t<std::remove_const_t<std::remove_pointer_t<T>>>;
-	return VTable::Get(iLoco) == Base::ILocoVTable ? static_cast<T>(iLoco) : nullptr;
+
+	if constexpr (detail::LocoHasILocoVtbl<Base>)
+	{
+		return VTable::Get(iLoco) == Base::ILocoVTable ? static_cast<T>(iLoco) : nullptr;
+	}
+	else
+	{
+		CLSID clsid;
+		IPersistPtr comPersist = iLoco;
+
+		return (SUCCEEDED(comPersist->GetClassID(&clsid)) && clsid == __uuidof(Base)) ? static_cast<T>(iLoco) : nullptr;
+	}
 }
 
 template<LocoCastEligible T>
@@ -205,3 +216,25 @@ __forceinline T locomotion_cast(ILocomotionPtr& comLoco)
 //		return static_cast<T>(comLoco.GetInterfacePtr());
 */
 }
+
+struct TurnTrackType
+{
+	char NormalTrackStructIndex;
+	char ShortTrackStructIndex;
+	int Face;
+	int Flag;
+};
+
+struct TrackType
+{
+	Point2D Point;
+	int Face;
+};
+
+struct RawTrackType
+{
+	TrackType* TrackPoint;
+	int JumpIndex;
+	int EntryIndex;
+	int CellIndex;
+};

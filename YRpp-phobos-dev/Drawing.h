@@ -15,13 +15,13 @@
 class RGBClass
 {
 public:
-	static constexpr reference<RGBClass, 0xA80220> White {};
-	static constexpr reference<int, 0x8A0DD0> const RedShiftLeft {};
-	static constexpr reference<int, 0x8A0DD4> const RedShiftRight {};
-	static constexpr reference<int, 0x8A0DE0> const GreenShiftLeft {};
-	static constexpr reference<int, 0x8A0DE4> const GreenShiftRight {};
-	static constexpr reference<int, 0x8A0DD8> const BlueShiftLeft {};
-	static constexpr reference<int, 0x8A0DDC> const BlueShiftRight {};
+	DEFINE_REFERENCE(RGBClass, White, 0xA80220)
+	DEFINE_REFERENCE(int, RedShiftLeft, 0x8A0DD0)
+	DEFINE_REFERENCE(int, RedShiftRight, 0x8A0DD4)
+	DEFINE_REFERENCE(int, GreenShiftLeft, 0x8A0DE0)
+	DEFINE_REFERENCE(int, GreenShiftRight, 0x8A0DE4)
+	DEFINE_REFERENCE(int, BlueShiftLeft, 0x8A0DD8)
+	DEFINE_REFERENCE(int, BlueShiftRight, 0x8A0DDC)
 
 	unsigned char Red;
 	unsigned char Green;
@@ -115,16 +115,16 @@ struct DirtyAreaStruct
 class Drawing
 {
 public:
-	constexpr static reference<DynamicVectorClass<DirtyAreaStruct>, 0xB0CE78> DirtyAreas {};
-	static constexpr reference<ColorStruct, 0xB0FA1C> const TooltipColor {};
+	DEFINE_REFERENCE(DynamicVectorClass<DirtyAreaStruct>, DirtyAreas, 0xB0CE78)
+	DEFINE_REFERENCE(ColorStruct, TooltipColor, 0xB0FA1C)
 	// RGB color mode currently in use, determined by primary drawing surface. The bitshift values below can change depending on this.
-	static constexpr reference<RGBMode, 0x8205D0> ColorMode {};
-	static constexpr reference<int, 0x8A0DD0> const RedShiftLeft {};
-	static constexpr reference<int, 0x8A0DD4> const RedShiftRight {};
-	static constexpr reference<int, 0x8A0DE0> const GreenShiftLeft {};
-	static constexpr reference<int, 0x8A0DE4> const GreenShiftRight {};
-	static constexpr reference<int, 0x8A0DD8> const BlueShiftLeft {};
-	static constexpr reference<int, 0x8A0DDC> const BlueShiftRight {};
+	DEFINE_REFERENCE(RGBMode, ColorMode, 0x8205D0)
+	DEFINE_REFERENCE(int, RedShiftLeft, 0x8A0DD0)
+	DEFINE_REFERENCE(int, RedShiftRight, 0x8A0DD4)
+	DEFINE_REFERENCE(int, GreenShiftLeft, 0x8A0DE0)
+	DEFINE_REFERENCE(int, GreenShiftRight, 0x8A0DE4)
+	DEFINE_REFERENCE(int, BlueShiftLeft, 0x8A0DD8)
+	DEFINE_REFERENCE(int, BlueShiftRight, 0x8A0DDC)
 
 	//TextBox dimensions for tooltip-style boxes
 	static RectangleStruct* __fastcall GetTextDimensions(
@@ -228,7 +228,7 @@ public:
 class NOVTABLE ABuffer
 {
 public:
-	static constexpr reference<ABuffer*, 0x87E8A4> Instance {};
+	DEFINE_REFERENCE(ABuffer*, Instance, 0x87E8A4)
 
 	ABuffer(RectangleStruct Rect) { JMP_THIS(0x410CE0); }
 	bool BlitTo(Surface* pSurface, int X, int Y, int Offset, int Size) { JMP_THIS(0x410DC0); }
@@ -261,7 +261,7 @@ public:
 class NOVTABLE ZBuffer
 {
 public:
-	static constexpr reference<ZBuffer*, 0x887644> Instance {};
+	DEFINE_REFERENCE(ZBuffer*, Instance, 0x887644)
 
 	ZBuffer(RectangleStruct Rect) { JMP_THIS(0x7BC970); }
 	bool BlitTo(Surface* pSurface, int X, int Y, int Offset, int Size) { JMP_THIS(0x7BCA50); }

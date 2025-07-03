@@ -57,7 +57,7 @@ struct CellRectIterator<CellClass> {
 	template <typename Func>
 	void operator () (LTRBStruct bounds, Func&& action) const {
 		for(CellRectEnumerator cell(bounds); cell; ++cell) {
-			if(auto const pCell = MapClass::Instance->TryGetCellAt(*cell)) {
+			if(auto const pCell = MapClass::Instance.TryGetCellAt(*cell)) {
 				if(!action(pCell)) {
 					return;
 				}
@@ -115,7 +115,7 @@ struct CellRangeIterator<CellClass> {
 	template <typename Func>
 	void operator () (CellStruct const center, double radius, Func&& action) const {
 		for(CellRangeEnumerator cell(center, radius); cell; ++cell) {
-			if(auto const pCell = MapClass::Instance->TryGetCellAt(*cell)) {
+			if(auto const pCell = MapClass::Instance.TryGetCellAt(*cell)) {
 				if(!action(pCell)) {
 					return;
 				}
@@ -176,7 +176,7 @@ struct CellSpreadIterator<CellClass> {
 		auto const legacy = std::min(spread, 10u);
 		auto const count = CellSpread::NumCells(legacy);
 		for(auto i = 0u; i < count; ++i) {
-			if(auto const pCell = MapClass::Instance->TryGetCellAt(center + CellSpread::GetCell(i))) {
+			if(auto const pCell = MapClass::Instance.TryGetCellAt(center + CellSpread::GetCell(i))) {
 				if(!action(pCell)) {
 					return;
 				}
@@ -184,7 +184,7 @@ struct CellSpreadIterator<CellClass> {
 		}
 
 		for(CellSpreadEnumerator i(spread, 11u); i; ++i) {
-			if(auto const pCell = MapClass::Instance->TryGetCellAt(center + *i)) {
+			if(auto const pCell = MapClass::Instance.TryGetCellAt(center + *i)) {
 				if(!action(pCell)) {
 					return;
 				}

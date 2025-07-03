@@ -6,7 +6,7 @@
 
 class InputManagerClass {
 public:
-	static constexpr reference<InputManagerClass*, 0x87F770u> const Instance{};
+	DEFINE_REFERENCE(InputManagerClass*, Instance, 0x87F770u)
 
 	byte DoSomething()
 		{ JMP_THIS(0x54F720); }
@@ -15,18 +15,18 @@ public:
 		{ JMP_THIS(0x54F5C0); }
 
 	bool IsForceFireKeyPressed() const {
-		return this->IsKeyPressed(GameOptionsClass::Instance->KeyForceFire1)
-			|| this->IsKeyPressed(GameOptionsClass::Instance->KeyForceFire2);
+		return this->IsKeyPressed(GameOptionsClass::Instance.KeyForceFire1)
+			|| this->IsKeyPressed(GameOptionsClass::Instance.KeyForceFire2);
 	}
 
 	bool IsForceMoveKeyPressed() const {
-		return this->IsKeyPressed(GameOptionsClass::Instance->KeyForceMove1)
-			|| this->IsKeyPressed(GameOptionsClass::Instance->KeyForceMove2);
+		return this->IsKeyPressed(GameOptionsClass::Instance.KeyForceMove1)
+			|| this->IsKeyPressed(GameOptionsClass::Instance.KeyForceMove2);
 	}
 
 	bool IsForceSelectKeyPressed() const {
-		return this->IsKeyPressed(GameOptionsClass::Instance->KeyForceSelect1)
-			|| this->IsKeyPressed(GameOptionsClass::Instance->KeyForceSelect2);
+		return this->IsKeyPressed(GameOptionsClass::Instance.KeyForceSelect1)
+			|| this->IsKeyPressed(GameOptionsClass::Instance.KeyForceSelect2);
 	}
 
 protected:

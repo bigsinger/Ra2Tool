@@ -33,7 +33,7 @@ public:
 	static constexpr uintptr_t AbsVTable = 0x7E3EBC;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<BuildingClass*>, 0xA8EB40u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<BuildingClass*>, Array, 0xA8EB40u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -267,7 +267,7 @@ public:
 	DWORD unknown_544;
 	AnimClass* FirestormAnim; //pointer
 	AnimClass* PsiWarnAnim; //pointer
-	CDTimerClass unknown_timer_550;
+	CDTimerClass FactoryRetryTimer;
 
 // see eBuildingAnims above for slot index meanings
 	AnimClass * Anims [0x15];

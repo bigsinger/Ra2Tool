@@ -7,7 +7,7 @@
 class WWMessageBox
 {
 public:
-	static constexpr reference<WWMessageBox, 0x82083C> Instance {};
+	DEFINE_REFERENCE(WWMessageBox, Instance, 0x82083C)
 
 	enum class Result : int
 	{

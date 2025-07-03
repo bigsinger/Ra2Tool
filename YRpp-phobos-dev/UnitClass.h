@@ -17,7 +17,7 @@ public:
 	static constexpr uintptr_t AbsVTable = 0x7F5C70;
 
 	//Static
-	static constexpr constant_ptr<DynamicVectorClass<UnitClass*>, 0x8B4108u> const Array{};
+	DEFINE_REFERENCE(DynamicVectorClass<UnitClass*>, Array, 0x8B4108u)
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -107,11 +107,11 @@ protected:
 
 public:
 
-	int unknown_int_6C0;
+	int CurrentFiringFrame;
 	UnitTypeClass* Type;
 	UnitClass* FollowerCar; // groovy - link defined in the map's [Units] section, looked up on startup
-	int FlagHouseIndex; //Carrying the flag of this House
-	bool HasFollowerCar; // yes, this vehicle has a another vehicle (a train's locomotive towing the cars)
+	int FlagHouseIndex; // Carrying the flag of this House
+	bool IsFollowerCar; // This vehicle is another vehicle's FollowerCar (such as a train car following train).
 	bool Unloading;
 	bool IsHarvesting;
 	bool TerrainPalette;

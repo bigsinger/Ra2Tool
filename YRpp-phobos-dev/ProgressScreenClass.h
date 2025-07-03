@@ -8,7 +8,7 @@
 class ProgressScreenClass {
 public:
 
-	static constexpr reference<ProgressScreenClass, 0xAC4F58u> const Instance{};
+	DEFINE_REFERENCE(ProgressScreenClass, Instance, 0xAC4F58u)
 
 	void SetSide(int idx)
 		{ JMP_THIS(0x642B10); }

@@ -50,7 +50,7 @@ struct AudioSampleData {
 
 class AudioIDXData {
 public:
-	static constexpr reference<AudioIDXData*, 0x87E294u> const Instance{};
+	DEFINE_REFERENCE(AudioIDXData*, Instance, 0x87E294u)
 
 	static AudioIDXData* __fastcall Create(const char* pFilename, const char* pPath)
 		{ JMP_STD(0x4011C0); };
@@ -97,7 +97,7 @@ public:
 
 class AudioStream {
 public:
-	static constexpr reference<AudioStream*, 0xB1D4D8u> const Instance{};
+	DEFINE_REFERENCE(AudioStream*, Instance, 0xB1D4D8u)
 
 	bool __fastcall PlayWAV(const char* pFilename, bool bUnk)
 		{ JMP_STD(0x407B60); }
