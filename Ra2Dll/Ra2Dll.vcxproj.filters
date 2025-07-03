@@ -1005,6 +1005,18 @@
     <ClInclude Include="Utilities\Macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="$(YRppDir)\BeaconClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\BeaconManagerClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\HoverLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\TubeClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ra2Dll.cpp">
@@ -1029,6 +1041,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(YRppDir)\StaticInits.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
