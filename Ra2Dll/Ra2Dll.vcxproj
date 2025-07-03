@@ -7,7 +7,7 @@
     <RootNamespace>Ra2Dll</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ThisDir>$(MSBuildThisFileDirectory)</ThisDir>
-    <YRppDir>$(ThisDir)..\YRpp-phobos-dev</YRppDir>
+    <YRppDir>$(ThisDir)..\YRpp</YRppDir>
   </PropertyGroup>
   <!-- Import props -->
   <Import Project="$(YRppDir)\YRpp.props" />
