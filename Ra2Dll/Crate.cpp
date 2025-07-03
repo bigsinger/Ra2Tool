@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include <MapClass.h>
+//#pragma pack(push, 4)
 #include <OverlayTypeClass.h>
-#include <Utilities\Patch.h>
+#include <MapClass.h>
+//#pragma pack(pop)
 #include "Crate.h"
 #include "Utils.h"
 
@@ -28,10 +29,9 @@ const char* powerupNames[] = {
     "Pod（舱体）"
 };
 
-const char* getCrateName(byte crateType) {
-    Powerup powerupType = (Powerup)(crateType);
-    if (powerupType >= Powerup::Money && powerupType <= Powerup::Pod) {
-        return powerupNames[crateType];
+const char* getCrateName(Powerup crateType) {
+    if (crateType >= Powerup::Money && crateType <= Powerup::Pod) {
+        return powerupNames[(int)crateType];
     }
     return "Unknown";
 }
@@ -40,16 +40,20 @@ const char* getCrateName(byte crateType) {
 void ReadCrateType() {
 	byte* p = (byte*)0x00ABDC50;
 	Powerup powerup = (Powerup)(p[0x11E]);
-    Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s", powerup, getCrateName((byte)powerup));
+    Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s", powerup, getCrateName(powerup));
 
 	// 读取地图上的箱子数据
 	MapClass&map = MapClass::Instance;
     for (int i = 0; i < 0x100; i++) {
+        if (map.Crates[i].CrateTimer.TimeLeft <= 0) {
+            continue;
+        }
+
         CellClass* cell = map.TryGetCellAt(map.Crates[i].Location);
-        Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d)", i, map.Crates[i].Location.X, map.Crates[i].Location.Y);
+        Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, map.Crates[i].CrateTimer.TimeLeft);
 
         if (cell) {
-            Powerup crate_type = Powerup::Money;
+            Powerup crate_type = Powerup::Money; 
 #if 0
             if (cell->OverlayTypeIndex != -1 && OverlayTypeClass::Array[cell->OverlayTypeIndex]->Crate) {
                 crate_type = (Powerup)(cell->OverlayData);
@@ -57,18 +61,18 @@ void ReadCrateType() {
 #else
             crate_type = (Powerup)(cell->OverlayData);
 #endif
-            Utils::LogFormat("MapClass::Crates[%d] Type: %d Name: %s ", i, (byte)crate_type, getCrateName((byte)crate_type));
+            Utils::LogFormat("MapClass::Crates[%d] Type: %d Name: %s ", i, crate_type, getCrateName(crate_type));
         } else {
             break;
         }
     }
 }
 
-bool PlacePowerupCrate_new(MapClass*pThis, CellStruct cell, Powerup type) {
-    Utils::LogFormat("PlacePowerupCrate Type: %d, Name: %s, Location:(%d:%d)", (byte)type, getCrateName((byte)type), cell.X, cell.Y);
-    return true;
-}
-
-void HookPlacePowerupCrate() {
-    Patch::Apply_CALL(0x56BEC0, PlacePowerupCrate_new);
-}
+//bool PlacePowerupCrate_new(MapClass*pThis, CellStruct cell, Powerup type) {
+//    Utils::LogFormat("PlacePowerupCrate Type: %d, Name: %s, Location:(%d:%d)", (byte)type, getCrateName(type), cell.X, cell.Y);
+//    return true;
+//}
+//
+//void HookPlacePowerupCrate() {
+//    //Patch::Apply_CALL(0x56BEC0, PlacePowerupCrate_new);
+//}

@@ -284,7 +284,7 @@ void Install(HMODULE hModule) {
 		DisableDisguise();
 	}
 	Chat(NULL, 0);
-	HookPlacePowerupCrate();
+	//HookPlacePowerupCrate();
 	InitToolWindow();
 }
 
