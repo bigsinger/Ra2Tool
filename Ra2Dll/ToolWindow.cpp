@@ -4,6 +4,8 @@
 #include "Ra2Helper.h"
 #include "ToolWindow.h"
 #include "AutoRepair.h"
+#include "Crate.h"
+#include "Config.h"
 
 
 // 快捷键 ID
@@ -12,6 +14,10 @@
 #define HOTKEY_ALT_P 3
 #define HOTKEY_ALT_B 4
 #define HOTKEY_ALT_G 5
+
+// 定时器 ID
+#define TIMER_ID_TEST 1
+
 
 // 处理函数声明
 void OnAltR();
@@ -27,6 +33,11 @@ HWND g_hwndToolWindow = NULL;
 // 窗口过程函数
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
+    case WM_TIMER:
+        if (wParam == TIMER_ID_TEST) {
+			ReadCrateType(); // 读取箱子类型
+        }
+        break;
     case WM_HOTKEY:
         switch (wParam) {
         case HOTKEY_ALT_R: OnAltR(); break;
@@ -42,7 +53,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
-
+    case WM_CREATE:
+        if (Config::isAutoShowCrate()) {
+            SetTimer(hwnd, TIMER_ID_TEST, 3000, NULL);
+        }
+        break;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }

@@ -67,4 +67,14 @@ public:
 		return _iAutoRepairCount;
 	}
 
+private:
+	// 获取箱子信息
+	static int _iAutoShowCrateFlag;
+public:
+	static int isAutoShowCrate() {
+		if (_iAutoShowCrateFlag == UNINITED_FLAG) {
+			_iAutoShowCrateFlag = ::GetPrivateProfileInt("main", "crate", FALSE, _configFilePath);
+		}
+		return _iAutoShowCrateFlag > 0;
+	}
 };
