@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <MapClass.h>
+#include <OverlayTypeClass.h>
+#include <Utilities\Patch.h>
 #include "Crate.h"
 #include "Utils.h"
 
@@ -44,10 +46,29 @@ void ReadCrateType() {
 	MapClass&map = MapClass::Instance;
     for (int i = 0; i < 0x100; i++) {
         CellClass* cell = map.TryGetCellAt(map.Crates[i].Location);
+        Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d)", i, map.Crates[i].Location.X, map.Crates[i].Location.Y);
+
         if (cell) {
-            Utils::LogFormat("MapClass::Crates[%d] Type: %d Name: %s ", i, cell->OverlayData, getCrateName((byte)cell->OverlayData));
+            Powerup crate_type = Powerup::Money;
+#if 0
+            if (cell->OverlayTypeIndex != -1 && OverlayTypeClass::Array[cell->OverlayTypeIndex]->Crate) {
+                crate_type = (Powerup)(cell->OverlayData);
+            }
+#else
+            crate_type = (Powerup)(cell->OverlayData);
+#endif
+            Utils::LogFormat("MapClass::Crates[%d] Type: %d Name: %s ", i, (byte)crate_type, getCrateName((byte)crate_type));
         } else {
             break;
         }
     }
+}
+
+bool PlacePowerupCrate_new(MapClass*pThis, CellStruct cell, Powerup type) {
+    Utils::LogFormat("PlacePowerupCrate Type: %d, Name: %s, Location:(%d:%d)", (byte)type, getCrateName((byte)type), cell.X, cell.Y);
+    return true;
+}
+
+void HookPlacePowerupCrate() {
+    Patch::Apply_CALL(0x56BEC0, PlacePowerupCrate_new);
 }

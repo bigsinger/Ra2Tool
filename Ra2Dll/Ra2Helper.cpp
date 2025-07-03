@@ -7,6 +7,7 @@
 #include <EventClass.h>
 #include <HouseClass.h>
 #include <IPXManagerClass.h>
+#include "Crate.h"
 #include "Utils.h"
 #include "Config.h"
 
@@ -283,7 +284,7 @@ void Install(HMODULE hModule) {
 		DisableDisguise();
 	}
 	Chat(NULL, 0);
-
+	HookPlacePowerupCrate();
 	InitToolWindow();
 }
 
