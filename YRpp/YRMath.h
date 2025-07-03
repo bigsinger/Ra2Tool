@@ -1,8 +1,9 @@
 #pragma once
 
 #include <YRPPCore.h>
-
 #include <type_traits>
+#undef min
+#undef max
 
 #define MATH_FUNC(name, address)\
 	inline __declspec(naked) double __cdecl name(double value)\
