@@ -186,8 +186,8 @@ void SetBoxAllMoney() {
 void DisableDisguise() {
 #if 0
 	// 本段代码可能会平行世界
-	for (int i = 0; i < TechnoTypeClass::Array->Count; i++) {
-		TechnoTypeClass::Array->GetItem(i)->CanDisguise = false;
+	for (int i = 0; i < TechnoTypeClass::Array.Count; i++) {
+		TechnoTypeClass::Array.GetItem(i)->CanDisguise = false;
 	}
 #endif // 0
 
@@ -199,8 +199,8 @@ void DisableDisguise() {
 	TechnoTypeClass* target_unit_type = ObjectTypeClass::GetTechnoType(AbstractType::Unit, 37);
 	RulesClass::Instance->DefaultMirageDisguises.AddItem(reinterpret_cast<TerrainTypeClass*>(target_unit_type));
 
-	for (int i = 0; i < UnitClass::Array->Count; i++) {
-		UnitClass* unit = UnitClass::Array->GetItem(i);
+	for (int i = 0; i < UnitClass::Array.Count; i++) {
+		UnitClass* unit = UnitClass::Array.GetItem(i);
 		if (unit->GetTechnoType() == target_unit_type && unit->Disguise) {
 			unit->Disguise = target_unit_type;
 		}
