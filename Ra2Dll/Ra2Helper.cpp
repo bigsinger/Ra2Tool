@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "Ra2Header.h"
 #include "Ra2Helper.h"
+#include "TipWindow.h"
 #include "ToolWindow.h"
 #include <IPX.h>
 #include <EventClass.h>
@@ -268,6 +269,11 @@ void Chat(const wchar_t* message, int nCbSize) {
 	SendChatMessage(msg, sizeof(msg));
 }
 
+// 测试用例
+void TestCases() {
+	InitTipWindow();
+}
+
 void Install(HMODULE hModule) {
 	// 设置配置文件路径
 	TCHAR szPath[MAX_PATH] = { 0 };
@@ -284,7 +290,9 @@ void Install(HMODULE hModule) {
 		DisableDisguise();
 	}
 	Chat(NULL, 0);
-	//HookPlacePowerupCrate();
+
+	TestCases();
+
 	InitToolWindow();
 }
 

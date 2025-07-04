@@ -2,6 +2,7 @@
 #include <process.h>
 #include "Utils.h"
 #include "Ra2Helper.h"
+#include "TipWindow.h"
 #include "ToolWindow.h"
 #include "AutoRepair.h"
 #include "Crate.h"
@@ -31,11 +32,10 @@ void OnAltG();
 HWND g_hwndToolWindow = NULL;
 
 // 窗口过程函数
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_TIMER:
         if (wParam == TIMER_ID_TEST) {
-			ReadCrateType(); // 读取箱子类型
         }
         break;
     case WM_HOTKEY:
@@ -51,11 +51,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         return MA_NOACTIVATE;
     case WM_CLOSE:
     case WM_DESTROY:
+        UnInitTipWindow();
         PostQuitMessage(0);
         break;
     case WM_CREATE:
         if (Config::isAutoShowCrate()) {
-            SetTimer(hwnd, TIMER_ID_TEST, 3000, NULL);
+            InitTipWindow();
         }
         break;
     default:
@@ -97,7 +98,7 @@ unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
     HWND hwnd = NULL;
     MSG msg = {};
     WNDCLASS wc = {};
-    wc.lpfnWndProc = WndProc;
+    wc.lpfnWndProc = ToolWindowWndProc;
     wc.hInstance = g_thisModule;
     wc.lpszClassName = className;
 
@@ -167,7 +168,7 @@ _exit:
 
 
 void InitToolWindow() {
-    // 创建线程
+    Utils::Log("InitToolWindow!");
     _beginthreadex(
         NULL, 0, ThreadProcCreateToolWindow, NULL, 0, NULL);
 }
@@ -183,5 +184,5 @@ void UnInitToolWindow() {
     UnregisterHotKey(hwnd, HOTKEY_ALT_G);
 
     DestroyWindow(hwnd);
-    Utils::Log("Destroy ToolWindow!");
+    Utils::Log("UnInitToolWindow!");
 }

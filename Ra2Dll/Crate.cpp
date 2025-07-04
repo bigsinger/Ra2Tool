@@ -1,46 +1,61 @@
 ﻿#pragma once
-//#pragma pack(push, 4)
-#include <OverlayTypeClass.h>
 #include <MapClass.h>
-//#pragma pack(pop)
+#include <CCINIClass.h>
+#include <TacticalClass.h>
+#include <OverlayTypeClass.h>
 #include "Crate.h"
 #include "Utils.h"
 
 // 定义一个字符串数组，每个字符串对应一个枚举值
-const char* powerupNames[] = {
-    "Money（金钱）",
-    "Unit（单位）",
-    "HealBase（基地治疗）",
-    "Cloak（隐形）",
-    "Explosion（爆炸）",
-    "Napalm",
-    "Squad（小队）",
-    "Darkness（黑暗）",
-    "Reveal（揭示）",
-    "Armor（护甲）",
-    "Speed（加速）",
-    "Firepower（火力）",
-    "ICBM（洲际弹道导弹）",
-    "Invulnerability（无敌）",
-    "Veteran（升级）",
-    "IonStorm（离子风暴）",
-    "Gas（气体）",
-    "Tiberium",
-    "Pod（舱体）"
+const wchar_t* powerupNames[] = {
+    L"Money（金钱）",
+    L"Unit（单位）",
+    L"HealBase（基地治疗）",
+    L"Cloak（隐形）",
+    L"Explosion（爆炸）",
+    L"Napalm",
+    L"Squad（小队）",
+    L"Darkness（黑暗）",
+    L"Reveal（揭示）",
+    L"Armor（护甲）",
+    L"Speed（加速）",
+    L"Firepower（火力）",
+    L"ICBM（洲际弹道导弹）",
+    L"Invulnerability（无敌）",
+    L"Veteran（升级）",
+    L"IonStorm（离子风暴）",
+    L"Gas（气体）",
+    L"Tiberium",
+    L"Pod（舱体）"
 };
 
-const char* getCrateName(Powerup crateType) {
+const wchar_t* getCrateName(Powerup crateType) {
     if (crateType >= Powerup::Money && crateType <= Powerup::Pod) {
         return powerupNames[(int)crateType];
     }
-    return "Unknown";
+    return L"Unknown";
 }
 
-// PlacePowerupCrate_56BEC0  
-void ReadCrateType() {
+Point2D GetScreenLocation(CellClass& cell) {
+    return TacticalClass::Instance->CoordsToClient(cell.GetCoords()).first;
+}
+
+void DrawCrateText(const wchar_t* szText, HDC hdc, int posX, int posY) {
+    if (hdc) {
+        RECT rect = { 0, 0, posX, posY };
+        SetBkMode(hdc, TRANSPARENT);
+        SetTextColor(hdc, RGB(255, 0, 0));
+        DrawTextW(hdc, szText, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    }
+}
+
+void ShowCrateInfo(HWND hwnd) {
 	byte* p = (byte*)0x00ABDC50;
 	Powerup powerup = (Powerup)(p[0x11E]);
     Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s", powerup, getCrateName(powerup));
+
+    HDC hdc = GetDC(hwnd);
+    //DrawCrateText(L"Test", hdc, 800, 600);
 
 	// 读取地图上的箱子数据
 	MapClass&map = MapClass::Instance;
@@ -49,8 +64,9 @@ void ReadCrateType() {
             continue;
         }
 
-        CellClass* cell = map.TryGetCellAt(map.Crates[i].Location);
-        Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, map.Crates[i].CrateTimer.TimeLeft);
+        CellClass*cell = map.TryGetCellAt(map.Crates[i].Location);
+        Point2D pos = GetScreenLocation(*cell);
+        Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, map.Crates[i].CrateTimer.TimeLeft);
 
         if (cell) {
             Powerup crate_type = Powerup::Money; 
@@ -61,18 +77,13 @@ void ReadCrateType() {
 #else
             crate_type = (Powerup)(cell->OverlayData);
 #endif
-            Utils::LogFormat("MapClass::Crates[%d] Type: %d Name: %s ", i, crate_type, getCrateName(crate_type));
+			const wchar_t* szCrateName = getCrateName(crate_type);
+            Utils::LogFormat("MapClass::Crates[%d] Type: %d", i, crate_type);
+            DrawCrateText( szCrateName, hdc, pos.X, pos.Y);
         } else {
             break;
         }
     }
-}
 
-//bool PlacePowerupCrate_new(MapClass*pThis, CellStruct cell, Powerup type) {
-//    Utils::LogFormat("PlacePowerupCrate Type: %d, Name: %s, Location:(%d:%d)", (byte)type, getCrateName(type), cell.X, cell.Y);
-//    return true;
-//}
-//
-//void HookPlacePowerupCrate() {
-//    //Patch::Apply_CALL(0x56BEC0, PlacePowerupCrate_new);
-//}
+    ReleaseDC(hwnd, hdc);
+}

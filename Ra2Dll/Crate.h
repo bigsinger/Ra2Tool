@@ -1,4 +1,3 @@
 #pragma once
 
-void ReadCrateType();
-void HookPlacePowerupCrate();
+void ShowCrateInfo(HWND hwnd);
