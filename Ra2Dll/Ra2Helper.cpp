@@ -184,6 +184,29 @@ void SetBoxAllMoney() {
 	}
 }
 
+// 升级选中单位的等级为三星
+void LevelUpSelectings() {
+	__asm {
+		pushad
+		mov eax, 0x00A8ECBC
+		mov ebx, [eax]				// the first selecting unit address
+		mov eax, 0
+	_goon:
+		mov ecx, 0x00A8ECC8
+		cmp eax, [ecx]				// check if selecting anything
+		jge _exit1
+		mov ecx, [ebx + eax * 4]	// unit address
+		mov edx, 0x40000000			// float 2.0
+		add ecx, 0x150
+		mov[ecx], edx				// unit level
+		add eax, 1
+		jmp _goon
+
+	_exit1 :
+		popad
+	}
+}
+
 // 强制显身，效果：幻影/间谍/隐身状态会被强显
 void DisableDisguise() {
 #if 0
@@ -366,5 +389,16 @@ bool OpenLog() {
 	 }
 	 return isRunning;
 }
+
+ bool IsGaming() {
+	 byte value = 0;
+	 __try {
+		 void* p = HouseClass::CurrentPlayer;
+		 value = *(byte*)p;
+	 } __except (EXCEPTION_EXECUTE_HANDLER) {
+		 value = 0;
+	 }
+	 return value;
+ }
 
 #pragma pack()
