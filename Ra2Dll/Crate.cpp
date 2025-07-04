@@ -65,23 +65,25 @@ void ShowCrateInfo(HWND hwnd) {
         }
 
         CellClass*cell = map.TryGetCellAt(map.Crates[i].Location);
-        Point2D pos = GetScreenLocation(*cell);
-        Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, map.Crates[i].CrateTimer.TimeLeft);
+        if (cell && cell->OverlayTypeIndex != -1) {
+            Point2D pos = GetScreenLocation(*cell);
+            Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, map.Crates[i].CrateTimer.TimeLeft);
 
-        if (cell) {
             Powerup crate_type = Powerup::Money; 
-#if 0
-            if (cell->OverlayTypeIndex != -1 && OverlayTypeClass::Array[cell->OverlayTypeIndex]->Crate) {
+            OverlayTypeClass* overlay = OverlayTypeClass::Array[cell->OverlayTypeIndex];
+            if (overlay && overlay->Crate) {
+                /*
+                在 Red Alert 2 / YRpp 中，crate 类型并不是始终可靠地储存在 OverlayData 中的，仅当当前格子确实被标记为 crate 时，
+                且 OverlayType 是支持 crate 的 overlay，OverlayData 才是有效的 crate 类型。
+                */
                 crate_type = (Powerup)(cell->OverlayData);
             }
-#else
-            crate_type = (Powerup)(cell->OverlayData);
-#endif
+
 			const wchar_t* szCrateName = getCrateName(crate_type);
             Utils::LogFormat("MapClass::Crates[%d] Type: %d", i, crate_type);
             DrawCrateText( szCrateName, hdc, pos.X, pos.Y);
         } else {
-            break;
+			//break;    // 箱子不是连续存放的，不能直接跳出循环。
         }
     }
 
