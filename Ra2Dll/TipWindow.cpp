@@ -8,7 +8,8 @@
 
 
 // 定时器 ID
-#define TIMER_ID_TEST 1
+#define TIMER_ID_TEST       1
+#define TIMER_ID_TOPMOST    2
 
 
 // 保存创建的窗口句柄
@@ -17,11 +18,19 @@ int g_nScreenWidth = 0;
 int g_nScreenHeight = 0;
 
 
+// 强制置顶
+void Topmost(HWND hwnd) {
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
 // 窗口过程函数
 LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_TIMER:
-        if (wParam == TIMER_ID_TEST) {
+        if (wParam == TIMER_ID_TOPMOST) {
+            Topmost(hwnd);
+        } else if (wParam == TIMER_ID_TEST) {
             ShowCrateInfo(g_hwndTipWindow);
         }
         break;
@@ -29,10 +38,13 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         return MA_NOACTIVATE;
     case WM_CLOSE:
     case WM_DESTROY:
+        KillTimer(hwnd, TIMER_ID_TEST);
+        KillTimer(hwnd, TIMER_ID_TOPMOST);
         PostQuitMessage(0);
         break;
     case WM_CREATE:
-         SetTimer(hwnd, TIMER_ID_TEST, 3000, NULL);
+        SetTimer(hwnd, TIMER_ID_TEST, 3000, NULL);
+        SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
         break;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -84,8 +96,6 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
     g_hwndTipWindow = hwnd;
     SetLayeredWindowAttributes(hwnd, 0, 0, LWA_COLORKEY);
     ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-
-
 
     // 消息循环
     while (GetMessage(&msg, nullptr, 0, 0)) {

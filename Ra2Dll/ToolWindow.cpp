@@ -15,7 +15,7 @@
 #define HOTKEY_ALT_P 3
 #define HOTKEY_ALT_B 4
 #define HOTKEY_ALT_G 5
-#define HOTKEY_ALT_U 6
+#define HOTKEY_ALT_L 6
 
 // 定时器 ID
 #define TIMER_ID_TEST 1
@@ -27,7 +27,7 @@ void OnAltM();
 void OnAltP();
 void OnAltB();
 void OnAltG();
-void OnAltU();
+void OnAltL();
 
 
 // 保存创建的窗口句柄
@@ -47,7 +47,7 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         case HOTKEY_ALT_P: OnAltP(); break;
         case HOTKEY_ALT_B: OnAltB(); break;
         case HOTKEY_ALT_G: OnAltG(); break;
-        case HOTKEY_ALT_U: OnAltU(); break;
+        case HOTKEY_ALT_L: OnAltL(); break;
         }
         break;
     case WM_MOUSEACTIVATE:
@@ -94,8 +94,8 @@ void OnAltG() {
 	OpenTech();             // 科技全开
 }
 
-// 处理 ALT + G 快捷键
-void OnAltU() {
+// 处理 ALT + L 快捷键
+void OnAltL() {
 	LevelUpSelectings();    // 升级选中单位等级
 }
 
@@ -140,32 +140,26 @@ unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
     // 注册全局快捷键
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_R, MOD_ALT, 'R')) {
         Utils::Log("Register ALT + R hotkey Failed!");
-        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_M, MOD_ALT, 'M')) {
         Utils::Log("Register ALT + M hotkey Failed!");
-        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_P, MOD_ALT, 'P')) {
         Utils::Log("Register ALT + P hotkey Failed!");
-        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_B, MOD_ALT, 'B')) {
         Utils::Log("Register ALT + B hotkey Failed!");
-        goto _exit;
     }
 
     if (!RegisterHotKey(hwnd, HOTKEY_ALT_G, MOD_ALT, 'G')) {
         Utils::Log("Register ALT + G hotkey Failed!");
-		goto _exit;
     }
 
-    if (!RegisterHotKey(hwnd, HOTKEY_ALT_U, MOD_ALT, 'U')) {
-        Utils::Log("Register ALT + U hotkey Failed!");
-        goto _exit;
+    if (!RegisterHotKey(hwnd, HOTKEY_ALT_L, MOD_ALT, 'L')) {
+        Utils::Log("Register ALT + L hotkey Failed!");
     }
 
     // 消息循环
@@ -195,7 +189,7 @@ void UnInitToolWindow() {
     UnregisterHotKey(hwnd, HOTKEY_ALT_P);
     UnregisterHotKey(hwnd, HOTKEY_ALT_B);
     UnregisterHotKey(hwnd, HOTKEY_ALT_G);
-    UnregisterHotKey(hwnd, HOTKEY_ALT_U);
+    UnregisterHotKey(hwnd, HOTKEY_ALT_L);
 
     DestroyWindow(hwnd);
     Utils::Log("UnInitToolWindow!");

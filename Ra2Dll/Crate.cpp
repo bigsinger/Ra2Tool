@@ -52,7 +52,7 @@ void DrawCrateText(const wchar_t* szText, HDC hdc, int posX, int posY) {
 void ShowCrateInfo(HWND hwnd) {
 	byte* p = (byte*)0x00ABDC50;
 	Powerup powerup = (Powerup)(p[0x11E]);
-    Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s", powerup, getCrateName(powerup));
+    Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s  offset: %d", powerup, getCrateName(powerup), offsetof(CellClass, OverlayData));
 
     HDC hdc = GetDC(hwnd);
     //DrawCrateText(L"Test", hdc, 800, 600);
