@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+
+HWND GetMainWindowForProcessId(DWORD targetPid);
+
 class Utils {
 public:
 	// 打印日志信息，使用DebugView查看

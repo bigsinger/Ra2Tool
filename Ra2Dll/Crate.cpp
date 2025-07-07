@@ -36,10 +36,6 @@ const wchar_t* getCrateName(Powerup crateType) {
     return L"Unknown";
 }
 
-Point2D GetScreenLocation(CellClass& cell) {
-    return TacticalClass::Instance->CoordsToClient(cell.GetCoords()).first;
-}
-
 void CreateCrateLabel(HWND hwnd, std::vector<HWND>& labels, int index, int posX, int posY) {
     HWND label = CreateWindowExW(
         WS_EX_TRANSPARENT | WS_EX_LAYERED,
@@ -79,8 +75,8 @@ void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
 
         CellClass*cell = map.TryGetCellAt(map.Crates[i].Location);
         if (cell && cell->OverlayTypeIndex != -1) {
-            Point2D pos = GetScreenLocation(*cell);
-            Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, map.Crates[i].CrateTimer.TimeLeft);
+            auto [pos, visible] = TacticalClass::Instance->CoordsToClient(cell->GetCoords());
+            Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
 
             Powerup crate_type = Powerup::Money; 
             OverlayTypeClass* overlay = OverlayTypeClass::Array[cell->OverlayTypeIndex];

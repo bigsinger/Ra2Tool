@@ -38,3 +38,22 @@ void Utils::GetStartPath(HMODULE hModule, TCHAR* szBuffer, int nBufferCountSize/
 	GetModuleFileName(hModule, szBuffer, nBufferCountSize);
 	_tcsrchr(szBuffer, '\\')[1] = 0;
 }
+
+HWND GetMainWindowForProcessId(DWORD targetPid) {
+	HWND targetHwnd = NULL;
+    DWORD pid = 0;
+    HWND hwnd = GetTopWindow(NULL);
+    while (hwnd != NULL) {
+        GetWindowThreadProcessId(hwnd, &pid);
+        if (pid == targetPid) {
+            // 过滤子窗口，确保是顶层窗口（无 owner）+ 可见
+            if (GetWindow(hwnd, GW_OWNER) == NULL && IsWindowVisible(hwnd)) {
+				targetHwnd = hwnd;
+				break;
+            }
+        }
+        hwnd = GetWindow(hwnd, GW_HWNDNEXT);
+    }
+
+    return targetHwnd;
+}

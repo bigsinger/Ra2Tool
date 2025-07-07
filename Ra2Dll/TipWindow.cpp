@@ -1,12 +1,13 @@
 ﻿#include <windows.h>
-#include <process.h>
 #include <vector>
+#include <process.h>
+#include <ShellScalingAPI.h>
 #include "TipWindow.h"
 #include "Ra2Helper.h"
 #include "Crate.h"
 #include "Utils.h"
 #include "Config.h"
-
+#pragma comment(lib, "Shcore.lib")
 
 // 定时器 ID
 #define TIMER_ID_TEST       1
@@ -19,8 +20,8 @@ const COLORREF textColor = RGB(255, 0, 0);	// 标签文本颜色
 
 // 保存创建的窗口句柄
 HWND g_hwndTipWindow = NULL;
-int g_nScreenWidth = 0;
-int g_nScreenHeight = 0;
+RECT gameClientRect;
+POINT gameClientTopLeft = { 0, 0 };
 std::vector<HWND> g_crateLabels;
 
 
@@ -87,8 +88,10 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 // 线程函数
 unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 	//::CoInitialize(NULL);
-    g_nScreenWidth = GetSystemMetrics(SM_CXSCREEN);
-    g_nScreenHeight = GetSystemMetrics(SM_CYSCREEN);
+    //HWND hGameMain = FindWindowW(L"RA2", nullptr);
+    HWND hGameMain = GetMainWindowForProcessId(GetCurrentProcessId());
+    GetClientRect(hGameMain, &gameClientRect);
+    ClientToScreen(hGameMain, &gameClientTopLeft);
 
     const char* className = "RA2TipWindow";
     HWND hwnd = NULL;
@@ -109,7 +112,8 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
         className,                                          // 窗口类名
         className,                                          // 窗口标题
         WS_POPUP,                                           // 窗口样式
-        0, 0, g_nScreenWidth, g_nScreenHeight,              // 窗口位置和尺寸
+        gameClientTopLeft.x, gameClientTopLeft.y,           // 窗口位置
+        gameClientRect.right, gameClientRect.bottom,        // 窗口尺寸
         NULL,                                               // 父窗口
         NULL,                                               // 菜单
         wc.hInstance,                                       // 程序实例句柄
@@ -141,6 +145,10 @@ _exit:
 void InitTipWindow() {
     Utils::Log("InitTipWindow!");
 	g_crateLabels.resize(MAX_CRATE_COUNT, NULL);
+
+	// 禁用 DPI 缩放，因红警老游戏不支持，所以咱也禁用，否则坐标会有错位。
+    SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE); // Windows 8.1+
+
     _beginthreadex(
         NULL, 0, ThreadProcCreateTipWindow, NULL, 0, NULL);
 }
