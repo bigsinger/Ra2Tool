@@ -40,21 +40,34 @@ Point2D GetScreenLocation(CellClass& cell) {
     return TacticalClass::Instance->CoordsToClient(cell.GetCoords()).first;
 }
 
-void DrawCrateText(const wchar_t* szText, HDC hdc, int posX, int posY) {
-    if (hdc) {
-        RECT rect = { 0, 0, posX, posY };
-        SetBkMode(hdc, TRANSPARENT);
-        SetTextColor(hdc, RGB(255, 0, 0));
-        DrawTextW(hdc, szText, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+void CreateCrateLabel(HWND hwnd, std::vector<HWND>& labels, int index, int posX, int posY) {
+    HWND label = CreateWindowExW(
+        WS_EX_TRANSPARENT | WS_EX_LAYERED,
+        L"STATIC",
+        NULL,
+        WS_CHILD | WS_VISIBLE | SS_CENTER,
+        posX, posY, 100, 20,
+        hwnd,
+        NULL,
+        NULL,
+        NULL
+    );
+    labels[index] = label;
+}
+
+void ShowCrateLabel(HWND hwnd, std::vector<HWND>& labels, int index, int posX, int posY) {
+    if (labels[index]) {
+        SetWindowPos(labels[index], NULL, posX, posY, 100, 20, SWP_NOZORDER | SWP_NOACTIVATE);
+    } else {
+        CreateCrateLabel(hwnd, labels, index, posX, posY);
     }
 }
 
-void ShowCrateInfo(HWND hwnd) {
+void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
 	byte* p = (byte*)0x00ABDC50;
 	Powerup powerup = (Powerup)(p[0x11E]);
     Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s  offset: %d", powerup, getCrateName(powerup), offsetof(CellClass, OverlayData));
 
-    HDC hdc = GetDC(hwnd);
     //DrawCrateText(L"Test", hdc, 800, 600);
 
 	// 读取地图上的箱子数据
@@ -81,11 +94,11 @@ void ShowCrateInfo(HWND hwnd) {
 
 			const wchar_t* szCrateName = getCrateName(crate_type);
             Utils::LogFormat("MapClass::Crates[%d] Type: %d", i, crate_type);
-            DrawCrateText( szCrateName, hdc, pos.X, pos.Y);
+
+			// 显示箱子标签
+            ShowCrateLabel(hwnd, labels, i, pos.X, pos.Y);
         } else {
 			//break;    // 箱子不是连续存放的，不能直接跳出循环。
         }
     }
-
-    ReleaseDC(hwnd, hdc);
 }

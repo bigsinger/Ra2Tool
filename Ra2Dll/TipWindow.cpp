@@ -1,5 +1,6 @@
 ﻿#include <windows.h>
 #include <process.h>
+#include <vector>
 #include "TipWindow.h"
 #include "Ra2Helper.h"
 #include "Crate.h"
@@ -12,10 +13,15 @@
 #define TIMER_ID_TOPMOST    2
 
 
+const COLORREF maskColor = RGB(0, 0, 0);	// 透明颜色
+const COLORREF textColor = RGB(255, 0, 0);	// 标签文本颜色
+
+
 // 保存创建的窗口句柄
 HWND g_hwndTipWindow = NULL;
 int g_nScreenWidth = 0;
 int g_nScreenHeight = 0;
+std::vector<HWND> g_crateLabels;
 
 
 // 强制置顶
@@ -31,21 +37,46 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         if (wParam == TIMER_ID_TOPMOST) {
             Topmost(hwnd);
         } else if (wParam == TIMER_ID_TEST) {
-            ShowCrateInfo(g_hwndTipWindow);
+            ShowCrateInfo(hwnd, g_crateLabels);
         }
         break;
+    case WM_CTLCOLORSTATIC: {
+        HDC hdcStatic = (HDC)wParam;
+        SetTextColor(hdcStatic, textColor);
+        SetBkMode(hdcStatic, TRANSPARENT);
+
+        // 返回透明背景的刷子（避免填充颜色）
+        return (LRESULT)GetStockObject(HOLLOW_BRUSH);   // 返回空刷子
+    }
+    break;
+    case WM_ERASEBKGND: {
+        HDC hdc = (HDC)wParam;
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+        HBRUSH hBrush = CreateSolidBrush(maskColor);
+        FillRect(hdc, &rc, hBrush);
+        DeleteObject(hBrush);
+    }
+    break;
     case WM_MOUSEACTIVATE:
         return MA_NOACTIVATE;
+        break;
     case WM_CLOSE:
     case WM_DESTROY:
         KillTimer(hwnd, TIMER_ID_TEST);
         KillTimer(hwnd, TIMER_ID_TOPMOST);
         PostQuitMessage(0);
         break;
-    case WM_CREATE:
+    case WM_CREATE: {
+        // 鼠标穿透要带WS_EX_TRANSPARENT
+        LONG lWindLong = GetWindowLong(hwnd, GWL_EXSTYLE);
+        ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
+        SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
+
         SetTimer(hwnd, TIMER_ID_TEST, 3000, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
-        break;
+    }
+    break;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -71,8 +102,6 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
         Utils::Log("Window class registration failed!");
         goto _exit;
     }
-
-
 
     // 创建窗口
     hwnd = CreateWindowEx(
@@ -111,12 +140,21 @@ _exit:
 
 void InitTipWindow() {
     Utils::Log("InitTipWindow!");
+	g_crateLabels.resize(MAX_CRATE_COUNT, NULL);
     _beginthreadex(
         NULL, 0, ThreadProcCreateTipWindow, NULL, 0, NULL);
 }
 
 // 注销所有注册的热键、销毁窗口
 void UnInitTipWindow() {
+    for(auto &label : g_crateLabels) {
+        if (label) {
+            DestroyWindow(label);
+            label = NULL;
+        }
+	}
+	g_crateLabels.clear();
+
     HWND hwnd = g_hwndTipWindow;
     DestroyWindow(hwnd);
     Utils::Log("UnInitTipWindow!");
