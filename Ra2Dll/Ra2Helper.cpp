@@ -150,6 +150,8 @@ void ClearBeacons() {
 /////////////////////////////////////////
 
 void GiveMeMoney() {
+	if (SessionClass::IsMultiplayer()) { return; }
+
 	_asm {
 		pushad
 		mov eax, 0x00A83D4C
@@ -161,6 +163,8 @@ void GiveMeMoney() {
 
 // 所有捡箱子效果：金钱
 void SetBoxAllMoney() {
+	if (SessionClass::IsMultiplayer()) { return; }
+
 	const LPVOID MethodTableAddr = (LPVOID)0x004833C4;
 	const size_t MethodTableCount = 0x12;
 	const SIZE_T MethodTableSize = MethodTableCount * sizeof(DWORD);
@@ -186,6 +190,8 @@ void SetBoxAllMoney() {
 
 // 升级选中单位的等级为三星
 void LevelUpSelectings() {
+	if (SessionClass::IsMultiplayer()) { return; }
+
 	__asm {
 		pushad
 		mov eax, 0x00A8ECBC
@@ -209,6 +215,8 @@ void LevelUpSelectings() {
 
 // 强制显身，效果：幻影/间谍/隐身状态会被强显
 void DisableDisguise() {
+	if (SessionClass::IsMultiplayer()) { return; }
+
 #if 0
 	// 本段代码可能会平行世界
 	for (int i = 0; i < TechnoTypeClass::Array.Count; i++) {

@@ -10,9 +10,9 @@
 #include "AutoRepair.h"
 #include "ToolWindow.h"
 
-#include <Utilities/Debug.h>
-#include <Utilities/Macro.h>
-#include "Ext/NetHack.h"
+//#include <Utilities/Debug.h>
+//#include <Utilities/Macro.h>
+//#include "Ext/NetHack.h"
 
 
 // 功能开启
@@ -27,9 +27,6 @@ void Open() {
 			OpenMap();
 			OpenRadar();
 		}
-		//GiveMeMoney();
-		//OpenLog();
-		//trainer.SetBoxAllMoney();
 	} else {
 		Utils::Log("Game not running!");
 	}
