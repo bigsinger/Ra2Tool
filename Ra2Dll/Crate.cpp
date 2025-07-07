@@ -36,27 +36,30 @@ const wchar_t* getCrateName(Powerup crateType) {
     return L"Unknown";
 }
 
-void CreateCrateLabel(HWND hwnd, std::vector<HWND>& labels, int index, int posX, int posY) {
+void CreateCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY) {
     HWND label = CreateWindowExW(
         WS_EX_TRANSPARENT | WS_EX_LAYERED,
         L"STATIC",
         NULL,
         WS_CHILD | WS_VISIBLE | SS_CENTER,
         posX, posY, 100, 20,
-        hwnd,
+        hWndParent,
         NULL,
         NULL,
         NULL
     );
     labels[index] = label;
+	ShowWindow(label, SW_SHOW);
 }
 
-void ShowCrateLabel(HWND hwnd, std::vector<HWND>& labels, int index, int posX, int posY) {
+void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY, const wchar_t* szCrateName) {
+    Utils::LogFormat("ShowCrateLabel %d  (%d %d)", index, posX, posY);
     if (labels[index]) {
         SetWindowPos(labels[index], NULL, posX, posY, 100, 20, SWP_NOZORDER | SWP_NOACTIVATE);
     } else {
-        CreateCrateLabel(hwnd, labels, index, posX, posY);
+        CreateCrateLabel(hWndParent, labels, index, posX, posY);
     }
+	SetWindowTextW(labels[index], szCrateName);
 }
 
 void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
@@ -92,7 +95,7 @@ void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
             Utils::LogFormat("MapClass::Crates[%d] Type: %d", i, crate_type);
 
 			// 显示箱子标签
-            ShowCrateLabel(hwnd, labels, i, pos.X, pos.Y);
+            ShowCrateLabel(hwnd, labels, i, pos.X, pos.Y, szCrateName);
         } else {
 			//break;    // 箱子不是连续存放的，不能直接跳出循环。
         }
