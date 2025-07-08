@@ -93,6 +93,17 @@ void OpenTech() {
 
 // 开启心灵探测
 void OpenPsychicDetection() {
+#if 1
+	__try {
+		for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
+			BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
+			if (building && building->Type) {
+				building->Type->PsychicDetectionRadius = 0x7FFF;
+			}
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	}
+#else
 	__try {
 		_asm {
 			pushad
@@ -116,6 +127,7 @@ void OpenPsychicDetection() {
 		}
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 	}
+#endif
 }
 
 // 删除信标：每次调用只清除一个信标

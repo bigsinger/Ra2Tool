@@ -18,8 +18,8 @@
 #define HOTKEY_ALT_L 6
 
 // 定时器 ID
-#define TIMER_ID_TEST 1
-
+#define TIMER_ID_AutoRepair             1
+#define TIMER_ID_OpenPsychicDetection   2
 
 // 处理函数声明
 void OnAltR();
@@ -37,7 +37,10 @@ HWND g_hwndToolWindow = NULL;
 LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_TIMER:
-        if (wParam == TIMER_ID_TEST) {
+        if (wParam == TIMER_ID_AutoRepair) {
+            AutoRepair();
+        } else if (wParam == TIMER_ID_OpenPsychicDetection) {
+            OpenPsychicDetection();
         }
         break;
     case WM_HOTKEY:
@@ -60,6 +63,12 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
     case WM_CREATE:
         if (Config::isAutoShowCrate()) {
             InitTipWindow();
+        }
+        if(Config::isAutoRepair()){
+            SetTimer(hwnd, TIMER_ID_AutoRepair, 1000, NULL);
+		}
+        if (Config::isAutoOpenPsychicDetection()) {
+            SetTimer(hwnd, TIMER_ID_OpenPsychicDetection, 10000, NULL);
         }
         break;
     default:
@@ -183,6 +192,8 @@ void InitToolWindow() {
 // 注销所有注册的热键、销毁窗口
 void UnInitToolWindow() {
     HWND hwnd = g_hwndToolWindow;
+    KillTimer(hwnd, TIMER_ID_AutoRepair);
+    KillTimer(hwnd, TIMER_ID_OpenPsychicDetection);
 
     UnregisterHotKey(hwnd, HOTKEY_ALT_R);
     UnregisterHotKey(hwnd, HOTKEY_ALT_M);

@@ -56,6 +56,18 @@ public:
 		return _iDebugFlag > 0;
 	}
 
+
+private:
+	// 自动修理
+	static int _iAutoRepairFlag;
+public:
+	static int isAutoRepair() {
+		if (_iAutoRepairFlag == UNINITED_FLAG) {
+			_iAutoRepairFlag = ::GetPrivateProfileInt("main", "AutoRepair", FALSE, _configFilePath);
+		}
+		return _iAutoRepairFlag > 0;
+	}
+
 private:
 	// 自动修理数量
 	static int _iAutoRepairCount;
@@ -76,5 +88,16 @@ public:
 			_iAutoShowCrateFlag = ::GetPrivateProfileInt("main", "crate", FALSE, _configFilePath);
 		}
 		return _iAutoShowCrateFlag > 0;
+	}
+
+private:
+	// 心灵探测
+	static int _iAutoPsychicDetectionFlag;
+public:
+	static int isAutoOpenPsychicDetection() {
+		if (_iAutoPsychicDetectionFlag == UNINITED_FLAG) {
+			_iAutoPsychicDetectionFlag = ::GetPrivateProfileInt("main", "xinling", FALSE, _configFilePath);
+		}
+		return _iAutoPsychicDetectionFlag > 0;
 	}
 };

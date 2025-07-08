@@ -10,7 +10,7 @@
 #pragma comment(lib, "Shcore.lib")
 
 // 定时器 ID
-#define TIMER_ID_TEST       1
+#define TIMER_ID_SHOWTIP    1
 #define TIMER_ID_TOPMOST    2
 
 
@@ -35,10 +35,10 @@ void Topmost(HWND hwnd) {
 LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_TIMER:
-        if (wParam == TIMER_ID_TOPMOST) {
-            Topmost(hwnd);
-        } else if (wParam == TIMER_ID_TEST) {
+        if (wParam == TIMER_ID_SHOWTIP) {
             ShowCrateInfo(hwnd, g_crateLabels);
+        } else if (wParam == TIMER_ID_TOPMOST) {
+            Topmost(hwnd);
         }
         break;
     case WM_CTLCOLORSTATIC: {
@@ -64,7 +64,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         break;
     case WM_CLOSE:
     case WM_DESTROY:
-        KillTimer(hwnd, TIMER_ID_TEST);
+        KillTimer(hwnd, TIMER_ID_SHOWTIP);
         KillTimer(hwnd, TIMER_ID_TOPMOST);
         PostQuitMessage(0);
         break;
@@ -74,7 +74,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
         SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
 
-        SetTimer(hwnd, TIMER_ID_TEST, 500, NULL);
+        SetTimer(hwnd, TIMER_ID_SHOWTIP, 500, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
     }
     break;

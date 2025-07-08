@@ -1,8 +1,5 @@
 #pragma once
 
-// ¥Ú”°¥ÌŒÛ–≈œ¢
-void printLastError(DWORD error, const char* tag = NULL);
-
 extern HINSTANCE g_thisModule;
 
 
