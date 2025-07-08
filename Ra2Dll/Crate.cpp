@@ -34,7 +34,7 @@ const wchar_t* getCrateName(Powerup crateType) {
     if (crateType >= Powerup::Money && crateType <= Powerup::Pod) {
         return powerupNames[(int)crateType];
     }
-    return L"Unknown";
+    return L"箱子";
 }
 
 void CreateCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY) {
@@ -42,8 +42,8 @@ void CreateCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int
         WS_EX_TRANSPARENT,
         L"STATIC",
         NULL,
-        WS_CHILD | WS_VISIBLE | SS_CENTER,
-        posX, posY, 100, 20,
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        posX, posY, 60, 20,
         hWndParent,
         NULL,
         g_thisModule,
@@ -55,7 +55,7 @@ void CreateCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int
 void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY, const wchar_t* szCrateName) {
     Utils::LogFormat("ShowCrateLabel hwnd:%p %d  (%d %d)", labels[index], index, posX, posY);
     if (labels[index]) {
-        SetWindowPos(labels[index], NULL, posX, posY, 100, 20, SWP_NOZORDER | SWP_NOACTIVATE);
+        SetWindowPos(labels[index], NULL, posX, posY, 60, 20, SWP_NOZORDER | SWP_NOACTIVATE);
     } else {
         CreateCrateLabel(hWndParent, labels, index, posX, posY);
     }
@@ -64,10 +64,6 @@ void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int p
 
 void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
     //ShowCrateLabel(hwnd, labels, 0, 80, 60, L"Test"); return;
-	byte* p = (byte*)0x00ABDC50;
-	Powerup powerup = (Powerup)(p[0x11E]);
-    Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s  offset: %d", powerup, getCrateName(powerup), offsetof(CellClass, OverlayData));
-
 	// 读取地图上的箱子数据
 	MapClass&map = MapClass::Instance;
     for (int i = 0; i < 0x100; i++) {
@@ -78,7 +74,7 @@ void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
         CellClass*cell = map.TryGetCellAt(map.Crates[i].Location);
         if (cell && cell->OverlayTypeIndex != -1) {
             auto [pos, visible] = TacticalClass::Instance->CoordsToClient(cell->GetCoords());
-            Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
+            //Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
 
             Powerup crate_type = Powerup::Money; 
             OverlayTypeClass* overlay = OverlayTypeClass::Array[cell->OverlayTypeIndex];

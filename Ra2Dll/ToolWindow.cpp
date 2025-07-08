@@ -40,7 +40,10 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         if (wParam == TIMER_ID_AutoRepair) {
             AutoRepair();
         } else if (wParam == TIMER_ID_OpenPsychicDetection) {
-            OpenPsychicDetection();
+			static int OpenPsychicDetectionCount = 0;
+            if (++OpenPsychicDetectionCount < 5) {
+                OpenPsychicDetection();
+            }
         }
         break;
     case WM_HOTKEY:
