@@ -74,7 +74,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
         SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
 
-        SetTimer(hwnd, TIMER_ID_TEST, 3000, NULL);
+        SetTimer(hwnd, TIMER_ID_TEST, 500, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
     }
     break;
@@ -92,6 +92,9 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
     HWND hGameMain = GetMainWindowForProcessId(GetCurrentProcessId());
     GetClientRect(hGameMain, &gameClientRect);
     ClientToScreen(hGameMain, &gameClientTopLeft);
+    Utils::LogFormat("Game Client Rect: (%d, %d, %d, %d)", 
+        gameClientRect.left, gameClientRect.top, 
+		gameClientRect.right, gameClientRect.bottom);
 
     const char* className = "RA2TipWindow";
     HWND hwnd = NULL;

@@ -5,6 +5,7 @@
 #include <OverlayTypeClass.h>
 #include "Crate.h"
 #include "Utils.h"
+#include "Ra2Helper.h"
 
 // 定义一个字符串数组，每个字符串对应一个枚举值
 const wchar_t* powerupNames[] = {
@@ -38,22 +39,21 @@ const wchar_t* getCrateName(Powerup crateType) {
 
 void CreateCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY) {
     HWND label = CreateWindowExW(
-        WS_EX_TRANSPARENT | WS_EX_LAYERED,
+        WS_EX_TRANSPARENT,
         L"STATIC",
         NULL,
         WS_CHILD | WS_VISIBLE | SS_CENTER,
         posX, posY, 100, 20,
         hWndParent,
         NULL,
-        NULL,
+        g_thisModule,
         NULL
     );
     labels[index] = label;
-	ShowWindow(label, SW_SHOW);
 }
 
 void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY, const wchar_t* szCrateName) {
-    Utils::LogFormat("ShowCrateLabel %d  (%d %d)", index, posX, posY);
+    Utils::LogFormat("ShowCrateLabel hwnd:%p %d  (%d %d)", labels[index], index, posX, posY);
     if (labels[index]) {
         SetWindowPos(labels[index], NULL, posX, posY, 100, 20, SWP_NOZORDER | SWP_NOACTIVATE);
     } else {
@@ -63,11 +63,10 @@ void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int p
 }
 
 void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
+    //ShowCrateLabel(hwnd, labels, 0, 80, 60, L"Test"); return;
 	byte* p = (byte*)0x00ABDC50;
 	Powerup powerup = (Powerup)(p[0x11E]);
     Utils::LogFormat("0x00ABDC50[0x11E] Type: %d Name: %s  offset: %d", powerup, getCrateName(powerup), offsetof(CellClass, OverlayData));
-
-    //DrawCrateText(L"Test", hdc, 800, 600);
 
 	// 读取地图上的箱子数据
 	MapClass&map = MapClass::Instance;

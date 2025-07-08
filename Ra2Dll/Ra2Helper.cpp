@@ -324,7 +324,9 @@ void Install(HMODULE hModule) {
 
 	TestCases();
 
-	InitToolWindow();
+	if (IsGaming()) {
+		InitToolWindow();
+	}
 }
 
 // 卸载时调用
