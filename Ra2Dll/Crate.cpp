@@ -5,7 +5,11 @@
 #include <OverlayTypeClass.h>
 #include "Crate.h"
 #include "Utils.h"
+#include "Ra2Header.h"
 #include "Ra2Helper.h"
+#include "TipWindow.h"
+
+
 
 // 定义一个字符串数组，每个字符串对应一个枚举值
 const wchar_t* powerupNames[] = {
@@ -37,60 +41,67 @@ const wchar_t* getCrateName(Powerup crateType) {
     return L"箱子";
 }
 
-void CreateCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY) {
-    HWND label = CreateWindowExW(
-        WS_EX_TRANSPARENT,
-        L"STATIC",
-        NULL,
-        WS_CHILD | WS_VISIBLE | SS_LEFT,
-        posX, posY, 60, 20,
-        hWndParent,
-        NULL,
-        g_thisModule,
-        NULL
-    );
-    labels[index] = label;
-}
+void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int timeLeft, bool visible, int posX, int posY, const wchar_t* szCrateName) {
+    //Utils::LogFormat("ShowCrateLabel hwnd:%p %d  (%d %d)", labels[index], index, posX, posY);
+    wchar_t szLabelText[28] = { 0 };
+    wchar_t szArrow[4] = { 0 };
 
-void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int posX, int posY, const wchar_t* szCrateName) {
-    Utils::LogFormat("ShowCrateLabel hwnd:%p %d  (%d %d)", labels[index], index, posX, posY);
-    if (labels[index]) {
-        SetWindowPos(labels[index], NULL, posX, posY, 60, 20, SWP_NOZORDER | SWP_NOACTIVATE);
-    } else {
-        CreateCrateLabel(hWndParent, labels, index, posX, posY);
+    // 不可见时需要校正位置和提示标签
+    if (!visible) {
+        if (posX < 0) {
+            posX = 0;
+            wcscpy_s(szArrow, _countof(szArrow), L"←");
+        } else if (posX > (gameClientRect.right - CRATE_LABEL_WIDTH)) {
+            posX = gameClientRect.right - CRATE_LABEL_WIDTH;
+            wcscpy_s(szArrow, _countof(szArrow), L"→");
+        }
+
+        if (posY < 0) {
+            posY = 0;
+            wcscpy_s(szArrow, _countof(szArrow), L"↑");
+        } else if (posY > (gameClientRect.bottom - CRATE_LABEL_HEIGHT)) {
+            posY = gameClientRect.bottom - CRATE_LABEL_HEIGHT;
+            wcscpy_s(szArrow, _countof(szArrow), L"↓");
+        }
+    }else{
     }
-	SetWindowTextW(labels[index], szCrateName);
+
+    swprintf(szLabelText, _countof(szLabelText), L"%s%s\n%.1f", szCrateName, szArrow, (timeLeft/(float)60)); // 帧数转换为秒数
+    if (labels[index]) {
+        SetWindowPos(labels[index], NULL, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, SWP_NOZORDER | SWP_NOACTIVATE);
+        SetWindowTextW(labels[index], szLabelText);
+    } else {
+        labels[index] = createCrateLabel(hWndParent, szLabelText, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT);
+    }
 }
 
 void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
-    //ShowCrateLabel(hwnd, labels, 0, 80, 60, L"Test"); return;
+    //ShowCrateLabel(hwnd, labels, 0, 2000, false,  -80, 60, L"箱子"); return;
 	// 读取地图上的箱子数据
 	MapClass&map = MapClass::Instance;
     for (int i = 0; i < 0x100; i++) {
-        if (map.Crates[i].CrateTimer.TimeLeft <= 0) {
-            continue;
-        }
+		int timeLeft = map.Crates[i].CrateTimer.TimeLeft;
+        if (timeLeft <= 0) { continue; }
 
         CellClass*cell = map.TryGetCellAt(map.Crates[i].Location);
         if (cell && cell->OverlayTypeIndex != -1) {
             auto [pos, visible] = TacticalClass::Instance->CoordsToClient(cell->GetCoords());
             //Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
-
-            Powerup crate_type = Powerup::Money; 
+            Powerup crateType = Powerup::Money; 
             OverlayTypeClass* overlay = OverlayTypeClass::Array[cell->OverlayTypeIndex];
             if (overlay && overlay->Crate) {
                 /*
                 在 Red Alert 2 / YRpp 中，crate 类型并不是始终可靠地储存在 OverlayData 中的，仅当当前格子确实被标记为 crate 时，
                 且 OverlayType 是支持 crate 的 overlay，OverlayData 才是有效的 crate 类型。
                 */
-                crate_type = (Powerup)(cell->OverlayData);
+                crateType = (Powerup)(cell->OverlayData);
             }
 
-			const wchar_t* szCrateName = getCrateName(crate_type);
-            Utils::LogFormat("MapClass::Crates[%d] Type: %d", i, crate_type);
+			const wchar_t* szCrateName = getCrateName(crateType);
+            Utils::LogFormat("MapClass::Crates[%d] Type: %d", i, crateType);
 
 			// 显示箱子标签
-            ShowCrateLabel(hwnd, labels, i, pos.X, pos.Y, szCrateName);
+            ShowCrateLabel(hwnd, labels, i, timeLeft, visible,  pos.X, pos.Y, szCrateName);
         } else {
 			//break;    // 箱子不是连续存放的，不能直接跳出循环。
         }

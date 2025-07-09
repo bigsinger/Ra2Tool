@@ -12,7 +12,7 @@
 #include "Utils.h"
 #include "Config.h"
 
-HINSTANCE g_thisModule = NULL;
+HINSTANCE g_thisModule = NULL;		// 当前模块句柄
 //////////////////////////////////////////////////
 
 
@@ -322,7 +322,7 @@ void Install(HMODULE hModule) {
 	TCHAR szPath[MAX_PATH] = { 0 };
 	Utils::GetStartPath(hModule, szPath, MAX_PATH);
 	_tcscat_s(szPath, MAX_PATH, _T("Ra2Dll.ini"));
-	Config::SetConfigFilePath(szPath);
+	Config::setConfigFilePath(szPath);
 	Utils::Log("Ra2Dll Install");
 
 	if (Config::isOpenRA2Log()) {

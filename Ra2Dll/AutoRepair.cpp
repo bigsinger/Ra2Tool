@@ -38,7 +38,7 @@ void RepairNextBuilding() {
 				static_cast<int>(building->UniqueID), static_cast<int>(AbstractType::Abstract));
 			EventClass::AddEvent(repairEvent);
 			
-			if ((++count) >= Config::GetAutoRepairCount()) {
+			if ((++count) >= Config::getRepairCount()) {
 				break;
 			}
 		}

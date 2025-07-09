@@ -1,12 +1,13 @@
 ﻿#include <windows.h>
 #include <process.h>
 #include "Utils.h"
+#include "Crate.h"
+#include "Config.h"
+#include "Ra2Header.h"
 #include "Ra2Helper.h"
 #include "TipWindow.h"
 #include "ToolWindow.h"
 #include "AutoRepair.h"
-#include "Crate.h"
-#include "Config.h"
 
 
 // 快捷键 ID

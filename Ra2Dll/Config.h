@@ -7,7 +7,7 @@ private:
 	// 配置文件路径
 	static char _configFilePath[MAX_PATH];
 public:
-	static void SetConfigFilePath(const char* path) {
+	static void setConfigFilePath(const char* path) {
 		strcpy_s(_configFilePath, path);
 	}
 
@@ -69,14 +69,14 @@ public:
 	}
 
 private:
-	// 自动修理数量
-	static int _iAutoRepairCount;
+	// 修理数量
+	static int _iRepairCount;
 public:
-	static int GetAutoRepairCount() {
-		if (_iAutoRepairCount == UNINITED_FLAG) {
-			_iAutoRepairCount = ::GetPrivateProfileInt("main", "AutoRepairCount", 99, _configFilePath);
+	static int getRepairCount() {
+		if (_iRepairCount == UNINITED_FLAG) {
+			_iRepairCount = ::GetPrivateProfileInt("main", "RepairCount", 99, _configFilePath);
 		}
-		return _iAutoRepairCount;
+		return _iRepairCount;
 	}
 
 private:

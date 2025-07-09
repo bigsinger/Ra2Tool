@@ -3,6 +3,7 @@
 #include <process.h>
 #include <ShellScalingAPI.h>
 #include "TipWindow.h"
+#include "Ra2Header.h"
 #include "Ra2Helper.h"
 #include "Crate.h"
 #include "Utils.h"
@@ -20,15 +21,30 @@ const COLORREF textColor = RGB(255, 0, 0);	// 标签文本颜色
 
 // 保存创建的窗口句柄
 HWND g_hwndTipWindow = NULL;
-RECT gameClientRect;
-POINT gameClientTopLeft = { 0, 0 };
+RECT gameClientRect;                        // 游戏客户端矩形区域
+POINT gameClientTopLeft = { 0, 0 };         // 游戏客户端左上角坐标
 std::vector<HWND> g_crateLabels;
-
+HWND g_crateArrowLabels[8];                 // 8个方向的标签
 
 // 强制置顶
 void Topmost(HWND hwnd) {
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
+HWND createCrateLabel(HWND hWndParent, LPCWSTR lpWindowName, int posX, int posY, int width, int height) {
+    HWND hwnd = CreateWindowExW(
+        WS_EX_TRANSPARENT,
+        L"STATIC",
+        lpWindowName,
+        WS_CHILD | WS_VISIBLE | SS_LEFT,
+        posX, posY, width, height,
+        hWndParent,
+        NULL,
+        g_thisModule,
+        NULL
+    );
+	return hwnd;
 }
 
 // 窗口过程函数
@@ -42,8 +58,10 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         }
         break;
     case WM_CTLCOLORSTATIC: {
+		static COLORREF clr = textColor;
+		clr ^= 0x00FFFFFF;; // 变幻颜色
         HDC hdcStatic = (HDC)wParam;
-        SetTextColor(hdcStatic, textColor);
+        SetTextColor(hdcStatic, clr);
         SetBkMode(hdcStatic, TRANSPARENT);
 
         // 返回透明背景的刷子（避免填充颜色）
@@ -74,7 +92,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
         SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
 
-        SetTimer(hwnd, TIMER_ID_SHOWTIP, 500, NULL);
+        SetTimer(hwnd, TIMER_ID_SHOWTIP, 250, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
     }
     break;
@@ -111,7 +129,7 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 
     // 创建窗口
     hwnd = CreateWindowEx(
-        WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,  // 扩展样式
+        WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,  // 扩展样式
         className,                                          // 窗口类名
         className,                                          // 窗口标题
         WS_POPUP,                                           // 窗口样式

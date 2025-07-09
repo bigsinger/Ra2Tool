@@ -1,5 +1,12 @@
-#pragma once
+﻿#pragma once
 #include <stdint.h>
+
+
+//////////////////////////
+extern HINSTANCE g_thisModule;      // 当前模块句柄
+extern RECT gameClientRect;         // 游戏客户端矩形区域
+extern POINT gameClientTopLeft;     // 游戏客户端左上角坐标
+//////////////////////////
 
 
 enum NetCommandType {

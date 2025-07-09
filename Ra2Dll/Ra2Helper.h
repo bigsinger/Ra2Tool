@@ -1,7 +1,5 @@
 #pragma once
 
-extern HINSTANCE g_thisModule;
-
 
 bool IsGameRunning();
 bool IsGaming();
