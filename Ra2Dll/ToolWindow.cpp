@@ -17,6 +17,7 @@
 #define HOTKEY_ALT_B 4
 #define HOTKEY_ALT_G 5
 #define HOTKEY_ALT_L 6
+#define HOTKEY_ALT_C 7
 
 // 定时器 ID
 #define TIMER_ID_AutoRepair             1
@@ -29,6 +30,7 @@ void OnAltP();
 void OnAltB();
 void OnAltG();
 void OnAltL();
+void OnAltC();
 
 
 // 保存创建的窗口句柄
@@ -55,6 +57,7 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         case HOTKEY_ALT_B: OnAltB(); break;
         case HOTKEY_ALT_G: OnAltG(); break;
         case HOTKEY_ALT_L: OnAltL(); break;
+        case HOTKEY_ALT_C: OnAltC(); break;
         }
         break;
     case WM_MOUSEACTIVATE:
@@ -110,6 +113,15 @@ void OnAltG() {
 // 处理 ALT + L 快捷键
 void OnAltL() {
 	LevelUpSelectings();    // 升级选中单位等级
+}
+
+// 处理 ALT + C 快捷键
+void OnAltC() {
+    if (g_hwndTipWindow) {
+		UnInitTipWindow();
+    } else {
+        InitTipWindow();
+    }
 }
 
 // 线程函数
@@ -175,6 +187,10 @@ unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
         Utils::Log("Register ALT + L hotkey Failed!");
     }
 
+    if (!RegisterHotKey(hwnd, HOTKEY_ALT_C, MOD_ALT, 'C')) {
+        Utils::Log("Register ALT + C hotkey Failed!");
+    }
+
     // 消息循环
     while (GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
@@ -205,6 +221,7 @@ void UnInitToolWindow() {
     UnregisterHotKey(hwnd, HOTKEY_ALT_B);
     UnregisterHotKey(hwnd, HOTKEY_ALT_G);
     UnregisterHotKey(hwnd, HOTKEY_ALT_L);
+    UnregisterHotKey(hwnd, HOTKEY_ALT_C);
 
     DestroyWindow(hwnd);
     Utils::Log("UnInitToolWindow!");

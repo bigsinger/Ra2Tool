@@ -92,7 +92,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
         SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
 
-        SetTimer(hwnd, TIMER_ID_SHOWTIP, 250, NULL);
+        SetTimer(hwnd, TIMER_ID_SHOWTIP, 350, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
     }
     break;
@@ -129,7 +129,7 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 
     // 创建窗口
     hwnd = CreateWindowEx(
-        WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,  // 扩展样式
+        WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,  // 扩展样式
         className,                                          // 窗口类名
         className,                                          // 窗口标题
         WS_POPUP,                                           // 窗口样式
@@ -186,5 +186,6 @@ void UnInitTipWindow() {
 
     HWND hwnd = g_hwndTipWindow;
     DestroyWindow(hwnd);
+	g_hwndTipWindow = NULL;
     Utils::Log("UnInitTipWindow!");
 }
