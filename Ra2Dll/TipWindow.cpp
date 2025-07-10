@@ -69,12 +69,13 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     break;
     case WM_ERASEBKGND: {
-        HDC hdc = (HDC)wParam;
-        RECT rc;
-        GetClientRect(hwnd, &rc);
-        HBRUSH hBrush = CreateSolidBrush(maskColor);
-        FillRect(hdc, &rc, hBrush);
-        DeleteObject(hBrush);
+        return 1; // 禁用背景擦除，防止黑屏
+        //HDC hdc = (HDC)wParam;
+        //RECT rc;
+        //GetClientRect(hwnd, &rc);
+        //HBRUSH hBrush = CreateSolidBrush(maskColor);
+        //FillRect(hdc, &rc, hBrush);
+        //DeleteObject(hBrush);
     }
     break;
     case WM_MOUSEACTIVATE:
@@ -94,7 +95,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         // 鼠标穿透要带WS_EX_TRANSPARENT
         LONG lWindLong = GetWindowLong(hwnd, GWL_EXSTYLE);
         ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
-        SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
+        SetLayeredWindowAttributes(hwnd, maskColor, 255, LWA_ALPHA);  // LWA_COLORKEY
 
         SetTimer(hwnd, TIMER_ID_SHOWTIP, 350, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
