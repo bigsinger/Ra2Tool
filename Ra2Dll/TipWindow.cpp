@@ -34,7 +34,7 @@ void Topmost(HWND hwnd) {
 
 HWND createCrateLabel(HWND hWndParent, LPCWSTR lpWindowName, int posX, int posY, int width, int height) {
     HWND hwnd = CreateWindowExW(
-        WS_EX_TRANSPARENT,
+        0/*WS_EX_TRANSPARENT*/,
         L"STATIC",
         lpWindowName,
         WS_CHILD | WS_VISIBLE | SS_LEFT,
@@ -53,6 +53,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     case WM_TIMER:
         if (wParam == TIMER_ID_SHOWTIP) {
             ShowCrateInfo(hwnd, g_crateLabels);
+            ::InvalidateRect(hwnd, NULL, TRUE);
         } else if (wParam == TIMER_ID_TOPMOST) {
             Topmost(hwnd);
         }
@@ -69,13 +70,13 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     break;
     case WM_ERASEBKGND: {
-        return 1; // 禁用背景擦除，防止黑屏
-        //HDC hdc = (HDC)wParam;
-        //RECT rc;
-        //GetClientRect(hwnd, &rc);
-        //HBRUSH hBrush = CreateSolidBrush(maskColor);
-        //FillRect(hdc, &rc, hBrush);
-        //DeleteObject(hBrush);
+        //return 1; // 禁用背景擦除，防止黑屏
+        HDC hdc = (HDC)wParam;
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+        HBRUSH hBrush = CreateSolidBrush(maskColor);
+        FillRect(hdc, &rc, hBrush);
+        DeleteObject(hBrush);
     }
     break;
     case WM_MOUSEACTIVATE:
@@ -95,10 +96,10 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         // 鼠标穿透要带WS_EX_TRANSPARENT
         LONG lWindLong = GetWindowLong(hwnd, GWL_EXSTYLE);
         ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
-        SetLayeredWindowAttributes(hwnd, maskColor, 255, LWA_ALPHA);  // LWA_COLORKEY
-
-        SetTimer(hwnd, TIMER_ID_SHOWTIP, 350, NULL);
-        SetTimer(hwnd, TIMER_ID_TOPMOST, 1000, NULL);
+        SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
+		ShowWindow(hwnd, SW_SHOW);
+        SetTimer(hwnd, TIMER_ID_SHOWTIP, 300, NULL);
+        SetTimer(hwnd, TIMER_ID_TOPMOST, 2000, NULL);
     }
     break;
     default:
@@ -111,7 +112,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 // 线程函数
 unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 	//::CoInitialize(NULL);
-    //HWND hGameMain = FindWindowW(L"RA2", nullptr);
+    //HWND hGameMain = FindWindowW(L"Yuris Revenge", L"Yuris Revenge);
     gameClientTopLeft = { 0, 0 };   // 需要每次初始化
     HWND hGameMain = GetMainWindowForProcessId(GetCurrentProcessId());
     GetClientRect(hGameMain, &gameClientRect);
@@ -131,7 +132,7 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 
     // 创建窗口
     hwnd = CreateWindowEx(
-        WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE,  // 扩展样式
+        WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE,// 扩展样式
         className,                                          // 窗口类名
         className,                                          // 窗口标题
         WS_POPUP,                                           // 窗口样式
@@ -150,8 +151,8 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 
     // 设置窗口为全透明 & 支持绘图
     g_hwndTipWindow = hwnd;
-    SetLayeredWindowAttributes(hwnd, 0, 0, LWA_COLORKEY);
-    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+    //SetLayeredWindowAttributes(hwnd, 0, 0, LWA_COLORKEY);
+    //ShowWindow(hwnd, SW_SHOWNOACTIVATE);
 
     // 消息循环
     while (GetMessage(&msg, nullptr, 0, 0)) {
