@@ -87,36 +87,43 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 
 // 处理 ALT + R 快捷键
 void OnAltR() {
-	AutoRepair();           // 自动修理
+    Utils::Log("OnAltR!");
+    AutoRepair();           // 自动修理
 }
 
 // 处理 ALT + M 快捷键
 void OnAltM() {
+    Utils::Log("OnAltM!");
     GiveMeMoney();          // 钱多多
 }
 
 // 处理 ALT + P 快捷键
 void OnAltP() {
-	OpenPsychicDetection(); // 心灵感应
+    Utils::Log("OnAltP!");
+    OpenPsychicDetection(); // 心灵感应
 }
 
 // 处理 ALT + B 快捷键
 void OnAltB() {
-	ClearBeacons();         // 清除信标
+    Utils::Log("OnAltB!");
+    ClearBeacons();         // 清除信标
 }
 
 // 处理 ALT + G 快捷键
 void OnAltG() {
-	OpenTech();             // 科技全开
+    Utils::Log("OnAltG!");
+    OpenTech();             // 科技全开
 }
 
 // 处理 ALT + L 快捷键
 void OnAltL() {
-	LevelUpSelectings();    // 升级选中单位等级
+    Utils::Log("OnAltL!");
+    LevelUpSelectings();    // 升级选中单位等级
 }
 
 // 处理 ALT + C 快捷键
 void OnAltC() {
+	Utils::Log("OnAltC!");
     if (g_hwndTipWindow) {
 		UnInitTipWindow();
     } else {

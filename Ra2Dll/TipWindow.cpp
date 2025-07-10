@@ -80,11 +80,15 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     case WM_MOUSEACTIVATE:
         return MA_NOACTIVATE;
         break;
+    case  WM_NCHITTEST:
+        return HTTRANSPARENT;  // 鼠标事件直接穿透
+        break;
     case WM_CLOSE:
     case WM_DESTROY:
         KillTimer(hwnd, TIMER_ID_SHOWTIP);
         KillTimer(hwnd, TIMER_ID_TOPMOST);
         PostQuitMessage(0);
+        g_hwndTipWindow = NULL;
         break;
     case WM_CREATE: {
         // 鼠标穿透要带WS_EX_TRANSPARENT
@@ -107,11 +111,12 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 	//::CoInitialize(NULL);
     //HWND hGameMain = FindWindowW(L"RA2", nullptr);
+    gameClientTopLeft = { 0, 0 };   // 需要每次初始化
     HWND hGameMain = GetMainWindowForProcessId(GetCurrentProcessId());
     GetClientRect(hGameMain, &gameClientRect);
     ClientToScreen(hGameMain, &gameClientTopLeft);
-    Utils::LogFormat("Game Client Rect: (%d, %d, %d, %d)", 
-        gameClientRect.left, gameClientRect.top, 
+    Utils::LogFormat("Game Wnd: %p Client Rect: (%d, %d, %d, %d)", hGameMain,
+        gameClientTopLeft.x, gameClientTopLeft.y,
 		gameClientRect.right, gameClientRect.bottom);
 
     const char* className = "RA2TipWindow";
@@ -121,15 +126,11 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
     wc.lpfnWndProc = TipWindowWndProc;
     wc.hInstance = g_thisModule;
     wc.lpszClassName = className;
-
-    if (!RegisterClass(&wc)) {
-        Utils::Log("Window class registration failed!");
-        goto _exit;
-    }
+    RegisterClass(&wc);
 
     // 创建窗口
     hwnd = CreateWindowEx(
-        WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT,  // 扩展样式
+        WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE,  // 扩展样式
         className,                                          // 窗口类名
         className,                                          // 窗口标题
         WS_POPUP,                                           // 窗口样式
@@ -185,7 +186,6 @@ void UnInitTipWindow() {
 	g_crateLabels.clear();
 
     HWND hwnd = g_hwndTipWindow;
-    DestroyWindow(hwnd);
-	g_hwndTipWindow = NULL;
+    PostMessage(hwnd, WM_CLOSE, 0, 0);
     Utils::Log("UnInitTipWindow!");
 }

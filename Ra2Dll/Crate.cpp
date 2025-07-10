@@ -74,17 +74,16 @@ void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, int t
     } else {
         labels[index] = hwnd = createCrateLabel(hWndParent, szLabelText, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT);
     }
-    ShowWindow(hwnd, SW_SHOW);
 }
 
 static int maxCrateIndex = 0; // 用于跟踪最大箱子索引
 void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
     //ShowCrateLabel(hwnd, labels, 0, 2000, false,  -80, 60, L"箱子"); return;
-    // 先隐藏所有标签
+    // 所有标签
     __try {
         for (int i = 0; i < maxCrateIndex; i++) {
             HWND h = labels[i];
-            if (h) { ShowWindow(h, SW_HIDE); }
+            if (h) { ::MoveWindow(h, -1000, -1000, 0, 0, FALSE); }
         }
 
         // 读取地图上的箱子数据
