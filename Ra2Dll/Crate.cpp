@@ -42,30 +42,7 @@ const wchar_t* getCrateName(Powerup crateType) {
     return L"箱子";
 }
 
-class CrateLabel {
-public:
-    HWND hLabel = NULL;
-    CellClass* cell = NULL;
-    CellStruct Location;
-};
-std::map<CellClass*, CrateLabel*> mapList;
-
-
-void clearCrateLabel(CrateLabel*p) {
-    if (p) {
-        DestroyWindow(p->hLabel); // 销毁标签窗口
-        delete p;
-    }
-}
-
-void clearAllCrateLabels() {
-    for (auto& it : mapList) {
-        clearCrateLabel(it.second);
-    }
-    mapList.clear();
-}
-
-void ShowCrateLabel(CellClass* cell, HWND hWndParent, bool visible, int posX, int posY, const wchar_t* szCrateName) {
+void ShowCrateLabel(HDC hdc, bool visible, int posX, int posY, const wchar_t* szCrateName) {
     wchar_t szLabelText[32] = { L"箱子" };
     if (szCrateName) {
         wcscpy_s(szLabelText, _countof(szLabelText), szCrateName);
@@ -90,39 +67,19 @@ void ShowCrateLabel(CellClass* cell, HWND hWndParent, bool visible, int posX, in
         }
     }
 
-    auto it = mapList.find(cell);
-    if (it != mapList.end()) {
-        //SetWindowPos(hwnd, NULL, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, SWP_NOZORDER | SWP_NOACTIVATE);
-        HWND hwnd = it->second->hLabel;
-        SetWindowTextW(hwnd, szLabelText);
-        ::MoveWindow(hwnd, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, TRUE);
-    } else {
-        auto p = new CrateLabel();
-        p->hLabel = createCrateLabel(hWndParent, szLabelText, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT);
-        p->cell = cell;
-        if (cell) {
-            p->Location = cell->MapCoords;
-        }
-        mapList[cell] = p; // 保存到 mapList 中
-    }
+    Utils::LogFormat("crate pos: (%d:%d)", posX, posY);
+    TextOutW(hdc, posX, posY, szLabelText, wcslen(szLabelText));
 }
 
-void ShowCrateInfo(HWND hWndParent) {
+void ShowCrateInfo(HDC hdc) {
 #ifdef DEVDEBUG
     std::srand(static_cast<unsigned int>(std::time(nullptr)));  // 设置随机种子
     int x = std::rand() % 2001 - 1000;  // 范围[-1000, 1000]
     int y = std::rand() % 2001 - 1000;  // 范围[-1000, 1000]
-    ShowCrateLabel(NULL, hWndParent, false,  x, y, NULL); return;
+    ShowCrateLabel(hdc, false,  x, y, NULL); return;
 #endif
 
     __try {
-        for (auto& it : mapList) {
-            if (it.first->OverlayTypeIndex == -1) {
-                // 没有放置物了，说明箱子不在了，需要移除标签
-                clearCrateLabel(it.second);
-            }
-        }
-
         // 读取地图上的箱子数据
         MapClass& map = MapClass::Instance;
         for (int i = 0; i < 0x100; i++) {
@@ -135,7 +92,7 @@ void ShowCrateInfo(HWND hWndParent) {
                 //Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
 #if 1
                 // 这里不访问OverlayTypeClass::Array，以免游戏假死。
-                ShowCrateLabel(cell, hWndParent, visible, pos.X, pos.Y, NULL);
+                ShowCrateLabel(hdc, visible, pos.X, pos.Y, NULL);
 #else
                 OverlayTypeClass* overlay = OverlayTypeClass::Array[cell->OverlayTypeIndex];
                 if (overlay && overlay->Crate) {
@@ -147,7 +104,7 @@ void ShowCrateInfo(HWND hWndParent) {
                     const wchar_t* szCrateName = getCrateName(crateType);
                     //Utils::LogFormat("MapClass::Crates[%d] Type: %d  TimeLeft: %d", i, crateType, timeLeft);
                     // 显示箱子标签
-                    ShowCrateLabel(cell, hWndParent, visible, pos.X, pos.Y, szCrateName);
+                    ShowCrateLabel(hdc, visible, pos.X, pos.Y, szCrateName);
                 }
 #endif // 1
             } else {

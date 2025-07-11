@@ -23,6 +23,7 @@ const COLORREF textColor = RGB(255, 0, 0);	// 标签文本颜色
 HWND g_hwndTipWindow = NULL;
 RECT gameClientRect;                        // 游戏客户端矩形区域
 POINT gameClientTopLeft = { 0, 0 };         // 游戏客户端左上角坐标
+HBRUSH hBrushTransparent = NULL;
 
 // 强制置顶
 void Topmost(HWND hwnd) {
@@ -30,32 +31,10 @@ void Topmost(HWND hwnd) {
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
-HWND createCrateLabel(HWND hWndParent, LPCWSTR lpWindowName, int posX, int posY, int width, int height) {
-    HWND hwnd = CreateWindowExW(
-        0/*WS_EX_TRANSPARENT*/,
-        L"STATIC",
-        lpWindowName,
-        WS_CHILD | WS_VISIBLE | SS_LEFT,
-        posX, posY, width, height,
-        hWndParent,
-        NULL,
-        g_thisModule,
-        NULL
-    );
-	return hwnd;
-}
-
 // 刷新重绘标签
 void RefreshLabels() {
-#if 0
-    //for (HWND label : g_crateLabels) {
-    //    if (label) {
-    //        InvalidateRect(label, NULL, TRUE); // 强制重绘 label
-    //    }
-    //}
-#else
     ::InvalidateRect(g_hwndTipWindow, NULL, TRUE);
-#endif // 1
+    //RedrawWindow(g_hwndTipWindow, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
 }
 
 // 窗口过程函数
@@ -63,26 +42,29 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     switch (msg) {
     case WM_TIMER:
         if (wParam == TIMER_ID_SHOWTIP) {
-			static bool isBusy = false;
-            if (!isBusy) {
-                isBusy = true;
-                ShowCrateInfo(hwnd);
-				//RefreshLabels(); // 刷新标签
-                isBusy = false;
-            }
+            RefreshLabels(); // 刷新标签
         } else if (wParam == TIMER_ID_TOPMOST) {
             Topmost(hwnd);
         }
         break;
-    case WM_CTLCOLORSTATIC: {
-		static COLORREF clr = textColor;
-		clr ^= 0x00FFFFFF;; // 变幻颜色
-        HDC hdcStatic = (HDC)wParam;
-        SetTextColor(hdcStatic, clr);
-        SetBkMode(hdcStatic, TRANSPARENT);
+    case WM_PAINT: {
+        static COLORREF clr = textColor;
+        clr ^= 0x00FFFFFF;; // 变幻颜色
 
-        // 返回透明背景的刷子（避免填充颜色）
-        return (LRESULT)GetStockObject(HOLLOW_BRUSH);   // 返回空刷子
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hwnd, &ps);
+
+        // 1. 清空整个窗口背景为透明色（必须使用 color key 一致的颜色）
+        FillRect(hdc, &gameClientRect, hBrushTransparent);
+
+        // 2. 设置文字透明背景
+        SetBkMode(hdc, TRANSPARENT);
+        SetTextColor(hdc, clr);
+
+        // 3. 绘制所有 crate 标签
+        ShowCrateInfo(hdc);
+
+        EndPaint(hwnd, &ps);
     }
     break;
     case WM_ERASEBKGND: {
@@ -170,7 +152,7 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 
     // 设置窗口为全透明 & 支持绘图
     g_hwndTipWindow = hwnd;
-    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+    //ShowWindow(hwnd, SW_SHOWNOACTIVATE);
     //SetLayeredWindowAttributes(hwnd, 0, 0, LWA_COLORKEY);
 
     // 消息循环
@@ -187,6 +169,7 @@ _exit:
 
 void InitTipWindow() {
     Utils::Log("InitTipWindow!");
+    hBrushTransparent = CreateSolidBrush(maskColor); // 透明色
 
 	// 禁用 DPI 缩放，因红警老游戏不支持，所以咱也禁用，否则坐标会有错位。
     SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE); // Windows 8.1+
@@ -197,7 +180,7 @@ void InitTipWindow() {
 
 // 注销所有注册的热键、销毁窗口
 void UnInitTipWindow() {
-    clearAllCrateLabels();
+    DeleteObject(hBrushTransparent);
     HWND hwnd = g_hwndTipWindow;
     PostMessage(hwnd, WM_CLOSE, 0, 0);
     Utils::Log("UnInitTipWindow!");
