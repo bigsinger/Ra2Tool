@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 
-#define DEVDEBUG
+//#define DEVDEBUG
 
 //////////////////////////
 extern HINSTANCE g_thisModule;      // 当前模块句柄

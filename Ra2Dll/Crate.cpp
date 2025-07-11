@@ -67,7 +67,7 @@ void ShowCrateLabel(HDC hdc, bool visible, int posX, int posY, const wchar_t* sz
         }
     }
 
-    Utils::LogFormat("crate pos: (%d:%d)", posX, posY);
+    //Utils::LogFormat("crate pos: (%d:%d)", posX, posY);
     TextOutW(hdc, posX, posY, szLabelText, wcslen(szLabelText));
 }
 
