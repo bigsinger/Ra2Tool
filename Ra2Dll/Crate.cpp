@@ -43,8 +43,10 @@ const wchar_t* getCrateName(Powerup crateType) {
 
 void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, bool visible, int posX, int posY, const wchar_t* szCrateName) {
     //Utils::LogFormat("ShowCrateLabel hwnd:%p %d  (%d %d)", labels[index], index, posX, posY);
-    wchar_t szLabelText[32] = { 0 };
-    wcscpy_s(szLabelText, _countof(szLabelText), szCrateName);
+    wchar_t szLabelText[32] = { L"箱子" };
+    if (szCrateName) {
+        wcscpy_s(szLabelText, _countof(szLabelText), szCrateName);
+    }
 
     // 不可见时需要校正位置和提示标签
     if (!visible) {
@@ -63,14 +65,13 @@ void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, bool 
             posY = gameClientRect.bottom - CRATE_LABEL_HEIGHT;
             wcscat_s(szLabelText, _countof(szLabelText), L"↓");
         }
-    }else{
     }
 
     HWND hwnd = labels[index];
     if (hwnd) {
         //SetWindowPos(hwnd, NULL, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, SWP_NOZORDER | SWP_NOACTIVATE);
         SetWindowTextW(hwnd, szLabelText);
-        ::MoveWindow(hwnd, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, FALSE);
+        ::MoveWindow(hwnd, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, TRUE);
     } else {
         labels[index] = hwnd = createCrateLabel(hWndParent, szLabelText, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT);
     }
@@ -78,8 +79,13 @@ void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, bool 
 
 static int maxCrateIndex = 0; // 用于跟踪最大箱子索引
 void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
-    //ShowCrateLabel(hwnd, labels, 0, false,  -80, 60, L"箱子"); return;
-    // 所有标签
+#ifdef DEVDEBUG
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));  // 设置随机种子
+    int x = std::rand() % 2001 - 1000;  // 范围[-1000, 1000]
+    int y = std::rand() % 2001 - 1000;  // 范围[-1000, 1000]
+    ShowCrateLabel(hwnd, labels, 0, false,  x, y, NULL); return;
+#endif
+
     __try {
         //for (int i = 0; i < maxCrateIndex; i++) {
         //    HWND h = labels[i];
@@ -98,6 +104,10 @@ void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
                 maxCrateIndex++;
                 auto [pos, visible] = TacticalClass::Instance->CoordsToClient(cell->GetCoords());
                 //Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
+#if 1
+                // 这里不访问OverlayTypeClass::Array，以免游戏假死。
+                ShowCrateLabel(hwnd, labels, i, visible, pos.X, pos.Y, NULL);
+#else
                 OverlayTypeClass* overlay = OverlayTypeClass::Array[cell->OverlayTypeIndex];
                 if (overlay && overlay->Crate) {
                     /*
@@ -110,6 +120,7 @@ void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
                     // 显示箱子标签
                     ShowCrateLabel(hwnd, labels, i, visible, pos.X, pos.Y, szCrateName);
                 }
+#endif // 1
             } else {
                 //break;    // 箱子不是连续存放的，不能直接跳出循环。
             }

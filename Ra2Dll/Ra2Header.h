@@ -2,6 +2,8 @@
 #include <stdint.h>
 
 
+#define DEVDEBUG
+
 //////////////////////////
 extern HINSTANCE g_thisModule;      // 当前模块句柄
 extern RECT gameClientRect;         // 游戏客户端矩形区域

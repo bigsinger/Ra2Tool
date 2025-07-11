@@ -24,7 +24,6 @@ HWND g_hwndTipWindow = NULL;
 RECT gameClientRect;                        // 游戏客户端矩形区域
 POINT gameClientTopLeft = { 0, 0 };         // 游戏客户端左上角坐标
 std::vector<HWND> g_crateLabels;
-HWND g_crateArrowLabels[8];                 // 8个方向的标签
 
 // 强制置顶
 void Topmost(HWND hwnd) {
@@ -47,13 +46,31 @@ HWND createCrateLabel(HWND hWndParent, LPCWSTR lpWindowName, int posX, int posY,
 	return hwnd;
 }
 
+// 刷新重绘标签
+void RefreshLabels() {
+#if 1
+    for (HWND label : g_crateLabels) {
+        if (label) {
+            InvalidateRect(label, NULL, TRUE); // 强制重绘 label
+        }
+    }
+#else
+    ::InvalidateRect(g_hwndTipWindow, NULL, TRUE);
+#endif // 1
+}
+
 // 窗口过程函数
 LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
     case WM_TIMER:
         if (wParam == TIMER_ID_SHOWTIP) {
-            ShowCrateInfo(hwnd, g_crateLabels);
-            ::InvalidateRect(hwnd, NULL, TRUE);
+			static bool isBusy = false;
+            if (!isBusy) {
+                isBusy = true;
+                ShowCrateInfo(hwnd, g_crateLabels);
+				//RefreshLabels(); // 刷新标签
+                isBusy = false;
+            }
         } else if (wParam == TIMER_ID_TOPMOST) {
             Topmost(hwnd);
         }
@@ -70,13 +87,16 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     break;
     case WM_ERASEBKGND: {
-        //return 1; // 禁用背景擦除，防止黑屏
+#if 1
+        return 1; // GPT建议：禁用背景擦除，防止黑屏
+#else
         HDC hdc = (HDC)wParam;
         RECT rc;
         GetClientRect(hwnd, &rc);
         HBRUSH hBrush = CreateSolidBrush(maskColor);
         FillRect(hdc, &rc, hBrush);
         DeleteObject(hBrush);
+#endif // 1
     }
     break;
     case WM_MOUSEACTIVATE:
@@ -151,8 +171,8 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
 
     // 设置窗口为全透明 & 支持绘图
     g_hwndTipWindow = hwnd;
+    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
     //SetLayeredWindowAttributes(hwnd, 0, 0, LWA_COLORKEY);
-    //ShowWindow(hwnd, SW_SHOWNOACTIVATE);
 
     // 消息循环
     while (GetMessage(&msg, nullptr, 0, 0)) {

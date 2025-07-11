@@ -314,7 +314,9 @@ void Chat(const wchar_t* message, int nCbSize) {
 
 // 测试用例
 void TestCases() {
-	//InitToolWindow();
+#ifdef DEVDEBUG
+	InitToolWindow();
+#endif
 }
 
 void Install(HMODULE hModule) {
