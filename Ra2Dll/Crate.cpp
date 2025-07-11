@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <map>
 #include <MapClass.h>
 #include <CCINIClass.h>
 #include <TacticalClass.h>
@@ -41,8 +42,30 @@ const wchar_t* getCrateName(Powerup crateType) {
     return L"箱子";
 }
 
-void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, bool visible, int posX, int posY, const wchar_t* szCrateName) {
-    //Utils::LogFormat("ShowCrateLabel hwnd:%p %d  (%d %d)", labels[index], index, posX, posY);
+class CrateLabel {
+public:
+    HWND hLabel = NULL;
+    CellClass* cell = NULL;
+    CellStruct Location;
+};
+std::map<CellClass*, CrateLabel*> mapList;
+
+
+void clearCrateLabel(CrateLabel*p) {
+    if (p) {
+        DestroyWindow(p->hLabel); // 销毁标签窗口
+        delete p;
+    }
+}
+
+void clearAllCrateLabels() {
+    for (auto& it : mapList) {
+        clearCrateLabel(it.second);
+    }
+    mapList.clear();
+}
+
+void ShowCrateLabel(CellClass* cell, HWND hWndParent, bool visible, int posX, int posY, const wchar_t* szCrateName) {
     wchar_t szLabelText[32] = { L"箱子" };
     if (szCrateName) {
         wcscpy_s(szLabelText, _countof(szLabelText), szCrateName);
@@ -67,33 +90,40 @@ void ShowCrateLabel(HWND hWndParent, std::vector<HWND>& labels, int index, bool 
         }
     }
 
-    HWND hwnd = labels[index];
-    if (hwnd) {
+    auto it = mapList.find(cell);
+    if (it != mapList.end()) {
         //SetWindowPos(hwnd, NULL, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, SWP_NOZORDER | SWP_NOACTIVATE);
+        HWND hwnd = it->second->hLabel;
         SetWindowTextW(hwnd, szLabelText);
         ::MoveWindow(hwnd, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT, TRUE);
     } else {
-        labels[index] = hwnd = createCrateLabel(hWndParent, szLabelText, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT);
+        auto p = new CrateLabel();
+        p->hLabel = createCrateLabel(hWndParent, szLabelText, posX, posY, CRATE_LABEL_WIDTH, CRATE_LABEL_HEIGHT);
+        p->cell = cell;
+        if (cell) {
+            p->Location = cell->MapCoords;
+        }
+        mapList[cell] = p; // 保存到 mapList 中
     }
 }
 
-static int maxCrateIndex = 0; // 用于跟踪最大箱子索引
-void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
+void ShowCrateInfo(HWND hWndParent) {
 #ifdef DEVDEBUG
     std::srand(static_cast<unsigned int>(std::time(nullptr)));  // 设置随机种子
     int x = std::rand() % 2001 - 1000;  // 范围[-1000, 1000]
     int y = std::rand() % 2001 - 1000;  // 范围[-1000, 1000]
-    ShowCrateLabel(hwnd, labels, 0, false,  x, y, NULL); return;
+    ShowCrateLabel(NULL, hWndParent, false,  x, y, NULL); return;
 #endif
 
     __try {
-        //for (int i = 0; i < maxCrateIndex; i++) {
-        //    HWND h = labels[i];
-        //    if (h) { ::MoveWindow(h, -1000, -1000, 0, 0, TRUE); }
-        //}
+        for (auto& it : mapList) {
+            if (it.first->OverlayTypeIndex == -1) {
+                // 没有放置物了，说明箱子不在了，需要移除标签
+                clearCrateLabel(it.second);
+            }
+        }
 
         // 读取地图上的箱子数据
-        maxCrateIndex = 0;
         MapClass& map = MapClass::Instance;
         for (int i = 0; i < 0x100; i++) {
             int timeLeft = map.Crates[i].CrateTimer.TimeLeft;
@@ -101,12 +131,11 @@ void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
 
             CellClass* cell = map.TryGetCellAt(map.Crates[i].Location);
             if (cell && cell->OverlayTypeIndex != -1) {
-                maxCrateIndex++;
                 auto [pos, visible] = TacticalClass::Instance->CoordsToClient(cell->GetCoords());
                 //Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
 #if 1
                 // 这里不访问OverlayTypeClass::Array，以免游戏假死。
-                ShowCrateLabel(hwnd, labels, i, visible, pos.X, pos.Y, NULL);
+                ShowCrateLabel(cell, hWndParent, visible, pos.X, pos.Y, NULL);
 #else
                 OverlayTypeClass* overlay = OverlayTypeClass::Array[cell->OverlayTypeIndex];
                 if (overlay && overlay->Crate) {
@@ -118,7 +147,7 @@ void ShowCrateInfo(HWND hwnd, std::vector<HWND>& labels) {
                     const wchar_t* szCrateName = getCrateName(crateType);
                     //Utils::LogFormat("MapClass::Crates[%d] Type: %d  TimeLeft: %d", i, crateType, timeLeft);
                     // 显示箱子标签
-                    ShowCrateLabel(hwnd, labels, i, visible, pos.X, pos.Y, szCrateName);
+                    ShowCrateLabel(cell, hWndParent, visible, pos.X, pos.Y, szCrateName);
                 }
 #endif // 1
             } else {

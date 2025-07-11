@@ -23,7 +23,6 @@ const COLORREF textColor = RGB(255, 0, 0);	// 标签文本颜色
 HWND g_hwndTipWindow = NULL;
 RECT gameClientRect;                        // 游戏客户端矩形区域
 POINT gameClientTopLeft = { 0, 0 };         // 游戏客户端左上角坐标
-std::vector<HWND> g_crateLabels;
 
 // 强制置顶
 void Topmost(HWND hwnd) {
@@ -48,12 +47,12 @@ HWND createCrateLabel(HWND hWndParent, LPCWSTR lpWindowName, int posX, int posY,
 
 // 刷新重绘标签
 void RefreshLabels() {
-#if 1
-    for (HWND label : g_crateLabels) {
-        if (label) {
-            InvalidateRect(label, NULL, TRUE); // 强制重绘 label
-        }
-    }
+#if 0
+    //for (HWND label : g_crateLabels) {
+    //    if (label) {
+    //        InvalidateRect(label, NULL, TRUE); // 强制重绘 label
+    //    }
+    //}
 #else
     ::InvalidateRect(g_hwndTipWindow, NULL, TRUE);
 #endif // 1
@@ -67,7 +66,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			static bool isBusy = false;
             if (!isBusy) {
                 isBusy = true;
-                ShowCrateInfo(hwnd, g_crateLabels);
+                ShowCrateInfo(hwnd);
 				//RefreshLabels(); // 刷新标签
                 isBusy = false;
             }
@@ -188,7 +187,6 @@ _exit:
 
 void InitTipWindow() {
     Utils::Log("InitTipWindow!");
-	g_crateLabels.resize(MAX_CRATE_COUNT, NULL);
 
 	// 禁用 DPI 缩放，因红警老游戏不支持，所以咱也禁用，否则坐标会有错位。
     SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE); // Windows 8.1+
@@ -199,14 +197,7 @@ void InitTipWindow() {
 
 // 注销所有注册的热键、销毁窗口
 void UnInitTipWindow() {
-    for(auto &label : g_crateLabels) {
-        if (label) {
-            DestroyWindow(label);
-            label = NULL;
-        }
-	}
-	g_crateLabels.clear();
-
+    clearAllCrateLabels();
     HWND hwnd = g_hwndTipWindow;
     PostMessage(hwnd, WM_CLOSE, 0, 0);
     Utils::Log("UnInitTipWindow!");
