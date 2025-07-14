@@ -7,8 +7,6 @@
 #include "Ra2Dll.h"
 #include "Config.h"
 #include "Ra2Helper.h"
-#include "AutoRepair.h"
-#include "ToolWindow.h"
 
 //#include <Utilities/Debug.h>
 //#include <Utilities/Macro.h>

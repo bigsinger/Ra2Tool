@@ -2,13 +2,10 @@
 #include <stdio.h>
 #include "Ra2Header.h"
 #include "Ra2Helper.h"
-#include "TipWindow.h"
-#include "ToolWindow.h"
 #include <IPX.h>
 #include <EventClass.h>
 #include <HouseClass.h>
 #include <IPXManagerClass.h>
-#include "Crate.h"
 #include "Utils.h"
 #include "Config.h"
 

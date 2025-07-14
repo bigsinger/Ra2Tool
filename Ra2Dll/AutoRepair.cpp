@@ -1,9 +1,9 @@
-﻿#include "windows.h"
+﻿#include <windows.h>
+#include <EventClass.h>
+#include <HouseClass.h>
 #include "Utils.h"
 #include "Config.h"
 #include "Ra2Helper.h"
-#include <EventClass.h>
-#include <HouseClass.h>
 
 
 #pragma pack(1)

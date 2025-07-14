@@ -17,3 +17,13 @@ void Chat(const wchar_t* message, int nCbSize);
 
 void Install(HMODULE hModule);
 void Uninstall();
+
+void InitToolWindow();
+void UnInitToolWindow();
+
+void InitTipWindow();
+void UnInitTipWindow();
+
+void AutoRepair();
+
+void ShowCrateInfo(HDC hdc);

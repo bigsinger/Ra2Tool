@@ -1,15 +1,9 @@
 ﻿#pragma once
-#include <map>
 #include <MapClass.h>
-#include <CCINIClass.h>
 #include <TacticalClass.h>
-#include <OverlayTypeClass.h>
-#include "Crate.h"
 #include "Utils.h"
 #include "Ra2Header.h"
 #include "Ra2Helper.h"
-#include "TipWindow.h"
-
 
 
 // 定义一个字符串数组，每个字符串对应一个枚举值
@@ -82,7 +76,7 @@ void ShowCrateInfo(HDC hdc) {
     __try {
         // 读取地图上的箱子数据
         MapClass& map = MapClass::Instance;
-        for (int i = 0; i < 0x100; i++) {
+        for (int i = 0; i < CRATE_MAX_COUNT; i++) {
             int timeLeft = map.Crates[i].CrateTimer.TimeLeft;
             if (timeLeft <= 0) { continue; }
 

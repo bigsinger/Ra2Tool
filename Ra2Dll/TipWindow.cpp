@@ -1,13 +1,10 @@
 ﻿#include <windows.h>
-#include <vector>
 #include <process.h>
 #include <ShellScalingAPI.h>
-#include "TipWindow.h"
-#include "Ra2Header.h"
-#include "Ra2Helper.h"
-#include "Crate.h"
 #include "Utils.h"
 #include "Config.h"
+#include "Ra2Header.h"
+#include "Ra2Helper.h"
 #pragma comment(lib, "Shcore.lib")
 
 // 定时器 ID
@@ -31,10 +28,9 @@ void Topmost(HWND hwnd) {
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
-// 刷新重绘标签
-void RefreshLabels() {
-    ::InvalidateRect(g_hwndTipWindow, NULL, TRUE);
-    //RedrawWindow(g_hwndTipWindow, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
+// 强制刷新
+void RefreshLabels(HWND hwnd) {
+    ::InvalidateRect(hwnd, NULL, TRUE);
 }
 
 // 窗口过程函数
@@ -42,14 +38,14 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     switch (msg) {
     case WM_TIMER:
         if (wParam == TIMER_ID_SHOWTIP) {
-            RefreshLabels(); // 刷新标签
+            RefreshLabels(hwnd); // 强制刷新
         } else if (wParam == TIMER_ID_TOPMOST) {
             Topmost(hwnd);
         }
         break;
     case WM_PAINT: {
         static COLORREF clr = textColor;
-        clr ^= 0x00FFFFFF;; // 变幻颜色
+        clr ^= 0x00FFFFFF;;     // 变幻颜色
 
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
@@ -68,16 +64,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     break;
     case WM_ERASEBKGND: {
-#if 1
-        return 1; // GPT建议：禁用背景擦除，防止黑屏
-#else
-        HDC hdc = (HDC)wParam;
-        RECT rc;
-        GetClientRect(hwnd, &rc);
-        HBRUSH hBrush = CreateSolidBrush(maskColor);
-        FillRect(hdc, &rc, hBrush);
-        DeleteObject(hBrush);
-#endif // 1
+        return 1;               // 禁用背景擦除，防止黑屏
     }
     break;
     case WM_MOUSEACTIVATE:
@@ -88,17 +75,13 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         break;
     case WM_CLOSE:
     case WM_DESTROY:
-        KillTimer(hwnd, TIMER_ID_SHOWTIP);
-        KillTimer(hwnd, TIMER_ID_TOPMOST);
         PostQuitMessage(0);
-        g_hwndTipWindow = NULL;
         break;
     case WM_CREATE: {
         // 鼠标穿透要带WS_EX_TRANSPARENT
-        LONG lWindLong = GetWindowLong(hwnd, GWL_EXSTYLE);
-        ::SetWindowLong(hwnd, GWL_EXSTYLE, lWindLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
+        LONG winLong = GetWindowLong(hwnd, GWL_EXSTYLE);
+        ::SetWindowLong(hwnd, GWL_EXSTYLE, winLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
         SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
-		ShowWindow(hwnd, SW_SHOW);
         SetTimer(hwnd, TIMER_ID_SHOWTIP, 300, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 2000, NULL);
     }
@@ -136,7 +119,7 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
         WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE,// 扩展样式
         className,                                          // 窗口类名
         className,                                          // 窗口标题
-        WS_POPUP,                                           // 窗口样式
+        WS_POPUP | WS_VISIBLE,                              // 窗口样式
         gameClientTopLeft.x, gameClientTopLeft.y,           // 窗口位置
         gameClientRect.right, gameClientRect.bottom,        // 窗口尺寸
         NULL,                                               // 父窗口
@@ -149,11 +132,7 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
         Utils::Log("Tip Window creation failed!");
         goto _exit;
     }
-
-    // 设置窗口为全透明 & 支持绘图
     g_hwndTipWindow = hwnd;
-    //ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-    //SetLayeredWindowAttributes(hwnd, 0, 0, LWA_COLORKEY);
 
     // 消息循环
     while (GetMessage(&msg, nullptr, 0, 0)) {
@@ -182,6 +161,9 @@ void InitTipWindow() {
 void UnInitTipWindow() {
     DeleteObject(hBrushTransparent);
     HWND hwnd = g_hwndTipWindow;
+    KillTimer(hwnd, TIMER_ID_SHOWTIP);
+    KillTimer(hwnd, TIMER_ID_TOPMOST);
     PostMessage(hwnd, WM_CLOSE, 0, 0);
+    g_hwndTipWindow = NULL;
     Utils::Log("UnInitTipWindow!");
 }

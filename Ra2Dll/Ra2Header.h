@@ -4,6 +4,11 @@
 
 //#define DEVDEBUG
 
+const int CRATE_MAX_COUNT = 0x100;	// 最大箱子数量
+const int CRATE_LABEL_WIDTH = 60;   // 箱子标签宽度
+const int CRATE_LABEL_HEIGHT = 40;  // 箱子标签高度
+
+
 //////////////////////////
 extern HINSTANCE g_thisModule;      // 当前模块句柄
 extern RECT gameClientRect;         // 游戏客户端矩形区域

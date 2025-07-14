@@ -1,13 +1,9 @@
 ﻿#include <windows.h>
 #include <process.h>
 #include "Utils.h"
-#include "Crate.h"
 #include "Config.h"
 #include "Ra2Header.h"
 #include "Ra2Helper.h"
-#include "TipWindow.h"
-#include "ToolWindow.h"
-#include "AutoRepair.h"
 
 
 // 快捷键 ID
@@ -141,32 +137,25 @@ unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
     wc.lpfnWndProc = ToolWindowWndProc;
     wc.hInstance = g_thisModule;
     wc.lpszClassName = className;
-
-    if (!RegisterClass(&wc)) {
-        Utils::Log("Window class registration failed!");
-        goto _exit;
-    }
+    RegisterClass(&wc);
 
     // 创建窗口
     hwnd = CreateWindowEx(
         WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,// 扩展样式
-        className,                      // 窗口类名
-        className,                      // 窗口标题
-        WS_OVERLAPPEDWINDOW,            // 窗口样式
-        -900, -900, 0, 0,               // 窗口位置和尺寸
-        NULL,                           // 父窗口
-        nullptr,                        // 菜单
-        wc.hInstance,                   // 程序实例句柄
-        nullptr                         // 附加参数
+        className,                          // 窗口类名
+        className,                          // 窗口标题
+        WS_OVERLAPPEDWINDOW | WS_VISIBLE,   // 窗口样式
+        -900, -900, 0, 0,                   // 窗口位置和尺寸
+        NULL,                               // 父窗口
+        nullptr,                            // 菜单
+        wc.hInstance,                       // 程序实例句柄
+        nullptr                             // 附加参数
     );
 
     if (!hwnd) {
         Utils::Log("Window creation failed!");
         goto _exit;
     }
-
-    // 隐藏窗口
-    ShowWindow(hwnd, SW_SHOW);
     g_hwndToolWindow = hwnd;
 
     // 注册全局快捷键

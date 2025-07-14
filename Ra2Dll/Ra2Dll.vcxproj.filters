@@ -990,9 +990,6 @@
     <ClInclude Include="$(YRppDir)\YRPPCore.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="AutoRepair.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Ext\Main.Config.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -1047,6 +1044,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="TipWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(YRppDir)\StaticInits.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
