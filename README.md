@@ -22,13 +22,15 @@ git clone https://github.com/Phobos-developers/YRpp.git
 
 - ALT + M：钱多多，仅单机模式有效；
 
-- ALT + P：开启心灵探测，须选中建筑按下该快捷键；
+- ALT + P：开启心灵探测（默认已开启）；想要人工开启时，须选中某个建筑按下快捷键；
 
-- ALT + B：清除所有信标，目前好像无效；
+- ALT + B：清除自己下过的所有信标；
 
 - ALT + G：开启全科技，目前只开放了部分兵种；
 
-- ALT + R：自动修理，每次只自动修理一个建筑，无须选中任何建筑；
+- ALT + C：打开/关闭箱子提示；
+
+- ALT + R：自动修理，默认修理全部建筑（数量可配置），不需要选中建筑；
 
 - 配置文件为`Ra2Dll.ini`，须放在本模块的同级目录下，选项如下：
   
@@ -36,14 +38,14 @@ git clone https://github.com/Phobos-developers/YRpp.git
   ; AutoOpenMap 是否自动开启全图功能，默认开启；
   ; log 是否开启红警游戏自身的日志输出，用于分析游戏逻辑，默认不开启；
   ; debug 是否开启日志模式，用户排错，默认不开启；
-  ; AutoRepairCount 自动维修的建筑数量，默认全部维修，如果每次只维修一个请设置1；
+  ; RepairCount 自动维修的建筑数量，默认全部维修，如果每次只维修一个请设置1；
   ; DisableDisguise 是否禁止隐身，默认1；
   
   [main]
   AutoOpenMap=1
   log=0 
   debug=0
-  AutoRepairCount=99
+  RepairCount=99
   DisableDisguise=1
   ```
 
