@@ -89,13 +89,13 @@ void OpenTech() {
 }
 
 // 开启心灵探测
-void OpenPsychicDetection() {
+void OpenPsiSensor() {
 #if 1
 	__try {
 		for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
 			BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
-			if (building && building->Type) {
-				building->Type->PsychicDetectionRadius = 0x7FFF;
+			if (building && building->Type && building->Type->BuildCat == BuildCat::Combat) {	// 给碉堡类建筑开启
+				building->Type->PsychicDetectionRadius = -1; // 0x7FFF
 			}
 		}
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -118,7 +118,7 @@ void OpenPsychicDetection() {
 			mov eax, [eax]
 			mov eax, [eax]					// +0
 			mov eax, [eax + 0x520]			// +0x520
-			mov word ptr[eax + 0x170C], 0x7FFF	// 0x170C PsychicDetectionRadius
+			mov word ptr[eax + 0x170C], 0x7FFF	// 0x170C PsiSensorRadius
 		exit1:
 			popad
 		}
@@ -224,10 +224,13 @@ void LevelUpSelectings() {
 
 // 强制显身，效果：幻影/间谍/隐身状态会被强显
 void DisableDisguise() {
-	if (SessionClass::IsMultiplayer()) { return; }
+	Utils::Log("反隐功能");
+	if (SessionClass::IsMultiplayer()) {
+		Utils::Log("反隐功能在多人模式下会平行世界，本次不会开启，推荐在单人模式下使用。");
+		return;
+	}
 
-#if 0
-	// 本段代码可能会平行世界
+#if 1
 	for (int i = 0; i < TechnoTypeClass::Array.Count; i++) {
 		TechnoTypeClass::Array.GetItem(i)->CanDisguise = false;
 	}
@@ -312,6 +315,7 @@ void Chat(const wchar_t* message, int nCbSize) {
 // 测试用例
 void TestCases() {
 #ifdef DEVDEBUG
+	Chat(NULL, 0);
 	InitToolWindow();
 #endif
 }
@@ -322,16 +326,11 @@ void Install(HMODULE hModule) {
 	Utils::GetStartPath(hModule, szPath, MAX_PATH);
 	_tcscat_s(szPath, MAX_PATH, _T("Ra2Dll.ini"));
 	Config::setConfigFilePath(szPath);
-	Utils::Log("Ra2Dll Install");
-
+	Utils::LogFormat("Ra2Dll Install, Build: %s", __TIMESTAMP__);
+	
 	if (Config::isOpenRA2Log()) {
 		OpenLog();
 	}
-
-	if (Config::isDisableDisguise()) {
-		DisableDisguise();
-	}
-	Chat(NULL, 0);
 
 	TestCases();
 

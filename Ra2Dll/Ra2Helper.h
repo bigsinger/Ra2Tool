@@ -7,7 +7,7 @@ bool OpenLog();
 void OpenMap();
 void OpenRadar();
 void OpenTech();
-void OpenPsychicDetection();
+void OpenPsiSensor();
 void ClearBeacons();
 void GiveMeMoney();
 void LevelUpSelectings();

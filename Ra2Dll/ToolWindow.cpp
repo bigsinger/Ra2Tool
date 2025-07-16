@@ -17,7 +17,7 @@
 
 // 定时器 ID
 #define TIMER_ID_AutoRepair             1
-#define TIMER_ID_OpenPsychicDetection   2
+#define TIMER_ID_OpenPsiSensor   2
 
 // 处理函数声明
 void OnAltR();
@@ -38,10 +38,10 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
     case WM_TIMER:
         if (wParam == TIMER_ID_AutoRepair) {
             AutoRepair();
-        } else if (wParam == TIMER_ID_OpenPsychicDetection) {
-			static int OpenPsychicDetectionCount = 0;
-            if (++OpenPsychicDetectionCount < 5) {
-                OpenPsychicDetection();
+        } else if (wParam == TIMER_ID_OpenPsiSensor) {
+			static int OpenPsiSensorCount = 0;
+            if (++OpenPsiSensorCount < 5) {
+                OpenPsiSensor();
             }
         }
         break;
@@ -67,11 +67,11 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         if (Config::isAutoShowCrate()) {
             InitTipWindow();
         }
-        if(Config::isAutoRepair()){
-            SetTimer(hwnd, TIMER_ID_AutoRepair, 1000, NULL);
+        if(Config::getAutoRepairTime()){
+            SetTimer(hwnd, TIMER_ID_AutoRepair, Config::getAutoRepairTime() * 1000, NULL);
 		}
-        if (Config::isAutoOpenPsychicDetection()) {
-            SetTimer(hwnd, TIMER_ID_OpenPsychicDetection, 10000, NULL);
+        if (Config::isAutoOpenPsiSensor()) {
+            SetTimer(hwnd, TIMER_ID_OpenPsiSensor, 10000, NULL);
         }
         break;
     default:
@@ -96,7 +96,7 @@ void OnAltM() {
 // 处理 ALT + P 快捷键
 void OnAltP() {
     Utils::Log("OnAltP!");
-    OpenPsychicDetection(); // 心灵感应
+    OpenPsiSensor(); // 心灵感应
 }
 
 // 处理 ALT + B 快捷键
@@ -209,7 +209,7 @@ void InitToolWindow() {
 void UnInitToolWindow() {
     HWND hwnd = g_hwndToolWindow;
     KillTimer(hwnd, TIMER_ID_AutoRepair);
-    KillTimer(hwnd, TIMER_ID_OpenPsychicDetection);
+    KillTimer(hwnd, TIMER_ID_OpenPsiSensor);
 
     UnregisterHotKey(hwnd, HOTKEY_ALT_R);
     UnregisterHotKey(hwnd, HOTKEY_ALT_M);

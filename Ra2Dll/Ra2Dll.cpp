@@ -20,13 +20,23 @@ void Open() {
 		//	Patch::Apply_CALL(0x7B3D75, NetHack::SendTo);   // UDPInterfaceClass::Message_Handler
 		//	Patch::Apply_CALL(0x7B3EEC, NetHack::RecvFrom); // UDPInterfaceClass::Message_Handler
 		//}
+		Utils::Log("game running!");
+
 		if (Config::isAutoOpenMap()) {
-			Utils::Log("Auto Open Map!");
+			Utils::Log("auto open map!");
 			OpenMap();
+		}
+
+		if (Config::isAutoOpenRadar()) {
+			Utils::Log("auto open radar!");
 			OpenRadar();
 		}
+
+		if (Config::isDisableDisguise()) {
+			DisableDisguise();
+		}
 	} else {
-		Utils::Log("Game not running!");
+		Utils::Log("game not running!");
 	}
 }
 

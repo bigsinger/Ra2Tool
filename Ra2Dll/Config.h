@@ -12,14 +12,14 @@ public:
 	}
 
 private:
-	// 是否自动打开全图
-	static int _iAutoMapFlag;
+	// 是否打开调试模式
+	static int _iDebugFlag;
 public:
-	static bool isAutoOpenMap() {
-		if (_iAutoMapFlag == UNINITED_FLAG) {
-			_iAutoMapFlag = ::GetPrivateProfileInt("main", "AutoOpenMap", TRUE, _configFilePath);
+	static int isDebugMode() {
+		if (_iDebugFlag == UNINITED_FLAG) {
+			_iDebugFlag = ::GetPrivateProfileInt("main", "debug", TRUE, _configFilePath);
 		}
-		return _iAutoMapFlag > 0;
+		return _iDebugFlag > 0;
 	}
 
 private:
@@ -33,6 +33,27 @@ public:
 		return _iRA2LogFlag > 0;
 	}
 
+private:
+	// 是否自动打开全图
+	static int _iAutoMapFlag;
+public:
+	static bool isAutoOpenMap() {
+		if (_iAutoMapFlag == UNINITED_FLAG) {
+			_iAutoMapFlag = ::GetPrivateProfileInt("main", "AutoOpenMap", TRUE, _configFilePath);
+		}
+		return _iAutoMapFlag > 0;
+	}
+
+private:
+	// 是否自动打开雷达
+	static int _iAutoRadarFlag;
+public:
+	static bool isAutoOpenRadar() {
+		if (_iAutoRadarFlag == UNINITED_FLAG) {
+			_iAutoRadarFlag = ::GetPrivateProfileInt("main", "AutoOpenRadar", TRUE, _configFilePath);
+		}
+		return _iAutoRadarFlag > 0;
+	}
 
 private:
 	// 是否禁止隐身
@@ -46,26 +67,14 @@ public:
 	}
 
 private:
-	// 是否打开调试模式
-	static int _iDebugFlag;
+	// 自动修理时间间隔（单位：秒）
+	static int _iAutoRepairTime;
 public:
-	static int isDebugMode() {
-		if (_iDebugFlag == UNINITED_FLAG) {
-			_iDebugFlag = ::GetPrivateProfileInt("main", "debug", FALSE, _configFilePath);
+	static int getAutoRepairTime() {
+		if (_iAutoRepairTime == UNINITED_FLAG) {
+			_iAutoRepairTime = ::GetPrivateProfileInt("main", "AutoRepairTime", 0, _configFilePath);
 		}
-		return _iDebugFlag > 0;
-	}
-
-
-private:
-	// 自动修理
-	static int _iAutoRepairFlag;
-public:
-	static int isAutoRepair() {
-		if (_iAutoRepairFlag == UNINITED_FLAG) {
-			_iAutoRepairFlag = ::GetPrivateProfileInt("main", "AutoRepair", FALSE, _configFilePath);
-		}
-		return _iAutoRepairFlag > 0;
+		return _iAutoRepairTime;
 	}
 
 private:
@@ -92,12 +101,12 @@ public:
 
 private:
 	// 心灵探测
-	static int _iAutoPsychicDetectionFlag;
+	static int _iAutoOpenPsiSensorFlag;
 public:
-	static int isAutoOpenPsychicDetection() {
-		if (_iAutoPsychicDetectionFlag == UNINITED_FLAG) {
-			_iAutoPsychicDetectionFlag = ::GetPrivateProfileInt("main", "xinling", FALSE, _configFilePath);
+	static int isAutoOpenPsiSensor() {
+		if (_iAutoOpenPsiSensorFlag == UNINITED_FLAG) {
+			_iAutoOpenPsiSensorFlag = ::GetPrivateProfileInt("main", "xinling", FALSE, _configFilePath);
 		}
-		return _iAutoPsychicDetectionFlag > 0;
+		return _iAutoOpenPsiSensorFlag > 0;
 	}
 };
