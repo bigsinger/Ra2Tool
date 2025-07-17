@@ -5,7 +5,7 @@ const int UNINITED_FLAG = -1;
 class Config {
 private:
 	// 配置文件路径
-	static char _configFilePath[MAX_PATH];
+	inline static char _configFilePath[MAX_PATH] = {};
 public:
 	static void setConfigFilePath(const char* path) {
 		strcpy_s(_configFilePath, path);
@@ -13,7 +13,7 @@ public:
 
 private:
 	// 是否打开调试模式
-	static int _iDebugFlag;
+	inline static int _iDebugFlag = UNINITED_FLAG;
 public:
 	static int isDebugMode() {
 		if (_iDebugFlag == UNINITED_FLAG) {
@@ -24,7 +24,7 @@ public:
 
 private:
 	// 是否打开RA2本身的日志
-	static int _iRA2LogFlag;
+	inline static int _iRA2LogFlag = UNINITED_FLAG;
 public:
 	static bool isOpenRA2Log() {
 		if (_iRA2LogFlag == UNINITED_FLAG) {
@@ -35,7 +35,7 @@ public:
 
 private:
 	// 是否自动打开全图
-	static int _iAutoMapFlag;
+	inline static int _iAutoMapFlag = UNINITED_FLAG;
 public:
 	static bool isAutoOpenMap() {
 		if (_iAutoMapFlag == UNINITED_FLAG) {
@@ -46,7 +46,7 @@ public:
 
 private:
 	// 是否自动打开雷达
-	static int _iAutoRadarFlag;
+	inline static int _iAutoRadarFlag = UNINITED_FLAG;
 public:
 	static bool isAutoOpenRadar() {
 		if (_iAutoRadarFlag == UNINITED_FLAG) {
@@ -57,7 +57,7 @@ public:
 
 private:
 	// 是否禁止隐身
-	static int _iRA2DisableDisguise;
+	inline static int _iRA2DisableDisguise = UNINITED_FLAG;
 public:
 	static bool isDisableDisguise() {
 		if (_iRA2DisableDisguise == UNINITED_FLAG) {
@@ -68,7 +68,7 @@ public:
 
 private:
 	// 自动修理时间间隔（单位：秒）
-	static int _iAutoRepairTime;
+	inline static int _iAutoRepairTime = UNINITED_FLAG;
 public:
 	static int getAutoRepairTime() {
 		if (_iAutoRepairTime == UNINITED_FLAG) {
@@ -79,7 +79,7 @@ public:
 
 private:
 	// 修理数量
-	static int _iRepairCount;
+	inline static int _iRepairCount = UNINITED_FLAG;
 public:
 	static int getRepairCount() {
 		if (_iRepairCount == UNINITED_FLAG) {
@@ -90,7 +90,7 @@ public:
 
 private:
 	// 获取箱子信息
-	static int _iAutoShowCrateFlag;
+	inline static int _iAutoShowCrateFlag = UNINITED_FLAG;
 public:
 	static int isAutoShowCrate() {
 		if (_iAutoShowCrateFlag == UNINITED_FLAG) {
@@ -101,7 +101,7 @@ public:
 
 private:
 	// 心灵探测
-	static int _iAutoOpenPsiSensorFlag;
+	inline static int _iAutoOpenPsiSensorFlag = UNINITED_FLAG;
 public:
 	static int isAutoOpenPsiSensor() {
 		if (_iAutoOpenPsiSensorFlag == UNINITED_FLAG) {
