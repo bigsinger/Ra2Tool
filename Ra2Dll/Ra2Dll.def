@@ -1,0 +1,6 @@
+; Ra2Dll.def : Declares the module parameters for the DLL.
+
+LIBRARY      "Ra2Dll"
+
+EXPORTS
+    fnRa2Dll
