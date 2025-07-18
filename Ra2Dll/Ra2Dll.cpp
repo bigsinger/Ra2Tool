@@ -40,7 +40,7 @@ void Open() {
 	}
 }
 
-RA2DLL_API int __cdecl fnRa2Dll(void) {
+RA2DLL_API int __stdcall fnRa2Dll(void) {
 	Open();
 	return 0;
 }
