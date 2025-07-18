@@ -11,4 +11,4 @@
 #endif
 
 
-extern "C" RA2DLL_API int fnRa2Dll(void);
+extern "C" RA2DLL_API int __cdecl fnRa2Dll(void);
