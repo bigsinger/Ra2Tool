@@ -207,18 +207,20 @@ void InitToolWindow() {
 
 // 注销所有注册的热键、销毁窗口
 void UnInitToolWindow() {
-    HWND hwnd = g_hwndToolWindow;
-    KillTimer(hwnd, TIMER_ID_AutoRepair);
-    KillTimer(hwnd, TIMER_ID_OpenPsiSensor);
+    if (g_hwndToolWindow) {
+        HWND hwnd = g_hwndToolWindow;
+        KillTimer(hwnd, TIMER_ID_AutoRepair);
+        KillTimer(hwnd, TIMER_ID_OpenPsiSensor);
 
-    UnregisterHotKey(hwnd, HOTKEY_ALT_R);
-    UnregisterHotKey(hwnd, HOTKEY_ALT_M);
-    UnregisterHotKey(hwnd, HOTKEY_ALT_P);
-    UnregisterHotKey(hwnd, HOTKEY_ALT_B);
-    UnregisterHotKey(hwnd, HOTKEY_ALT_G);
-    UnregisterHotKey(hwnd, HOTKEY_ALT_L);
-    UnregisterHotKey(hwnd, HOTKEY_ALT_C);
+        UnregisterHotKey(hwnd, HOTKEY_ALT_R);
+        UnregisterHotKey(hwnd, HOTKEY_ALT_M);
+        UnregisterHotKey(hwnd, HOTKEY_ALT_P);
+        UnregisterHotKey(hwnd, HOTKEY_ALT_B);
+        UnregisterHotKey(hwnd, HOTKEY_ALT_G);
+        UnregisterHotKey(hwnd, HOTKEY_ALT_L);
+        UnregisterHotKey(hwnd, HOTKEY_ALT_C);
 
-    DestroyWindow(hwnd);
+        PostMessage(hwnd, WM_CLOSE, 0, 0);
+    }
     Utils::Log("UnInitToolWindow!");
 }
