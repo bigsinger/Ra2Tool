@@ -95,7 +95,7 @@ void OpenPsiSensor() {
 		for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
 			BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
 			if (building && building->Type && building->Type->BuildCat == BuildCat::Combat) {	// 给碉堡类建筑开启
-				building->Type->PsychicDetectionRadius = -1; // 0x7FFF
+				building->Type->PsychicDetectionRadius = 0x7FFF;
 			}
 		}
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
