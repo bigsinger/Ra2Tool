@@ -6,6 +6,8 @@
 #include "Ra2Helper.h"
 
 
+// 无法获取箱子类型，箱子类型是在捡起的时候才会被设置的。
+#if 0
 // 定义一个字符串数组，每个字符串对应一个枚举值
 const wchar_t* powerupNames[] = {
     L"Money（金钱）",
@@ -35,6 +37,8 @@ const wchar_t* getCrateName(Powerup crateType) {
     }
     return L"箱子";
 }
+#endif
+
 
 void ShowCrateLabel(HDC hdc, bool visible, int posX, int posY, const wchar_t* szCrateName) {
     wchar_t szLabelText[32] = { L"箱子" };

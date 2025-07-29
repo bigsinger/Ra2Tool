@@ -1,17 +1,32 @@
-﻿#include "windows.h"
+﻿#include <windows.h>
 #include <stdio.h>
-#include "Ra2Header.h"
-#include "Ra2Helper.h"
 #include <IPX.h>
 #include <EventClass.h>
 #include <HouseClass.h>
 #include <IPXManagerClass.h>
 #include "Utils.h"
 #include "Config.h"
+#include "Ra2Header.h"
+#include "Ra2Helper.h"
 
 HINSTANCE g_thisModule = NULL;		// 当前模块句柄
 //////////////////////////////////////////////////
-
+// YRpp 函数重载有问题，这里再写一遍
+void MakeEventClass(EventClass* eventClass, int houseIndex, EventType eventType, int id, int rtti) {
+	int typeId = static_cast<int>(eventType);
+	__asm {
+		pushad
+		push rtti
+		push id
+		push typeId
+		push houseIndex
+		mov ecx, eventClass
+		mov eax, 0x004C65E0
+		call eax
+		popad
+	}
+}
+//////////////////////////////////////////////////
 
 //全地图内联代码
 #pragma pack(1)
@@ -162,6 +177,32 @@ void ClearBeacons() {
 	}
 }
 
+
+/////////////////////////////////////////
+// .text:004AC0D8
+void RepairBuilding() {
+	int count = 0;
+	for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
+		BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
+		if (!building->IsBeingRepaired && building->Health < building->GetType()->Strength) {
+			//if (building->Health / building->GetType()->Strength < 0.7f) {
+			EventClass repairEvent(0, 0);
+			MakeEventClass(&repairEvent, HouseClass::CurrentPlayer->ArrayIndex, EventType::Repair,
+				static_cast<int>(building->UniqueID), static_cast<int>(AbstractType::Abstract));
+			EventClass::AddEvent(repairEvent);
+
+			if ((++count) >= Config::getRepairCount()) {
+				break;
+			}
+		}
+	}
+}
+
+// 开启自动修理功能
+void AutoRepair() {
+	Utils::Log("Auto Repairing");
+	RepairBuilding();
+}
 /////////////////////////////////////////
 
 void GiveMeMoney() {
@@ -324,6 +365,14 @@ void TestCases() {
 	Chat(NULL, 0);
 	InitToolWindow();
 #endif
+
+//#include <Utilities/Debug.h>
+//#include <Utilities/Macro.h>
+//#include "Ext/NetHack.h"
+//{ // NetHack
+//	Patch::Apply_CALL(0x7B3D75, NetHack::SendTo);   // UDPInterfaceClass::Message_Handler
+//	Patch::Apply_CALL(0x7B3EEC, NetHack::RecvFrom); // UDPInterfaceClass::Message_Handler
+//}
 }
 
 void Install(HMODULE hModule) {
@@ -333,7 +382,7 @@ void Install(HMODULE hModule) {
 	_tcscat_s(szPath, MAX_PATH, _T("Ra2Dll.ini"));
 	Config::setConfigFilePath(szPath);
 	Utils::LogFormat("Ra2Dll Install, Build: %s", __TIMESTAMP__);
-	
+
 	if (Config::isOpenRA2Log()) {
 		OpenLog();
 	}
@@ -341,7 +390,25 @@ void Install(HMODULE hModule) {
 	TestCases();
 
 	if (IsGaming()) {
+		Utils::Log("game running!");
+
+		if (Config::isAutoOpenMap()) {
+			Utils::Log("auto open map!");
+			OpenMap();
+		}
+
+		if (Config::isAutoOpenRadar()) {
+			Utils::Log("auto open radar!");
+			OpenRadar();
+		}
+
+		if (Config::isDisableDisguise()) {
+			DisableDisguise();
+		}
+
 		InitToolWindow();
+	} else {
+		Utils::Log("game not running!");
 	}
 }
 

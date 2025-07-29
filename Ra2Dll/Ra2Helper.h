@@ -1,8 +1,8 @@
 #pragma once
 
-
 bool IsGameRunning();
 bool IsGaming();
+
 bool OpenLog();
 void OpenMap();
 void OpenRadar();
