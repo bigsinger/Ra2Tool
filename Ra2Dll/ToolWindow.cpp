@@ -39,9 +39,9 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         if (wParam == TIMER_ID_AutoRepair) {
             AutoRepair();
         } else if (wParam == TIMER_ID_OpenPsiSensor) {
-			static int OpenPsiSensorCount = 0;
-            if (++OpenPsiSensorCount < 5) {
-                OpenPsiSensor();
+            if (OpenPsiSensor(false)) {
+                Utils::Log("PsiSensor Already Open!");
+                KillTimer(hwnd, TIMER_ID_OpenPsiSensor);
             }
         }
         break;
@@ -97,7 +97,7 @@ void OnAltM() {
 // 处理 ALT + P 快捷键
 void OnAltP() {
     Utils::Log("OnAltP!");
-    OpenPsiSensor(); // 心灵感应
+    OpenPsiSensor(true); // 心灵感应
 }
 
 // 处理 ALT + B 快捷键

@@ -104,19 +104,18 @@ void OpenTech() {
 }
 
 // 开启心灵探测
-void OpenPsiSensor() {
+bool OpenPsiSensor(bool bforce) {
 	Utils::Log("OpenPsiSensor!");
+	static bool isPsiSensorOpen = false;
+	if (isPsiSensorOpen && !bforce) { return true; }
+
 #if 1
 	__try {
 		for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
 			BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
-
-			if (building && building->Type) {
-				Utils::LogFormat("building->Type->BuildCat: %d", building->Type->BuildCat);
-			}
-
 			if (building && building->Type && building->Type->BuildCat == BuildCat::Combat) {	// 给碉堡类建筑开启
 				building->Type->PsychicDetectionRadius = 0x7FFF;
+				isPsiSensorOpen = true;
 			}
 		}
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -146,6 +145,8 @@ void OpenPsiSensor() {
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 	}
 #endif
+
+	return isPsiSensorOpen;
 }
 
 // 删除信标：每次调用只清除一个信标
