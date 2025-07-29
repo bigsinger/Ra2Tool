@@ -71,6 +71,7 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
             SetTimer(hwnd, TIMER_ID_AutoRepair, Config::getAutoRepairTime() * 1000, NULL);
 		}
         if (Config::isAutoOpenPsiSensor()) {
+            Utils::Log("AutoOpenPsiSensor!");
             SetTimer(hwnd, TIMER_ID_OpenPsiSensor, 10000, NULL);
         }
         break;

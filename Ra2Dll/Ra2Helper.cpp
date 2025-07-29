@@ -90,10 +90,16 @@ void OpenTech() {
 
 // 开启心灵探测
 void OpenPsiSensor() {
+	Utils::Log("OpenPsiSensor!");
 #if 1
 	__try {
 		for (int i = 0; i < HouseClass::CurrentPlayer->Buildings.Count; i++) {
 			BuildingClass* building = HouseClass::CurrentPlayer->Buildings.GetItem(i);
+
+			if (building && building->Type) {
+				Utils::LogFormat("building->Type->BuildCat: %d", building->Type->BuildCat);
+			}
+
 			if (building && building->Type && building->Type->BuildCat == BuildCat::Combat) {	// 给碉堡类建筑开启
 				building->Type->PsychicDetectionRadius = 0x7FFF;
 			}
