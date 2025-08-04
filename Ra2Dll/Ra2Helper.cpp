@@ -273,19 +273,19 @@ void LevelUpSelectings() {
 // 强制显身，效果：幻影/间谍/隐身状态会被强显
 void DisableDisguise() {
 	Utils::Log("反隐功能");
-	if (SessionClass::IsMultiplayer()) {
-		Utils::Log("反隐功能在多人模式下会平行世界，本次不会开启，推荐在单人模式下使用。");
-		return;
-	}
+	//if (SessionClass::IsMultiplayer()) {
+	//	Utils::Log("反隐功能在多人模式下会平行世界，本次不会开启，推荐在单人模式下使用。");
+	//	return;
+	//}
 
-#if 1
+#if 0
 	for (int i = 0; i < TechnoTypeClass::Array.Count; i++) {
 		TechnoTypeClass::Array.GetItem(i)->CanDisguise = false;
 	}
 #endif // 0
 
 
-#if 0
+#if 1
 	// 本段代码可能会平行世界
 	RulesClass::Instance->DefaultMirageDisguises.Clear();
 	// Unit [37]-MGTK-Mirage Tank
@@ -295,7 +295,7 @@ void DisableDisguise() {
 	for (int i = 0; i < UnitClass::Array.Count; i++) {
 		UnitClass* unit = UnitClass::Array.GetItem(i);
 		if (unit->GetTechnoType() == target_unit_type && unit->Disguise) {
-			unit->Disguise = target_unit_type;
+			unit->Disguise = target_unit_type;	// null ?
 		}
 	}
 #endif // 0
