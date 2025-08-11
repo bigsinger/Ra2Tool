@@ -380,7 +380,7 @@ void Install(HMODULE hModule) {
 	// 设置配置文件路径
 	TCHAR szPath[MAX_PATH] = { 0 };
 	Utils::GetStartPath(hModule, szPath, MAX_PATH);
-	_tcscat_s(szPath, MAX_PATH, _T("Ra2Dll.ini"));
+	_tcscat_s(szPath, MAX_PATH, _T("Ra2Tool.ini"));
 	Config::setConfigFilePath(szPath);
 	Utils::LogFormat("Ra2Dll Install, Build: %s", __TIMESTAMP__);
 
