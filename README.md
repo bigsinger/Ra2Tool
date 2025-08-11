@@ -34,7 +34,7 @@ git clone https://github.com/Phobos-developers/YRpp.git
 
 - ALT + R：自动修理，默认修理全部建筑（数量可配置），不需要选中建筑；
 
-- 配置文件为`Ra2Dll.ini`，须放在本模块的同级目录下，选项如下：
+- 配置文件为`Ra2Tool.ini`，须放在本模块的同级目录下，选项如下：
   
   ```ini
   ; AutoOpenMap 是否自动开启全图功能，默认开启；
