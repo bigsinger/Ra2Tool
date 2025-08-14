@@ -85,22 +85,44 @@ void _openTechAll(int objType, int count) {
 
 // 科技全开
 void OpenTech() {
-	//_openTechAll(7, 69);				// 建筑全开
-	//_openTechAll(0x10, 30);			// 步兵全开
-	//_openTechAll(0x28, 40);			// 坦克全开
+	SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 10);	// 矿石精鍊器
+	SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 42); // 心灵信标
+	SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 65); // 科技钻油厂
+#if 0
+
 
 	_openTechOne(0x28, 0);		// 盟军基地车
 	_openTechOne(0x28, 26);	// 苏军基地车
 	//_openTechOne(0x28, 54);			// 尤里基地车
 
+	//_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
+	SidebarClass::Instance.AddCameo(AbstractType::UnitType, 16); // 恐怖机器人（蜘蛛）
+
+	//_openTechOne(0x28, 27);	// 坦克杀手
+	SidebarClass::Instance.AddCameo(AbstractType::UnitType, 27); // 坦克杀手
+
 	_openTechOne(0x28, 2);		// 天启
 	_openTechOne(0x28, 14);	// V3
+
 	//_openTechOne(0x28, 15);	// 基洛夫
-	_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
-	_openTechOne(0x28, 27);	// 坦克杀手
 	_openTechOne(0x28, 34);	// 光棱坦克
 	_openTechOne(0x28, 36);	// 幻影
 	_openTechOne(0x28, 37);	// 多功能
+
+	SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 8); // 生化工兵
+	SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 16); // spy
+#endif // 0
+
+
+	static int keyPressedCount = 0;
+	static int keyPressedCountLast = 0;
+	keyPressedCount++;
+
+	for (size_t i = keyPressedCountLast *100; i < keyPressedCount * 100; i++) {
+		SidebarClass::Instance.AddCameo(AbstractType::OverlayType, i);
+		SidebarClass::Instance.AddCameo(AbstractType::TriggerType, i);
+	}
+	keyPressedCountLast = keyPressedCount;
 }
 
 // 开启心灵探测
