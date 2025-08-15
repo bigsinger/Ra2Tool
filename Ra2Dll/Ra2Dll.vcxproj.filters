@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -1014,11 +1011,11 @@
     <ClInclude Include="$(YRppDir)\TubeClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Ra2Dll.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -1026,9 +1023,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Ra2Helper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="AutoRepair.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ToolWindow.cpp">
@@ -1041,9 +1035,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="TipWindow.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="$(YRppDir)\StaticInits.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

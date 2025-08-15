@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <list>
+#include <string>
 
 const int UNINITED_FLAG = -1;
 
@@ -109,4 +111,52 @@ public:
 		}
 		return _iAutoOpenPsiSensorFlag > 0;
 	}
+
+private:
+	// 开启高科技是否使用自定义的配置
+	inline static int _iOpenTechUsingCustom = UNINITED_FLAG;
+public:
+	static int isOpenTechUsingCustom() {
+		if (_iOpenTechUsingCustom == UNINITED_FLAG) {
+			_iOpenTechUsingCustom = ::GetPrivateProfileInt("main", "CustomTech", FALSE, _configFilePath);
+		}
+		return _iOpenTechUsingCustom > 0;
+	}
+
+private:
+	inline static std::string strBuildingTypeTech = "-";
+	inline static std::string strInfantryTypeTech = "-";
+	inline static std::string strUnitTypeTech = "-";
+
+	inline static std::list<int> vtBuildingTypeTech;
+	inline static std::list<int> vtInfantryTypeTech;
+	inline static std::list<int> vtUnitTypeTech;
+
+public:
+		static std::list<int>& getBuildingTypeTechList() {
+			if (strBuildingTypeTech == "-") {
+				char buf[1024] = { 0 };
+				::GetPrivateProfileStringA("tech", "7", "", buf, sizeof(buf), _configFilePath);
+				Utils::split(buf, " ", vtBuildingTypeTech);
+			}
+			return vtBuildingTypeTech;
+		}
+
+		static std::list<int>& getInfantryTypeTechList() {
+			if (strInfantryTypeTech == "-") {
+				char buf[1024] = { 0 };
+				::GetPrivateProfileStringA("tech", "16", "", buf, sizeof(buf), _configFilePath);
+				Utils::split(buf, " ", vtInfantryTypeTech);
+			}
+			return vtInfantryTypeTech;
+		}
+
+		static std::list<int>& getUnitTypeTechList() {
+			if (strUnitTypeTech == "-") {
+				char buf[1024] = { 0 };
+				::GetPrivateProfileStringA("tech", "40", "", buf, sizeof(buf), _configFilePath);
+				Utils::split(buf, " ", vtUnitTypeTech);
+			}
+			return vtUnitTypeTech;
+		}
 };

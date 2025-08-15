@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <list>
+#include <string>
 
 
 HWND GetMainWindowForProcessId(DWORD targetPid);
@@ -12,4 +14,6 @@ public:
 
 	// 获取模块所在目录，最后带斜杠
 	static void GetStartPath(HMODULE hModule, TCHAR* szBuffer, int nBufferCountSize = MAX_PATH);
+
+	static size_t split(const std::string& strSrc, const std::string& strSep, std::list<int>& vtInt);
 };

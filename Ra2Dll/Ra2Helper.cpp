@@ -83,66 +83,62 @@ void _openTechAll(int objType, int count) {
 	}
 }
 
-void open(int i) {
-	//__try {
-	//	SidebarClass::Instance.AddCameo(AbstractType::OverlayType, i);
-	//} __except (EXCEPTION_EXECUTE_HANDLER) {
-	//}
-
-
-	//__try {
-	//	SidebarClass::Instance.AddCameo(AbstractType::TriggerType, i);
-	//} __except (EXCEPTION_EXECUTE_HANDLER) {
-	//}
-
-
-	//__try {
-	//	bool b = SidebarClass::Instance.AddCameo(AbstractType::BuildingType, i);
-	//	//Utils::LogFormat("index: %d: %d", i, b);
-	//	//MessageBox(0, 0, 0, 0);
-	//} __except (EXCEPTION_EXECUTE_HANDLER) {
-	//}
-
-	//SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 10);
+void addCameoSafely(AbstractType absType, int idxType) {
+	__try {
+		SidebarClass::Instance.AddCameo(absType, idxType);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::LogFormat("AddCameo Error! absType: %d idxType: $d", absType, idxType);
+	}
 }
 
 // 科技全开
 void OpenTech() {
-	SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 72); // 复制中心
-	SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 73);	// 矿石精鍊器
-	//SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 42); // 心灵信标
-	//SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 65); // 科技钻油厂
+	if (Config::isOpenTechUsingCustom()) {
+		Utils::Log("Using Custom Config Tech!");
 
-	_openTechOne(0x28, 0);		// 盟军基地车
-	_openTechOne(0x28, 26);	// 苏军基地车
-	//_openTechOne(0x28, 54);			// 尤里基地车
+		// 开启用户配置的建筑
+		auto buildings = Config::getBuildingTypeTechList();
+		for (auto i : buildings) {
+			addCameoSafely(AbstractType::BuildingType, i);
+		}
 
-	//_openTechOne(0x28, 16);	// 恐怖机器人（蜘蛛）
-	SidebarClass::Instance.AddCameo(AbstractType::UnitType, 16); // 恐怖机器人（蜘蛛）
+		// 开启用户配置的步兵
+		auto infantry = Config::getInfantryTypeTechList();
+		for (auto i : infantry) {
+			addCameoSafely(AbstractType::InfantryType, i);
+		}
 
-	//_openTechOne(0x28, 27);	// 坦克杀手
-	SidebarClass::Instance.AddCameo(AbstractType::UnitType, 27); // 坦克杀手
+		// 开启用户配置的单位
+		auto units = Config::getUnitTypeTechList();
+		for (auto i : units) {
+			addCameoSafely(AbstractType::UnitType, i);
+		}
+	} else {
+		Utils::Log("Using Predefined Config Tech!");
 
-	_openTechOne(0x28, 2);		// 天启
-	_openTechOne(0x28, 14);	// V3
+		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 72); // 复制中心
+		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 73);	// 矿石精鍊器
+		//SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 42); // 心灵信标
+		//SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 65); // 科技钻油厂
 
-	//_openTechOne(0x28, 15);	// 基洛夫
-	_openTechOne(0x28, 34);	// 光棱坦克
-	_openTechOne(0x28, 36);	// 幻影
-	_openTechOne(0x28, 37);	// 多功能
-	_openTechOne(0x28, 35);	// ??
+		_openTechOne(0x28, 0);		// 盟军基地车
+		_openTechOne(0x28, 26);	// 苏军基地车
+		//_openTechOne(0x28, 54);			// 尤里基地车
+		SidebarClass::Instance.AddCameo(AbstractType::UnitType, 16); // 恐怖机器人（蜘蛛）
+		SidebarClass::Instance.AddCameo(AbstractType::UnitType, 27); // 坦克杀手
 
-	SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 8); // 生化工兵
-	SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 16); // spy
+		_openTechOne(0x28, 2);		// 天启
+		_openTechOne(0x28, 14);	// V3
 
+		//_openTechOne(0x28, 15);	// 基洛夫
+		_openTechOne(0x28, 34);	// 光棱坦克
+		_openTechOne(0x28, 36);	// 幻影
+		_openTechOne(0x28, 37);	// 多功能
+		_openTechOne(0x28, 35);	// ??
 
-	//static int keyPressedCount = 0;
-	//static int keyPressedCountLast = 0;
-	//keyPressedCount++;
-	//for (size_t i = keyPressedCountLast *100; i < keyPressedCount * 100; i++) {
-	//	open(i);
-	//}
-	//keyPressedCountLast = keyPressedCount;
+		SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 8);	// 生化工兵
+		SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 16);	// spy
+	}
 }
 
 // 开启心灵探测

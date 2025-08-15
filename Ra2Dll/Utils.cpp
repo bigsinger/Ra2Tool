@@ -1,6 +1,6 @@
-﻿#include "windows.h"
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <tchar.h>
+#include <windows.h>
 #include "Utils.h"
 #include "Config.h"
 
@@ -56,4 +56,17 @@ HWND GetMainWindowForProcessId(DWORD targetPid) {
     }
 
     return targetHwnd;
+}
+
+size_t Utils::split(const std::string& strSrc, const std::string& strSep, std::list<int>& vtInt) {
+	vtInt.clear();
+	char* pContext = NULL;
+	char* pToken = strtok_s((char*)strSrc.c_str(), strSep.c_str(), &pContext);	//_tcstok_s
+	while (pToken != NULL) {
+		int id = std::atoi(pToken);
+		vtInt.push_back(id);
+		pToken = strtok_s(NULL, strSep.c_str(), &pContext);
+	}
+
+	return vtInt.size();
 }

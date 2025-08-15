@@ -90,6 +90,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Ext\Main.Config.h" />
     <ClInclude Include="Ext\version.h" />
     <ClInclude Include="framework.h" />

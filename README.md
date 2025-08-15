@@ -36,20 +36,38 @@ git clone https://github.com/Phobos-developers/YRpp.git
 
 - 配置文件为`Ra2Tool.ini`，须放在本模块的同级目录下，选项如下：
   
-  ```ini
-  ; AutoOpenMap 是否自动开启全图功能，默认开启；
-  ; log 是否开启红警游戏自身的日志输出，用于分析游戏逻辑，默认不开启；
-  ; debug 是否开启日志模式，用户排错，默认不开启；
-  ; RepairCount 自动维修的建筑数量，默认全部维修，如果每次只维修一个请设置1；
-  ; DisableDisguise 是否禁止隐身，默认1；
+```ini
+; debug 是否开启日志模式，用户排错，默认不开启；
+; log 是否开启红警游戏自身的日志输出，用于分析游戏逻辑，默认不开启；
+; AutoOpenMap	是否自动开启全图功能，默认开启；
+; AutoOpenRadar 是否自动开启雷达功能，默认开启；
+; DisableDisguise 是否开启反隐功能，默认1；
+; AutoRepairTime 自动维修时间间隔，单位为秒，默认为0表示不进行自动维修；如果设置为整数，表示每隔多少秒自动维修一次建筑；
+; RepairCount 自动维修的建筑数量，默认设置一个较大的数用于全部维修，如果每次只维修一个请设置1；
+; crate 是否开启箱子提示，默认不开启；
+; xinling 是否开启心灵探测，默认不开启；
+; CustomTech 是否使用自定义科技，默认使用预定义的科技；如果开启，则会使用[tech]部分的配置来决定开启哪些科技。想要开启哪个科技，自行填写，找到对应的科技类型，后面要开启的单位用空格隔开；
+; 7=72 73 表示开启7号科技（建筑物类型）
+; 16=8 16 表示开启16号科技（兵种类型）
+; 40=0 26 54 16 27 2 14 15 34 35 36 37 表示开启40号科技（坦克类型）
   
-  [main]
-  AutoOpenMap=1
-  log=0 
-  debug=0
-  RepairCount=99
-  DisableDisguise=1
-  ```
+[main]
+debug=0
+log=0 
+AutoOpenMap=1
+AutoOpenRadar=1
+DisableDisguise=1
+AutoRepairTime=0
+RepairCount=99
+crate=0
+xinling=0
+CustomTech=0
+
+[tech]
+7=72 73
+16=8 16
+40=0 26 54 16 27 2 14 15 34 35 36 37
+```
 
 # 更新记录
 
