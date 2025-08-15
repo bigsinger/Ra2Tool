@@ -24,7 +24,7 @@ git clone https://github.com/Phobos-developers/YRpp.git
 
 - ALT + L：选中单位升级为三星，仅单机模式有效，联网对战会平行世界；
 
-- ALT + P：开启心灵探测（默认已开启）；想要人工开启时，须选中某个建筑按下快捷键；
+- ALT + P：开启心灵探测（默认已开启）；
 
 - ALT + B：清除自己下过的所有信标；
 
