@@ -116,7 +116,10 @@ void OpenTech() {
 	} else {
 		Utils::Log("Using Predefined Config Tech!");
 
-		TechnoTypeClass::Array.GetItem(71)->OwnerFlags = 0x7FFFFFFF;
+		auto techno_type = TechnoTypeClass::Array.GetItem(71);
+		auto building_type = abstract_cast<BuildingTypeClass*>(techno_type);
+		techno_type->OwnerFlags = 0x7FFFFFFF;
+		building_type->NeedsEngineer = false;
 		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 64); // 巨炮
 		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 71); // 科技钻油厂
 		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 73);	// 矿石精鍊器
