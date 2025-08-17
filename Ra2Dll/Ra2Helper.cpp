@@ -116,10 +116,10 @@ void OpenTech() {
 	} else {
 		Utils::Log("Using Predefined Config Tech!");
 
-		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 72); // 复制中心
+		TechnoTypeClass::Array.GetItem(71)->OwnerFlags = 0x7FFFFFFF;
+		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 64); // 巨炮
+		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 71); // 科技钻油厂
 		SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 73);	// 矿石精鍊器
-		//SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 42); // 心灵信标
-		//SidebarClass::Instance.AddCameo(AbstractType::BuildingType, 65); // 科技钻油厂
 
 		_openTechOne(0x28, 0);		// 盟军基地车
 		_openTechOne(0x28, 26);	// 苏军基地车
@@ -133,8 +133,7 @@ void OpenTech() {
 		//_openTechOne(0x28, 15);	// 基洛夫
 		_openTechOne(0x28, 34);	// 光棱坦克
 		_openTechOne(0x28, 36);	// 幻影
-		_openTechOne(0x28, 37);	// 多功能
-		_openTechOne(0x28, 35);	// ??
+		_openTechOne(0x28, 38);	// 多功能
 
 		SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 8);	// 生化工兵
 		SidebarClass::Instance.AddCameo(AbstractType::InfantryType, 16);	// spy

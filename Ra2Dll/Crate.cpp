@@ -65,7 +65,6 @@ void ShowCrateLabel(HDC hdc, bool visible, int posX, int posY, const wchar_t* sz
         }
     }
 
-    //Utils::LogFormat("crate pos: (%d:%d)", posX, posY);
     TextOutW(hdc, posX, posY, szLabelText, wcslen(szLabelText));
 }
 
@@ -88,6 +87,8 @@ void ShowCrateInfo(HDC hdc) {
             if (cell && cell->OverlayTypeIndex != -1) {
                 auto [pos, visible] = TacticalClass::Instance->CoordsToClient(cell->GetCoords());
                 //Utils::LogFormat("MapClass::Crates[%d] Location: (%d:%d) ScreenLocation: (%d:%d) visible: %d  CrateTimer.TimeLeft: %d", i, map.Crates[i].Location.X, map.Crates[i].Location.Y, pos.X, pos.Y, visible, map.Crates[i].CrateTimer.TimeLeft);
+
+                Utils::LogFormat("crate cell MapCoords: (%d:%d)", cell->MapCoords.X, cell->MapCoords.Y);
 #if 1
                 // 这里不访问OverlayTypeClass::Array，以免游戏假死。
                 ShowCrateLabel(hdc, visible, pos.X, pos.Y, NULL);
