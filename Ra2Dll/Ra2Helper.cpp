@@ -195,7 +195,7 @@ void PlaceOre() {
 	__try {
 		CellStruct cell{ 10, 10 };
 		EventClass event(HouseClass::CurrentPlayer->ArrayIndex, EventType::Place, AbstractType::Building, 73, false, cell);
-		EventClass::AddEvent(event);
+		EventClass::OutList.Add(event);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		Utils::Log("PlaceOre Error");
 	}
@@ -242,7 +242,7 @@ void RepairBuilding() {
 			EventClass repairEvent(0, 0);
 			MakeEventClass(&repairEvent, HouseClass::CurrentPlayer->ArrayIndex, EventType::Repair,
 				static_cast<int>(building->UniqueID), static_cast<int>(AbstractType::Abstract));
-			EventClass::AddEvent(repairEvent);
+			EventClass::OutList.Add(repairEvent);
 
 			if ((++count) >= Config::getRepairCount()) {
 				break;
