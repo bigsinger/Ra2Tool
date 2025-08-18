@@ -80,12 +80,17 @@ public:
 
 	// if pLabel is given, the message will be {$pLabel}:{$pMessage}
 	// else it will be just {$pMessage}
-	void PrintMessage(const wchar_t* pMessage, int durationFrames = 0x96, int nColorSchemeIndex = ColorScheme::White, bool bSilent = false)
-		{ this->AddMessage(nullptr, 0, pMessage, nColorSchemeIndex, static_cast<TextPrintType>(0x4046), durationFrames, bSilent); }
+	// nColorSchemeIndex = -1 will use LightGrey color scheme to print the message, or if it fails to find that color scheme index 0.
+	void PrintMessage(const wchar_t* pMessage, int durationFrames = 0x96, int nColorSchemeIndex = -1, bool bSilent = false)
+	{
+		if (nColorSchemeIndex < 0 )
+			nColorSchemeIndex = Math::max(ColorScheme::FindIndex("LightGrey", 53), 0);
 
-	void PrintMessage(const wchar_t* pMessage, double durationMinutes, int nColorSchemeIndex = ColorScheme::White, bool bSilent = false)
-		{ this->AddMessage(nullptr, 0, pMessage, nColorSchemeIndex, static_cast<TextPrintType>(0x4046), static_cast<int>(durationMinutes * 900), bSilent); }
+		this->AddMessage(nullptr, 0, pMessage, nColorSchemeIndex, static_cast<TextPrintType>(0x4046), durationFrames, bSilent);
+	}
 
+	void PrintMessage(const wchar_t* pMessage, double durationMinutes, int nColorSchemeIndex = -1, bool bSilent = false)
+		{ PrintMessage(pMessage, static_cast<int>(durationMinutes * 900), nColorSchemeIndex, bSilent); }
 
 	TextLabelClass* MessageList;
 	Point2D MessagePos;

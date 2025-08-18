@@ -2,7 +2,7 @@
 
 #include <ArrayClasses.h>
 #include <GeneralDefinitions.h>
-#include <Helpers\CompileTime.h>
+#include <Helpers/CompileTime.h>
 
 //forward declarations
 class AbstractClass;

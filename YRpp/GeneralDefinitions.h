@@ -224,6 +224,24 @@ enum class AIDifficulty : unsigned int
 	Easy = 2
 };
 
+// Represents player color slot indices, not color scheme indices.
+// ColorScheme::PlayerColorToColorSchemeLUT is used to map them into color scheme indices.
+enum PlayerColorSlot : int
+{
+	Gold = 0,
+	Red = 1,
+	Blue = 2,
+	Green = 3,
+	Orange = 4,
+	SkyBlue = 5,
+	Purple = 6,
+	Pink = 7,
+	White = 8,
+	Count = 9,
+	Random = -2,
+	None = -1
+};
+
 enum class TextPrintType : int
 {
 	LASTPOINT = 0x0, //*
@@ -876,6 +894,7 @@ enum class InfDeath : unsigned int
 
 enum class LandType : int
 {
+	None = -1,
 	Clear = 0,
 	Road = 1,
 	Water = 2,

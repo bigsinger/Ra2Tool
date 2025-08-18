@@ -5,7 +5,7 @@
 #include <GeneralDefinitions.h>
 #include <IPX.h>
 #include <MPGameModeClass.h>
-#include <WinSock.h>
+#include <winsock.h>
 
 #include <Helpers/CompileTime.h>
 

@@ -15,21 +15,26 @@ class LightConvertClass;
 class ColorScheme
 {
 public:
-	enum {
+
+	enum [[deprecated("Only valid for vanilla color scheme configuration and should not be used.")]]
+	{
 		//ColorScheme indices, since they are hardcoded all over the exe, why shan't we do it as well?
-		Yellow  =   3,
-		White   =   5,
-		Grey    =   7,
-		Red     =  11,
-		Orange  =  13,
-		Pink    =  15,
-		Purple  =  17,
-		Blue    =  21,
-		Green   =  29,
+		Yellow = 3,
+		White = 5,
+		Grey = 7,
+		Red = 11,
+		Orange = 13,
+		Pink = 15,
+		Purple = 17,
+		Blue = 21,
+		Green = 29,
 	};
 
 	//global array
 	DEFINE_REFERENCE(DynamicVectorClass<ColorScheme*>, Array, 0xB054D0u)
+
+	// Player color scheme slot index to color scheme index lookup table.
+	DEFINE_ARRAY_REFERENCE(byte, [9u], PlayerColorToColorSchemeLUT, 0x83ED14u)
 /*
  * trap! most schemes are duplicated - ShadeCount 1 and ShadeCount 53
 */

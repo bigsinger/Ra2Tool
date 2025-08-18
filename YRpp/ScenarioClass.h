@@ -67,7 +67,7 @@ public:
 	DEFINE_REFERENCE(ScenarioClass*, Instance, 0xA8B230u)
 	DEFINE_REFERENCE(int, NewINIFormat, 0xA8ED7Cu)
 	DEFINE_REFERENCE(TheaterType, LastTheater, 0x822CF8)
-
+	DEFINE_REFERENCE(bool, WasGameSaved, 0xABCE08)  // guesstimated name
 
 	static void __fastcall UpdateCellLighting()
 		{ JMP_STD(0x4AE4C0); }
@@ -95,10 +95,10 @@ public:
 
 	static bool __fastcall StartScenario(const char* FileName, bool Briefing, int CampaignIndex)
 		{ JMP_STD(0x683AB0); }
-	
+
 	static void __fastcall PauseGame()
 		{ JMP_STD(0x683EB0); }
-	
+
 	static void __fastcall ResumeGame()
 		{ JMP_STD(0x683FB0); }
 
