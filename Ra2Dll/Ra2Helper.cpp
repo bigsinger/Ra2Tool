@@ -189,6 +189,18 @@ bool OpenPsiSensor(bool bforce) {
 	return isPsiSensorOpen;
 }
 
+// 放置矿石精炼厂
+void PlaceOre() {
+	Utils::Log("PlaceOre");
+	__try {
+		CellStruct cell{ 10, 10 };
+		EventClass event(HouseClass::CurrentPlayer->ArrayIndex, EventType::Place, AbstractType::Building, 73, false, cell);
+		EventClass::AddEvent(event);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("PlaceOre Error");
+	}
+}
+
 // 删除信标：每次调用只清除一个信标
 void _clearBeacon() {
 	_asm {

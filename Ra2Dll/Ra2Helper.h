@@ -8,6 +8,7 @@ void OpenMap();
 void OpenRadar();
 void OpenTech();
 bool OpenPsiSensor(bool bforce);
+void PlaceOre();
 void ClearBeacons();
 void GiveMeMoney();
 void LevelUpSelectings();

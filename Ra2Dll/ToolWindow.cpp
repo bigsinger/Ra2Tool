@@ -85,37 +85,38 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 // 处理 ALT + R 快捷键
 void OnAltR() {
     Utils::Log("OnAltR!");
-    AutoRepair();           // 自动修理
+    AutoRepair();               // 自动修理
 }
 
 // 处理 ALT + M 快捷键
 void OnAltM() {
     Utils::Log("OnAltM!");
-    GiveMeMoney();          // 钱多多
+    GiveMeMoney();              // 钱多多
 }
 
 // 处理 ALT + P 快捷键
 void OnAltP() {
     Utils::Log("OnAltP!");
-    OpenPsiSensor(true); // 心灵感应
+    OpenPsiSensor(true);    // 心灵感应
+    PlaceOre();                 // 放置矿石精炼厂
 }
 
 // 处理 ALT + B 快捷键
 void OnAltB() {
     Utils::Log("OnAltB!");
-    ClearBeacons();         // 清除信标
+    ClearBeacons();             // 清除信标
 }
 
 // 处理 ALT + G 快捷键
 void OnAltG() {
     Utils::Log("OnAltG!");
-    OpenTech();             // 科技全开
+    OpenTech();                 // 科技全开
 }
 
 // 处理 ALT + L 快捷键
 void OnAltL() {
     Utils::Log("OnAltL!");
-    LevelUpSelectings();    // 升级选中单位等级
+    LevelUpSelectings();        // 升级选中单位等级
 }
 
 // 处理 ALT + C 快捷键
