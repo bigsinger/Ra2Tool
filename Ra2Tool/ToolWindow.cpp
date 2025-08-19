@@ -98,7 +98,7 @@ void OnAltM() {
 void OnAltP() {
     Utils::Log("OnAltP!");
     OpenPsiSensor(true);    // 心灵感应
-    PlaceOre();                 // 放置矿石精炼厂
+    //PlaceOre();               // 放置矿石精炼厂
 }
 
 // 处理 ALT + B 快捷键

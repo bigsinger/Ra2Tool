@@ -193,6 +193,7 @@ bool OpenPsiSensor(bool bforce) {
 void PlaceOre() {
 	Utils::Log("PlaceOre");
 	__try {
+		// 会提示：cannot deploy here，因此无法随意放置，暂时不开启了。
 		CellStruct cell{ 10, 10 };
 		EventClass event(HouseClass::CurrentPlayer->ArrayIndex, EventType::Place, AbstractType::Building, 73, false, cell);
 		EventClass::OutList.Add(event);
