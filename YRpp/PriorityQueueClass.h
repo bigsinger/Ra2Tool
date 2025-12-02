@@ -124,8 +124,8 @@ private:
 	}
 
 public:
-	int Capacity;
 	int Count;
+	int Capacity;
 	T** Nodes;
 	T* LMost;
 	T* RMost;

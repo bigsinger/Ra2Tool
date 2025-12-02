@@ -33,6 +33,23 @@ struct ColorStruct
 		return !(*this == rhs);
 	}
 
+	ColorStruct operator + (ColorStruct const rhs) const
+	{
+		return ColorStruct
+		{
+			(BYTE)Math::min(255, this->R + rhs.R),
+			(BYTE)Math::min(255, this->G + rhs.G),
+			(BYTE)Math::min(255, this->B + rhs.B)
+		};
+	}
+
+	void operator += (ColorStruct const rhs)
+	{
+		this->R = (BYTE)Math::min(255, this->R + rhs.R);
+		this->G = (BYTE)Math::min(255, this->G + rhs.G);
+		this->B = (BYTE)Math::min(255, this->B + rhs.B);
+	}
+
 	explicit operator DWORD() const {
 		DWORD ret = 0;
 		memcpy(&ret, this, sizeof(ColorStruct));

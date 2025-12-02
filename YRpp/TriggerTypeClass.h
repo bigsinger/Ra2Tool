@@ -43,7 +43,7 @@ public:
 	static void __fastcall SaveToINIList(CCINIClass* pINI)
 		{ JMP_STD(0x727880); }
 
-	TagTypeClass* __fastcall FindByNameOrID(char const* pName)
+	TriggerTypeClass* __fastcall FindByNameOrID(char const* pName)
 		{ JMP_STD(0x727120); }
 
 	//non-virtual

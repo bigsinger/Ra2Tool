@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?><Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <YRppDir Condition=" '$(YRppDir)' == '' ">$(MSBuildThisFileDirectory)</YRppDir>
+  </PropertyGroup>
   <!-- Compiled files -->
-  <!-- 
   <ItemGroup>
     <ClCompile Include="$(YRppDir)\StaticInits.cpp" />
   </ItemGroup>
-   -->
-   
   <!-- Header files -->
   <ItemGroup>
     <!-- Blitters -->
@@ -106,10 +106,10 @@
     <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlatZRead.h" />
     <ClInclude Include="$(YRppDir)\Blitters\RLEBlitTransZRemapXlatZReadWrite.h" />
     <!-- FileFormats -->
+    <ClInclude Include="$(YRppDir)\FileFormats\_Loader.h" />
     <ClInclude Include="$(YRppDir)\FileFormats\HVA.h" />
     <ClInclude Include="$(YRppDir)\FileFormats\SHP.h" />
     <ClInclude Include="$(YRppDir)\FileFormats\VXL.h" />
-    <ClInclude Include="$(YRppDir)\FileFormats\_Loader.h" />
     <!-- Helpers -->
     <ClInclude Include="$(YRppDir)\Helpers\Cast.h" />
     <ClInclude Include="$(YRppDir)\Helpers\CompileTime.h" />
@@ -163,6 +163,7 @@
     <ClInclude Include="$(YRppDir)\ControlClass.h" />
     <ClInclude Include="$(YRppDir)\Conversions.h" />
     <ClInclude Include="$(YRppDir)\ConvertClass.h" />
+    <ClInclude Include="$(YRppDir)\CopyProtection.h" />
     <ClInclude Include="$(YRppDir)\CRC.h" />
     <ClInclude Include="$(YRppDir)\CRT.h" />
     <ClInclude Include="$(YRppDir)\Dir.h" />
@@ -172,8 +173,8 @@
     <ClInclude Include="$(YRppDir)\DisplayClass.h" />
     <ClInclude Include="$(YRppDir)\Drawing.h" />
     <ClInclude Include="$(YRppDir)\DriveLocomotionClass.h" />
-    <ClInclude Include="$(YRppDir)\DropPodLocomotionClass.h" />
     <ClInclude Include="$(YRppDir)\DropListClass.h" />
+    <ClInclude Include="$(YRppDir)\DropPodLocomotionClass.h" />
     <ClInclude Include="$(YRppDir)\EBolt.h" />
     <ClInclude Include="$(YRppDir)\EditClass.h" />
     <ClInclude Include="$(YRppDir)\EMPulseClass.h" />
@@ -197,7 +198,7 @@
     <ClInclude Include="$(YRppDir)\GenericList.h" />
     <ClInclude Include="$(YRppDir)\GetCDClass.h" />
     <ClInclude Include="$(YRppDir)\GScreenClass.h" />
-    <ClInclude Include="$(YRppDir)\HeapClass.h" />
+    <ClInclude Include="$(YRppDir)\HashTable.h" />
     <ClInclude Include="$(YRppDir)\HouseClass.h" />
     <ClInclude Include="$(YRppDir)\HouseTypeClass.h" />
     <ClInclude Include="$(YRppDir)\HoverLocomotionClass.h" />
@@ -250,7 +251,9 @@
     <ClInclude Include="$(YRppDir)\PowerClass.h" />
     <ClInclude Include="$(YRppDir)\Powerups.h" />
     <ClInclude Include="$(YRppDir)\PreviewClass.h" />
+    <ClInclude Include="$(YRppDir)\PriorityQueueClass.h" />
     <ClInclude Include="$(YRppDir)\ProgressScreenClass.h" />
+    <ClInclude Include="$(YRppDir)\QueueClass.h" />
     <ClInclude Include="$(YRppDir)\RadarClass.h" />
     <ClInclude Include="$(YRppDir)\RadarEventClass.h" />
     <ClInclude Include="$(YRppDir)\RadBeam.h" />
@@ -282,6 +285,7 @@
     <ClInclude Include="$(YRppDir)\Surface.h" />
     <ClInclude Include="$(YRppDir)\SwizzleManagerClass.h" />
     <ClInclude Include="$(YRppDir)\Syringe.h" />
+    <ClInclude Include="$(YRppDir)\SystemData.h" />
     <ClInclude Include="$(YRppDir)\TacticalClass.h" />
     <ClInclude Include="$(YRppDir)\TActionClass.h" />
     <ClInclude Include="$(YRppDir)\TagClass.h" />
@@ -315,7 +319,9 @@
     <ClInclude Include="$(YRppDir)\UnitClass.h" />
     <ClInclude Include="$(YRppDir)\UnitTypeClass.h" />
     <ClInclude Include="$(YRppDir)\Unsorted.h" />
+    <ClInclude Include="$(YRppDir)\Vault.h" />
     <ClInclude Include="$(YRppDir)\VeinholeMonsterClass.h" />
+    <ClInclude Include="$(YRppDir)\VersionClass.h" />
     <ClInclude Include="$(YRppDir)\VocClass.h" />
     <ClInclude Include="$(YRppDir)\VoxClass.h" />
     <ClInclude Include="$(YRppDir)\VoxelAnimClass.h" />

@@ -221,9 +221,6 @@ public:
 	bool AttachTrigger(TagClass* pTag)
 		{ JMP_THIS(0x5F5B50); }
 
-	void BecomeUntargetable()
-		{ JMP_THIS(0x70D4A0); }
-
 	void ReplaceTag(TagClass* pTag)
 		{ JMP_THIS(0x5F5B4C); }
 

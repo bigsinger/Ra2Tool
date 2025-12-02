@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <wchar.h>
 
@@ -178,4 +178,12 @@ public:
 
 		static void __cdecl makepath(char* arg1 , const char* arg2, const char* arg3 ,  const char* arg4, const char* arg5)
 			{ JMP_STD(0x7C9FF0); }
+
+
+		//exit
+		[[noreturn]] static void __cdecl exit(int Code)
+			{ JMP_STD(0x7CBDDC); }
+
+		_onexit_t __cdecl onexit(_onexit_t Func)
+			{ JMP_STD(0x7C970C); }
 };

@@ -34,23 +34,22 @@ protected:
 
 public:
 
-	DWORD PreviousRamp;
-	DWORD CurrentRamp;
+	int CurrentRamp;
+	int PreviousRamp;
 	RateTimer SlopeTimer;
 	CoordStruct Destination;
 	CoordStruct HeadToCoord;
 	int SpeedAccum;
 	double movementspeed_50;
-	DWORD TrackNumber;
+	int TrackNumber;
 	int TrackIndex;
 	bool IsOnShortTrack;
 	BYTE IsTurretLockedDown;
 	bool IsRotating;
 	bool IsDriving;
 	bool IsRocking;
-	bool IsLocked;
+	bool UnLocked;
 	ILocomotion* Piggybackee;
-	int field_6C;
 };
 
 static_assert(sizeof(DriveLocomotionClass) == 0x70);

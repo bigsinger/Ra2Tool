@@ -19,6 +19,8 @@ public:
 	void Draw(Surface* pSurface, RectangleStruct bounds) JMP_THIS(0x430AC0)
 	void PlaceBeacon(int houseId, CoordStruct coord, int houseBeaconId = -1) JMP_THIS(0x430BA0)
 	bool CanPlaceBeacon(int houseId) JMP_THIS(0x430F30)
+	void DeleteBeacon(int houseId, int houseBeaconId) JMP_THIS(0x4311C0)
+	void DeleteAllBeacons(int houseId) JMP_THIS(0x431410)
 
 	// TODO rest of the functions
 

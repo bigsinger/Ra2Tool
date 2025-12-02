@@ -3,7 +3,7 @@
 #include <ToggleClass.h>
 
 class ConvertClass;
-class SHPStruct;
+struct SHPStruct;
 
 enum class ShapeButtonFlag : int
 {
@@ -19,7 +19,7 @@ public:
 	virtual void SetShape(SHPStruct* pSHP, int Width, int Height) RX;
 
 	//Non virtual
-	ShapeButtonClass& operator=(ShapeButtonClass& const another)
+	ShapeButtonClass& operator=(ShapeButtonClass const& another)
 		JMP_THIS(0x4B5630);
 
 	void ClearShape()
@@ -44,6 +44,14 @@ public:
 		// JMP_THIS(0x69E060); // no need for this function
 
 	//Statics
+	static int __fastcall FindIndex(const char* name)
+		JMP_STD(0x6CFCC0);
+
+	static ShapeButtonClass* __fastcall GetButton(int index)
+		JMP_STD(0x6CFD40);
+
+	static void __fastcall SetToolTip(ShapeButtonClass* pButton, const char* tip)
+		JMP_STD(0x6D09C0);
 
 	//Constructors
 	ShapeButtonClass() noexcept

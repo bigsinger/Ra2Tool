@@ -134,4 +134,10 @@ public:
 		this->Rate = rate;
 		this->CDTimerClass::Start(rate);
 	}
+
+	double GetRatePassed()
+	{
+		const int rate = this->Rate;
+		return rate ? static_cast<double>(rate - this->GetTimeLeft()) / static_cast<double>(rate) : 1.0;
+	}
 };
