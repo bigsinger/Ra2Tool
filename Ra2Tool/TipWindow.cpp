@@ -12,8 +12,8 @@
 #define TIMER_ID_TOPMOST    2
 
 
-const COLORREF maskColor = RGB(0, 0, 0);	// 透明颜色
-const COLORREF textColor = RGB(255, 0, 0);	// 标签文本颜色
+const COLORREF maskColor = RGB(0, 0, 0);	    // 透明颜色
+const COLORREF textColor = RGB(255, 106, 0);	// 标签文本颜色，暖红/橙红：#FF6A00、#FF7F50
 
 
 // 保存创建的窗口句柄
@@ -45,7 +45,10 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         break;
     case WM_PAINT: {
         static COLORREF clr = textColor;
+#if 0  // 不考虑变幻颜色了，虽然会有闪烁的醒目效果，但是伤眼
         clr ^= 0x00FFFFFF;;     // 变幻颜色
+#endif // 0
+
 
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
@@ -82,7 +85,7 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         LONG winLong = GetWindowLong(hwnd, GWL_EXSTYLE);
         ::SetWindowLong(hwnd, GWL_EXSTYLE, winLong | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_TOPMOST);
         SetLayeredWindowAttributes(hwnd, maskColor, 0, LWA_COLORKEY);
-        SetTimer(hwnd, TIMER_ID_SHOWTIP, 300, NULL);
+        SetTimer(hwnd, TIMER_ID_SHOWTIP, 500, NULL);
         SetTimer(hwnd, TIMER_ID_TOPMOST, 2000, NULL);
     }
     break;
