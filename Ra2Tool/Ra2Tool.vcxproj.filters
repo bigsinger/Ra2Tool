@@ -576,9 +576,6 @@
     <ClInclude Include="$(YRppDir)\GScreenClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="$(YRppDir)\HeapClass.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="$(YRppDir)\HouseClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -1014,6 +1011,39 @@
     <ClInclude Include="Config.h">
       <Filter>源文件</Filter>
     </ClInclude>
+    <ClInclude Include="$(YRppDir)\AStarClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\CopyProtection.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Dictionary.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\HashTable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\OwnerDraw.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\PriorityQueueClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\QueueClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\SystemData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\Vault.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\VersionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="$(YRppDir)\WalkLocomotionClass.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -1035,6 +1065,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="TipWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="$(YRppDir)\StaticInits.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

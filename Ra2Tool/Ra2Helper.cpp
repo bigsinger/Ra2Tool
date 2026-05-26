@@ -1,5 +1,7 @@
 ﻿#include <windows.h>
 #include <stdio.h>
+#include <tchar.h>
+#include <string.h>
 #include <IPX.h>
 #include <EventClass.h>
 #include <HouseClass.h>
