@@ -6,6 +6,8 @@
 #include <EventClass.h>
 #include <HouseClass.h>
 #include <IPXManagerClass.h>
+#include <MessageListClass.h>
+#include <SessionClass.h>
 #include "Utils.h"
 #include "Config.h"
 #include "Ra2Header.h"
@@ -385,29 +387,100 @@ int32_t ComputeNameCRC(wchar_t* name) {
 	return crc;
 }
 
+NodeNameType* FindCurrentNodeName() {
+	__try {
+		const int houseIndex = HouseClass::CurrentPlayer ? HouseClass::CurrentPlayer->ArrayIndex : -1;
+		for (int i = 0; i < NodeNameType::Array.Count; ++i) {
+			NodeNameType* node = NodeNameType::Array.GetItem(i);
+			if (node && node->HouseIndex == houseIndex) {
+				return node;
+			}
+		}
+
+		return NodeNameType::Array.Count > 0 ? NodeNameType::Array.GetItem(0) : nullptr;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
+}
+
+void PrintLocalQuickMessage(const wchar_t* message) {
+	__try {
+		if (message && *message) {
+			MessageListClass::Instance.PrintMessage(message);
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	}
+}
+
+bool SendQuickGlobalMessage(const wchar_t* message) {
+	if (!message || !*message) {
+		return false;
+	}
+
+	bool sent = false;
+
+	__try {
+		wchar_t text[112] = {};
+		wcsncpy_s(text, message, _TRUNCATE);
+
+		NodeNameType* sender = FindCurrentNodeName();
+		GlobalPacketType packet = {};
+		static_assert(sizeof(packet) == 455);
+		packet.Command = NetCommandType::NET_MESSAGE;
+
+		wchar_t senderName[20] = {};
+		if (sender) {
+			memcpy(packet.Name, sender->Name, sizeof(packet.Name));
+			wcsncpy_s(senderName, sender->Name, _TRUNCATE);
+			packet.GlobalPacketData.Message.PlayerColor = sender->Color;
+		} else {
+			MultiByteToWideChar(CP_ACP, 0, SessionClass::Instance.Handle, -1, senderName, _countof(senderName));
+			memcpy(packet.Name, senderName, sizeof(packet.Name));
+			packet.GlobalPacketData.Message.PlayerColor = SessionClass::Instance.PlayerColor;
+		}
+
+		packet.GlobalPacketData.Message.Unknown = false;
+		size_t cbSize = (wcsnlen_s(text, _countof(text)) + 1) * sizeof(wchar_t);
+		if (cbSize > sizeof(packet.GlobalPacketData.Message.Buf)) {
+			cbSize = sizeof(packet.GlobalPacketData.Message.Buf);
+		}
+		memcpy(packet.GlobalPacketData.Message.Buf, text, cbSize);
+		packet.GlobalPacketData.Message.NameCRC = ComputeNameCRC(senderName);
+
+		int count = static_cast<int>(IPXManagerClass::Instance.NumConnections);
+		if (count <= 0) {
+			count = SessionClass::Instance.MPlayerCount;
+		}
+		if (count > 8) {
+			count = 8;
+		}
+
+		if (SessionClass::IsMultiplayer() && count > 0) {
+			for (int i = 0; i < count; ++i) {
+				SendGlobalMessage_sub5410F0(
+					&IPXManagerClass::Instance,
+					&packet,
+					sizeof(packet),
+					1,
+					&SessionClass::Instance.MPStats[i].Address,
+					0,
+					0);
+			}
+			sent = true;
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("SendQuickGlobalMessage failed.");
+		sent = false;
+	}
+
+	PrintLocalQuickMessage(message);
+	Utils::LogFormat("QuickMessage send: global=%d", sent ? 1 : 0);
+	return sent;
+}
+
 // From .text:0055EDD2
 void SendChatMessage(const wchar_t *message, int nCbSize) {
-#if 0
-	// TODO: use self for now
-	NodeNameType* sender = SessionClass::Instance.Chat[0];
-	GlobalPacketType packet;
-	static_assert(sizeof(packet) == 455);
-	packet.Command = NetCommandType::NET_MESSAGE;
-	wcstombs((char *)packet.Name, sender->Name, sizeof(packet.Name));
-	packet.GlobalPacketData.Message.Unknown = false;
-
-	memcpy(packet.GlobalPacketData.Message.Buf, message, nCbSize);
-	packet.GlobalPacketData.Message.PlayerColor = sender->Color;
-	int32_t name_crc = ComputeNameCRC(SessionClass::Instance.GameName);
-	packet.GlobalPacketData.Message.NameCRC = name_crc;
-
-	// Broadcast.
-	for (uint32_t i = 0; i < IPXManagerClass::Instance.NumConnections; i++) {
-		IPXConnClass* conn = IPXManagerClass::Instance.Connection[i];
-		SendGlobalMessage_sub5410F0(&IPXManagerClass::Instance, &packet, 455, 1,
-			&conn->Address, 0, 0);
-	}
-#endif // 0
+	SendQuickGlobalMessage(message);
 }
 
 void Chat(const wchar_t* message, int nCbSize) {

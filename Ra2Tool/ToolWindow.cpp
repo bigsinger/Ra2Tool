@@ -19,6 +19,7 @@
 #define TIMER_ID_AutoRepair             1
 #define TIMER_ID_OpenPsiSensor   2
 #define TIMER_ID_GrandCannonAssist      3
+#define TIMER_ID_CrateAssist            4
 
 // 处理函数声明
 void OnAltR();
@@ -46,6 +47,8 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
             }
         } else if (wParam == TIMER_ID_GrandCannonAssist) {
             TickGrandCannonAssist();
+        } else if (wParam == TIMER_ID_CrateAssist) {
+            TickCrateAssist();
         }
         break;
     case WM_HOTKEY:
@@ -73,6 +76,7 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         }
         if (Config::isCustomToolbarEnabled()) {
             InitCustomToolbar();
+            SetTimer(hwnd, TIMER_ID_CrateAssist, 200, NULL);
         }
         if (Config::isGrandCannonAssistEnabled()) {
             InitGrandCannonAssist();
@@ -226,6 +230,7 @@ void UnInitToolWindow() {
         KillTimer(hwnd, TIMER_ID_AutoRepair);
         KillTimer(hwnd, TIMER_ID_OpenPsiSensor);
         KillTimer(hwnd, TIMER_ID_GrandCannonAssist);
+        KillTimer(hwnd, TIMER_ID_CrateAssist);
 
         UnregisterHotKey(hwnd, HOTKEY_ALT_R);
         UnregisterHotKey(hwnd, HOTKEY_ALT_M);

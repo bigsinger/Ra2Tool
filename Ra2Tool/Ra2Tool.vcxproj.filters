@@ -1064,6 +1064,9 @@
     <ClCompile Include="Crate.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CrateAssist.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="CustomToolbar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

@@ -13,6 +13,10 @@ public:
 		strcpy_s(_configFilePath, path);
 	}
 
+	static const char* getConfigFilePath() {
+		return _configFilePath;
+	}
+
 private:
 	// 是否打开调试模式
 	inline static int _iDebugFlag = UNINITED_FLAG;
@@ -139,7 +143,7 @@ public:
 	}
 
 private:
-	// 巨炮自动转向角度，默认0表示不转向
+	// 巨炮自动转向绝对角度，默认0表示不转向；0上，90右，180下，270左
 	inline static int _iGrandCannonTurnAngle = UNINITED_FLAG;
 public:
 	static int getGrandCannonTurnAngle() {
@@ -195,6 +199,50 @@ public:
 			_iCustomToolbarFlag = ::GetPrivateProfileInt("ui", "CustomToolbar", TRUE, _configFilePath);
 		}
 		return _iCustomToolbarFlag > 0;
+	}
+
+private:
+	// 捡箱子前排队靠近箱子周围的等待时间，单位毫秒
+	inline static int _iCrateApproachDelay = UNINITED_FLAG;
+public:
+	static int getCrateApproachDelay() {
+		if (_iCrateApproachDelay == UNINITED_FLAG) {
+			_iCrateApproachDelay = ::GetPrivateProfileInt("crateassist", "ApproachDelay", 2500, _configFilePath);
+		}
+		return _iCrateApproachDelay > 0 ? _iCrateApproachDelay : 2500;
+	}
+
+private:
+	// 跑图捡箱时采样路线点的间隔，单位毫秒
+	inline static int _iCrateRouteSampleInterval = UNINITED_FLAG;
+public:
+	static int getCrateRouteSampleInterval() {
+		if (_iCrateRouteSampleInterval == UNINITED_FLAG) {
+			_iCrateRouteSampleInterval = ::GetPrivateProfileInt("crateassist", "RouteSampleInterval", 200, _configFilePath);
+		}
+		return _iCrateRouteSampleInterval > 0 ? _iCrateRouteSampleInterval : 200;
+	}
+
+private:
+	// 跑图路线附近多少格以内的箱子会被纳入目标
+	inline static int _iCrateRouteWidth = UNINITED_FLAG;
+public:
+	static int getCrateRouteWidth() {
+		if (_iCrateRouteWidth == UNINITED_FLAG) {
+			_iCrateRouteWidth = ::GetPrivateProfileInt("crateassist", "RouteWidth", 4, _configFilePath);
+		}
+		return _iCrateRouteWidth > 0 ? _iCrateRouteWidth : 4;
+	}
+
+private:
+	// 跑图捡箱时沿路线移动的命令间隔，单位毫秒
+	inline static int _iCrateRouteMoveInterval = UNINITED_FLAG;
+public:
+	static int getCrateRouteMoveInterval() {
+		if (_iCrateRouteMoveInterval == UNINITED_FLAG) {
+			_iCrateRouteMoveInterval = ::GetPrivateProfileInt("crateassist", "RouteMoveInterval", 3000, _configFilePath);
+		}
+		return _iCrateRouteMoveInterval > 0 ? _iCrateRouteMoveInterval : 3000;
 	}
 
 private:

@@ -15,6 +15,7 @@ void LevelUpSelectings();
 void SetBoxAllMoney();
 void DisableDisguise();
 void Chat(const wchar_t* message, int nCbSize);
+bool SendQuickGlobalMessage(const wchar_t* message);
 
 void Install(HMODULE hModule);
 void Uninstall();
@@ -36,3 +37,9 @@ void ShowEnemyPlayerInfo(HDC hdc);
 void InitGrandCannonAssist();
 void TickGrandCannonAssist();
 void ForceGrandCannonScan();
+
+void StartOptimalCratePickup();
+void ToggleRouteCratePickup();
+void TickCrateAssist();
+bool IsRouteCrateCaptureActive();
+bool IsRouteCrateRunActive();
