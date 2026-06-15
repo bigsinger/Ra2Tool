@@ -25,6 +25,14 @@ void UnInitToolWindow();
 void InitTipWindow();
 void UnInitTipWindow();
 
+void InitCustomToolbar();
+void UnInitCustomToolbar();
+
 void AutoRepair();
 
 void ShowCrateInfo(HDC hdc);
+void ShowEnemyPlayerInfo(HDC hdc);
+
+void InitGrandCannonAssist();
+void TickGrandCannonAssist();
+void ForceGrandCannonScan();

@@ -18,6 +18,7 @@
 // 定时器 ID
 #define TIMER_ID_AutoRepair             1
 #define TIMER_ID_OpenPsiSensor   2
+#define TIMER_ID_GrandCannonAssist      3
 
 // 处理函数声明
 void OnAltR();
@@ -43,6 +44,8 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
                 Utils::Log("PsiSensor Already Open!");
                 KillTimer(hwnd, TIMER_ID_OpenPsiSensor);
             }
+        } else if (wParam == TIMER_ID_GrandCannonAssist) {
+            TickGrandCannonAssist();
         }
         break;
     case WM_HOTKEY:
@@ -61,11 +64,20 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
     case WM_CLOSE:
     case WM_DESTROY:
         UnInitTipWindow();
+        UnInitCustomToolbar();
         PostQuitMessage(0);
         break;
     case WM_CREATE:
-        if (Config::isAutoShowCrate()) {
+        if (Config::isAutoShowCrate() || Config::isShowEnemyInfo()) {
             InitTipWindow();
+        }
+        if (Config::isCustomToolbarEnabled()) {
+            InitCustomToolbar();
+        }
+        if (Config::isGrandCannonAssistEnabled()) {
+            InitGrandCannonAssist();
+            TickGrandCannonAssist();
+            SetTimer(hwnd, TIMER_ID_GrandCannonAssist, Config::getGrandCannonScanInterval(), NULL);
         }
         if(Config::getAutoRepairTime()){
             SetTimer(hwnd, TIMER_ID_AutoRepair, Config::getAutoRepairTime() * 1000, NULL);
@@ -213,6 +225,7 @@ void UnInitToolWindow() {
         HWND hwnd = g_hwndToolWindow;
         KillTimer(hwnd, TIMER_ID_AutoRepair);
         KillTimer(hwnd, TIMER_ID_OpenPsiSensor);
+        KillTimer(hwnd, TIMER_ID_GrandCannonAssist);
 
         UnregisterHotKey(hwnd, HOTKEY_ALT_R);
         UnregisterHotKey(hwnd, HOTKEY_ALT_M);

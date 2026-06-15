@@ -42,6 +42,13 @@ git clone https://github.com/Phobos-developers/YRpp.git
 ; RepairCount 自动维修的建筑数量，默认设置一个较大的数用于全部维修，如果每次只维修一个请设置1；
 ; crate 是否开启箱子提示，默认不开启；
 ; xinling 是否开启心灵探测，默认不开启；
+; [grandcannon] Enable 是否开启法国巨炮辅助，默认开启；
+; [grandcannon] AutoTurn 是否开启无敌方巨炮时的自动转向，默认开启；
+; [grandcannon] TurnAngle 巨炮自动转向角度，默认0，不转向；
+; [grandcannon] BuildingType 巨炮建筑类型编号，默认64（GTGCAN）；
+; [grandcannon] ScanInterval 巨炮辅助扫描间隔，单位毫秒，默认200；
+; [ui] ShowEnemyInfo 是否显示敌方玩家信息，默认开启；
+; [ui] CustomToolbar 是否显示底部自定义工具栏，默认开启；
 ; CustomTech 是否使用自定义科技，默认使用预定义的科技；如果开启，则会使用[tech]部分的配置来决定开启哪些科技。想要开启哪个科技，自行填写，找到对应的科技类型，后面要开启的单位用空格隔开；
 ; 7=72 73 表示开启7号科技（建筑物类型）
 ; 16=8 16 表示开启16号科技（兵种类型）
@@ -58,6 +65,17 @@ RepairCount=99
 crate=0
 xinling=0
 CustomTech=0
+
+[grandcannon]
+Enable=1
+AutoTurn=1
+TurnAngle=0
+BuildingType=64
+ScanInterval=200
+
+[ui]
+ShowEnemyInfo=1
+CustomToolbar=1
 
 [tech]
 7=18 47 56 64 71 72 73 183

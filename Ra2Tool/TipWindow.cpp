@@ -60,8 +60,11 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         SetBkMode(hdc, TRANSPARENT);
         SetTextColor(hdc, clr);
 
-        // 3. 绘制所有 crate 标签
-        ShowCrateInfo(hdc);
+        // 3. 绘制启用的覆盖信息
+        if (Config::isAutoShowCrate()) {
+            ShowCrateInfo(hdc);
+        }
+        ShowEnemyPlayerInfo(hdc);
 
         EndPaint(hwnd, &ps);
     }
@@ -162,8 +165,16 @@ void InitTipWindow() {
 
 // 注销所有注册的热键、销毁窗口
 void UnInitTipWindow() {
-    DeleteObject(hBrushTransparent);
     HWND hwnd = g_hwndTipWindow;
+    if (!hwnd) {
+        return;
+    }
+
+    if (hBrushTransparent) {
+        DeleteObject(hBrushTransparent);
+        hBrushTransparent = NULL;
+    }
+
     KillTimer(hwnd, TIMER_ID_SHOWTIP);
     KillTimer(hwnd, TIMER_ID_TOPMOST);
     PostMessage(hwnd, WM_CLOSE, 0, 0);

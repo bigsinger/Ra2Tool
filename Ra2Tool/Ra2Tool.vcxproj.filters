@@ -1064,6 +1064,15 @@
     <ClCompile Include="Crate.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CustomToolbar.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyInfoOverlay.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GrandCannonAssist.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="TipWindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

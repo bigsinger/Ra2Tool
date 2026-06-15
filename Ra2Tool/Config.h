@@ -113,6 +113,91 @@ public:
 	}
 
 private:
+	// 法国巨炮辅助开关
+	inline static int _iGrandCannonAssistFlag = UNINITED_FLAG;
+public:
+	static bool isGrandCannonAssistEnabled() {
+		if (_iGrandCannonAssistFlag == UNINITED_FLAG) {
+			_iGrandCannonAssistFlag = ::GetPrivateProfileInt("grandcannon", "Enable", TRUE, _configFilePath);
+		}
+		return _iGrandCannonAssistFlag > 0;
+	}
+
+private:
+	// 巨炮自动转向开关
+	inline static int _iGrandCannonAutoTurnFlag = UNINITED_FLAG;
+public:
+	static bool isGrandCannonAutoTurnEnabled() {
+		if (_iGrandCannonAutoTurnFlag == UNINITED_FLAG) {
+			_iGrandCannonAutoTurnFlag = ::GetPrivateProfileInt("grandcannon", "AutoTurn", TRUE, _configFilePath);
+		}
+		return _iGrandCannonAutoTurnFlag > 0;
+	}
+
+	static void setGrandCannonAutoTurnEnabled(bool enabled) {
+		_iGrandCannonAutoTurnFlag = enabled ? TRUE : FALSE;
+	}
+
+private:
+	// 巨炮自动转向角度，默认0表示不转向
+	inline static int _iGrandCannonTurnAngle = UNINITED_FLAG;
+public:
+	static int getGrandCannonTurnAngle() {
+		if (_iGrandCannonTurnAngle == UNINITED_FLAG) {
+			_iGrandCannonTurnAngle = ::GetPrivateProfileInt("grandcannon", "TurnAngle", 0, _configFilePath);
+		}
+		return _iGrandCannonTurnAngle;
+	}
+
+private:
+	// 巨炮建筑类型编号，默认GTGCAN=64
+	inline static int _iGrandCannonBuildingType = UNINITED_FLAG;
+public:
+	static int getGrandCannonBuildingType() {
+		if (_iGrandCannonBuildingType == UNINITED_FLAG) {
+			_iGrandCannonBuildingType = ::GetPrivateProfileInt("grandcannon", "BuildingType", 64, _configFilePath);
+		}
+		return _iGrandCannonBuildingType;
+	}
+
+private:
+	// 巨炮辅助扫描间隔，单位毫秒
+	inline static int _iGrandCannonScanInterval = UNINITED_FLAG;
+public:
+	static int getGrandCannonScanInterval() {
+		if (_iGrandCannonScanInterval == UNINITED_FLAG) {
+			_iGrandCannonScanInterval = ::GetPrivateProfileInt("grandcannon", "ScanInterval", 200, _configFilePath);
+		}
+		return _iGrandCannonScanInterval > 0 ? _iGrandCannonScanInterval : 200;
+	}
+
+private:
+	// 是否显示敌方玩家信息
+	inline static int _iShowEnemyInfoFlag = UNINITED_FLAG;
+public:
+	static bool isShowEnemyInfo() {
+		if (_iShowEnemyInfoFlag == UNINITED_FLAG) {
+			_iShowEnemyInfoFlag = ::GetPrivateProfileInt("ui", "ShowEnemyInfo", TRUE, _configFilePath);
+		}
+		return _iShowEnemyInfoFlag > 0;
+	}
+
+	static void setShowEnemyInfo(bool enabled) {
+		_iShowEnemyInfoFlag = enabled ? TRUE : FALSE;
+	}
+
+private:
+	// 是否显示底部自定义工具栏
+	inline static int _iCustomToolbarFlag = UNINITED_FLAG;
+public:
+	static bool isCustomToolbarEnabled() {
+		if (_iCustomToolbarFlag == UNINITED_FLAG) {
+			_iCustomToolbarFlag = ::GetPrivateProfileInt("ui", "CustomToolbar", TRUE, _configFilePath);
+		}
+		return _iCustomToolbarFlag > 0;
+	}
+
+private:
 	// 开启高科技是否使用自定义的配置
 	inline static int _iOpenTechUsingCustom = UNINITED_FLAG;
 public:
