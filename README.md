@@ -49,11 +49,11 @@ git clone https://github.com/Phobos-developers/YRpp.git
 ; [grandcannon] ScanInterval 巨炮辅助扫描间隔，单位毫秒，默认200；
 ; [ui] ShowEnemyInfo 是否显示敌方玩家信息，默认开启；
 ; [ui] CustomToolbar 是否显示底部自定义工具栏，默认开启；
-; [crateassist] ApproachDelay 多单位捡箱子时先聚拢到箱子周围再一起撞箱子的等待时间，单位毫秒，默认2500；
+; [crateassist] ApproachDelay 多单位捡箱子时等待单位聚拢到箱子周围的最大兜底时间，单位毫秒，默认6000；单位提前到位会提前一起撞箱子；
 ; [crateassist] RouteSampleInterval 圈定跑图路线时按住鼠标采样路线点的间隔，单位毫秒，默认200；
 ; [crateassist] RouteWidth 跑图路线两侧多少格以内的箱子会被自动捡取，默认4；
 ; [crateassist] RouteMoveInterval 没有箱子时沿路线移动的命令间隔，单位毫秒，默认3000；
-; [quickmessages] 快捷消息配置，Count 为消息数量，1/2/3... 每行一条；
+; [quickmessages] 快捷消息配置，Count 为消息数量，1/2/3... 每行一条；中文配置建议保存为UTF-8或UTF-16；
 ; CustomTech 是否使用自定义科技，默认使用预定义的科技；如果开启，则会使用[tech]部分的配置来决定开启哪些科技。想要开启哪个科技，自行填写，找到对应的科技类型，后面要开启的单位用空格隔开；
 ; 7=72 73 表示开启7号科技（建筑物类型）
 ; 16=8 16 表示开启16号科技（兵种类型）
@@ -83,7 +83,7 @@ ShowEnemyInfo=1
 CustomToolbar=1
 
 [crateassist]
-ApproachDelay=2500
+ApproachDelay=6000
 RouteSampleInterval=200
 RouteWidth=4
 RouteMoveInterval=3000

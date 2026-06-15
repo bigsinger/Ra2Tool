@@ -207,9 +207,9 @@ private:
 public:
 	static int getCrateApproachDelay() {
 		if (_iCrateApproachDelay == UNINITED_FLAG) {
-			_iCrateApproachDelay = ::GetPrivateProfileInt("crateassist", "ApproachDelay", 2500, _configFilePath);
+			_iCrateApproachDelay = ::GetPrivateProfileInt("crateassist", "ApproachDelay", 6000, _configFilePath);
 		}
-		return _iCrateApproachDelay > 0 ? _iCrateApproachDelay : 2500;
+		return _iCrateApproachDelay > 0 ? _iCrateApproachDelay : 6000;
 	}
 
 private:

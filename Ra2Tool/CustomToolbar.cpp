@@ -2,6 +2,9 @@
 #include <windowsx.h>
 #include <process.h>
 #include <ShellScalingAPI.h>
+#include <algorithm>
+#include <cwctype>
+#include <utility>
 #include <vector>
 #include <string>
 #include "Utils.h"
@@ -15,16 +18,19 @@ namespace {
 constexpr UINT_PTR TIMER_ID_TOOLBAR_REFRESH = 1;
 constexpr UINT_PTR TIMER_ID_TOOLBAR_TOPMOST = 2;
 constexpr int TOOLBAR_WIDTH = 624;
-constexpr int TOOLBAR_HEIGHT = 40;
+constexpr int TOOLBAR_HEIGHT = 70;
 constexpr int BUTTON_WIDTH = 82;
 constexpr int BUTTON_HEIGHT = 26;
-constexpr int BUTTON_Y = 7;
+constexpr int BUTTON_ROW1_Y = 7;
+constexpr int BUTTON_ROW2_Y = 38;
 constexpr int COMBO_ID_QUICK_MESSAGE = 1001;
 constexpr COLORREF TOOLBAR_BG = RGB(28, 28, 28);
 
 HWND g_hwndCustomToolbar = NULL;
 HWND g_hwndQuickMessageCombo = NULL;
 std::vector<std::wstring> g_quickMessages;
+int g_lastQuickMessageIndex = -1;
+DWORD g_lastQuickMessageTick = 0;
 
 struct ToolbarButton {
 	int Id;
@@ -38,53 +44,189 @@ enum ToolbarButtonId {
 	ButtonScanCannon = 3,
 	ButtonPickCrate = 4,
 	ButtonRouteCrate = 5,
+	ButtonFormationSquare = 6,
+	ButtonFormationVertical = 7,
+	ButtonFormationHorizontal = 8,
 };
 
 ToolbarButton buttons[] = {
-	{ ButtonToggleTurn, { 6, BUTTON_Y, 6 + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT }, L"" },
-	{ ButtonToggleInfo, { 92, BUTTON_Y, 92 + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT }, L"" },
-	{ ButtonScanCannon, { 178, BUTTON_Y, 178 + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT }, L"\x626B\x5DE8\x70AE" },
-	{ ButtonPickCrate, { 264, BUTTON_Y, 264 + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT }, L"\x6361\x7BB1\x5B50" },
-	{ ButtonRouteCrate, { 350, BUTTON_Y, 350 + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT }, L"" },
+	{ ButtonToggleTurn, { 6, BUTTON_ROW1_Y, 6 + BUTTON_WIDTH, BUTTON_ROW1_Y + BUTTON_HEIGHT }, L"" },
+	{ ButtonToggleInfo, { 92, BUTTON_ROW1_Y, 92 + BUTTON_WIDTH, BUTTON_ROW1_Y + BUTTON_HEIGHT }, L"" },
+	{ ButtonScanCannon, { 178, BUTTON_ROW1_Y, 178 + BUTTON_WIDTH, BUTTON_ROW1_Y + BUTTON_HEIGHT }, L"\x626B\x5DE8\x70AE" },
+	{ ButtonPickCrate, { 264, BUTTON_ROW1_Y, 264 + BUTTON_WIDTH, BUTTON_ROW1_Y + BUTTON_HEIGHT }, L"\x6361\x7BB1\x5B50" },
+	{ ButtonRouteCrate, { 350, BUTTON_ROW1_Y, 350 + BUTTON_WIDTH, BUTTON_ROW1_Y + BUTTON_HEIGHT }, L"" },
+	{ ButtonFormationSquare, { 6, BUTTON_ROW2_Y, 6 + BUTTON_WIDTH, BUTTON_ROW2_Y + BUTTON_HEIGHT }, L"\x9635\x578B\x53E3" },
+	{ ButtonFormationVertical, { 92, BUTTON_ROW2_Y, 92 + BUTTON_WIDTH, BUTTON_ROW2_Y + BUTTON_HEIGHT }, L"\x9635\x578B\x0031" },
+	{ ButtonFormationHorizontal, { 178, BUTTON_ROW2_Y, 178 + BUTTON_WIDTH, BUTTON_ROW2_Y + BUTTON_HEIGHT }, L"\x9635\x578B\x4E00" },
 };
 
-std::wstring AnsiToWide(const char* text) {
-	if (!text || !*text) {
+std::wstring DecodeMultiByte(const char* text, int length, UINT codePage, DWORD flags) {
+	if (!text || length <= 0) {
 		return std::wstring();
 	}
 
-	const int needed = MultiByteToWideChar(CP_ACP, 0, text, -1, NULL, 0);
-	if (needed <= 1) {
+	const int needed = MultiByteToWideChar(codePage, flags, text, length, NULL, 0);
+	if (needed <= 0) {
 		return std::wstring();
 	}
 
-	std::wstring result(static_cast<size_t>(needed - 1), L'\0');
-	MultiByteToWideChar(CP_ACP, 0, text, -1, &result[0], needed);
+	std::wstring result(static_cast<size_t>(needed), L'\0');
+	MultiByteToWideChar(codePage, flags, text, length, &result[0], needed);
 	return result;
+}
+
+std::wstring DecodeConfigBytes(const std::vector<char>& bytes) {
+	if (bytes.empty()) {
+		return std::wstring();
+	}
+
+	const unsigned char* data = reinterpret_cast<const unsigned char*>(bytes.data());
+	if (bytes.size() >= 3 && data[0] == 0xEF && data[1] == 0xBB && data[2] == 0xBF) {
+		return DecodeMultiByte(bytes.data() + 3, static_cast<int>(bytes.size() - 3), CP_UTF8, 0);
+	}
+
+	if (bytes.size() >= 2 && data[0] == 0xFF && data[1] == 0xFE) {
+		const size_t charCount = (bytes.size() - 2) / sizeof(wchar_t);
+		return std::wstring(reinterpret_cast<const wchar_t*>(bytes.data() + 2), charCount);
+	}
+
+	if (bytes.size() >= 2 && data[0] == 0xFE && data[1] == 0xFF) {
+		std::wstring result;
+		for (size_t i = 2; i + 1 < bytes.size(); i += 2) {
+			wchar_t ch = static_cast<wchar_t>((data[i] << 8) | data[i + 1]);
+			result.push_back(ch);
+		}
+		return result;
+	}
+
+	std::wstring utf8 = DecodeMultiByte(bytes.data(), static_cast<int>(bytes.size()), CP_UTF8, MB_ERR_INVALID_CHARS);
+	if (!utf8.empty()) {
+		return utf8;
+	}
+
+	return DecodeMultiByte(bytes.data(), static_cast<int>(bytes.size()), CP_ACP, 0);
+}
+
+std::wstring Trim(const std::wstring& value) {
+	size_t begin = 0;
+	while (begin < value.size() && iswspace(value[begin])) {
+		++begin;
+	}
+
+	size_t end = value.size();
+	while (end > begin && iswspace(value[end - 1])) {
+		--end;
+	}
+
+	return value.substr(begin, end - begin);
+}
+
+bool ReadConfigText(std::wstring* outText) {
+	const char* path = Config::getConfigFilePath();
+	HANDLE file = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (file == INVALID_HANDLE_VALUE) {
+		return false;
+	}
+
+	DWORD highSize = 0;
+	const DWORD lowSize = GetFileSize(file, &highSize);
+	if (lowSize == INVALID_FILE_SIZE || highSize != 0 || lowSize == 0) {
+		CloseHandle(file);
+		return false;
+	}
+
+	std::vector<char> bytes(lowSize);
+	DWORD readSize = 0;
+	const BOOL ok = ReadFile(file, bytes.data(), lowSize, &readSize, NULL);
+	CloseHandle(file);
+	if (!ok || readSize == 0) {
+		return false;
+	}
+
+	bytes.resize(readSize);
+	*outText = DecodeConfigBytes(bytes);
+	return !outText->empty();
+}
+
+std::vector<std::wstring> ParseQuickMessages(const std::wstring& text) {
+	std::vector<std::pair<int, std::wstring>> indexed;
+	int configuredCount = 0;
+	bool inSection = false;
+	size_t offset = 0;
+
+	while (offset <= text.size()) {
+		size_t next = text.find_first_of(L"\r\n", offset);
+		std::wstring line = next == std::wstring::npos
+			? text.substr(offset)
+			: text.substr(offset, next - offset);
+
+		if (next == std::wstring::npos) {
+			offset = text.size() + 1;
+		} else {
+			offset = next + 1;
+			if (offset < text.size() && text[next] == L'\r' && text[offset] == L'\n') {
+				++offset;
+			}
+		}
+
+		line = Trim(line);
+		if (line.empty() || line[0] == L';' || line[0] == L'#') {
+			continue;
+		}
+
+		if (line.front() == L'[' && line.back() == L']') {
+			std::wstring section = Trim(line.substr(1, line.size() - 2));
+			inSection = _wcsicmp(section.c_str(), L"quickmessages") == 0;
+			continue;
+		}
+
+		if (!inSection) {
+			continue;
+		}
+
+		size_t equals = line.find(L'=');
+		if (equals == std::wstring::npos) {
+			continue;
+		}
+
+		std::wstring key = Trim(line.substr(0, equals));
+		std::wstring value = Trim(line.substr(equals + 1));
+		if (key.empty() || value.empty()) {
+			continue;
+		}
+
+		if (_wcsicmp(key.c_str(), L"Count") == 0) {
+			configuredCount = _wtoi(value.c_str());
+			continue;
+		}
+
+		const int index = _wtoi(key.c_str());
+		if (index > 0) {
+			indexed.push_back(std::make_pair(index, value));
+		}
+	}
+
+	std::sort(indexed.begin(), indexed.end(), [](const auto& a, const auto& b) {
+		return a.first < b.first;
+	});
+
+	std::vector<std::wstring> messages;
+	for (const auto& item : indexed) {
+		if (configuredCount > 0 && item.first > configuredCount) {
+			continue;
+		}
+		messages.push_back(item.second);
+	}
+
+	return messages;
 }
 
 void LoadQuickMessages() {
 	g_quickMessages.clear();
 
-	const char* path = Config::getConfigFilePath();
-	int count = ::GetPrivateProfileIntA("quickmessages", "Count", 0, path);
-	if (count <= 0) {
-		count = 20;
-	}
-
-	for (int i = 1; i <= count; ++i) {
-		char key[16] = {};
-		char value[512] = {};
-		sprintf_s(key, "%d", i);
-		::GetPrivateProfileStringA("quickmessages", key, "", value, sizeof(value), path);
-		if (!value[0]) {
-			continue;
-		}
-
-		std::wstring wide = AnsiToWide(value);
-		if (!wide.empty()) {
-			g_quickMessages.push_back(wide);
-		}
+	std::wstring text;
+	if (ReadConfigText(&text)) {
+		g_quickMessages = ParseQuickMessages(text);
 	}
 
 	Utils::LogFormat("CustomToolbar quick messages loaded: %d", static_cast<int>(g_quickMessages.size()));
@@ -149,7 +291,10 @@ void DrawButton(HDC hdc, const ToolbarButton& button) {
 		|| (button.Id == ButtonToggleInfo && Config::isShowEnemyInfo())
 		|| (button.Id == ButtonRouteCrate && (IsRouteCrateCaptureActive() || IsRouteCrateRunActive()))
 		|| button.Id == ButtonScanCannon
-		|| button.Id == ButtonPickCrate;
+		|| button.Id == ButtonPickCrate
+		|| button.Id == ButtonFormationSquare
+		|| button.Id == ButtonFormationVertical
+		|| button.Id == ButtonFormationHorizontal;
 
 	HBRUSH brush = CreateSolidBrush(enabled ? RGB(58, 84, 66) : RGB(58, 58, 58));
 	FillRect(hdc, &button.Rect, brush);
@@ -211,6 +356,18 @@ void HandleButtonClick(int id, HWND hwnd) {
 		Utils::Log("CustomToolbar click: RouteCrate");
 		ToggleRouteCratePickup();
 		break;
+	case ButtonFormationSquare:
+		Utils::Log("CustomToolbar click: FormationSquare");
+		ApplySelectedFormationSquare();
+		break;
+	case ButtonFormationVertical:
+		Utils::Log("CustomToolbar click: FormationVertical");
+		ApplySelectedFormationVertical();
+		break;
+	case ButtonFormationHorizontal:
+		Utils::Log("CustomToolbar click: FormationHorizontal");
+		ApplySelectedFormationHorizontal();
+		break;
 	default:
 		break;
 	}
@@ -230,6 +387,13 @@ void HandleQuickMessageSelection() {
 	if (index <= 0 || index > static_cast<int>(g_quickMessages.size())) {
 		return;
 	}
+
+	const DWORD now = GetTickCount();
+	if (index == g_lastQuickMessageIndex && now - g_lastQuickMessageTick < 300) {
+		return;
+	}
+	g_lastQuickMessageIndex = index;
+	g_lastQuickMessageTick = now;
 
 	const std::wstring& message = g_quickMessages[static_cast<size_t>(index - 1)];
 	SendQuickGlobalMessage(message.c_str());
@@ -252,7 +416,8 @@ LRESULT CALLBACK CustomToolbarWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 		CreateQuickMessageCombo(hwnd);
 		break;
 	case WM_COMMAND:
-		if (LOWORD(wParam) == COMBO_ID_QUICK_MESSAGE && HIWORD(wParam) == CBN_SELCHANGE) {
+		if (LOWORD(wParam) == COMBO_ID_QUICK_MESSAGE
+			&& (HIWORD(wParam) == CBN_SELCHANGE || HIWORD(wParam) == CBN_SELENDOK)) {
 			HandleQuickMessageSelection();
 		}
 		break;

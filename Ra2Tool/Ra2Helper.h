@@ -43,3 +43,6 @@ void ToggleRouteCratePickup();
 void TickCrateAssist();
 bool IsRouteCrateCaptureActive();
 bool IsRouteCrateRunActive();
+void ApplySelectedFormationSquare();
+void ApplySelectedFormationVertical();
+void ApplySelectedFormationHorizontal();

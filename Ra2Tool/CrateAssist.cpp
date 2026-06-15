@@ -23,9 +23,13 @@ struct CrateTarget {
 
 struct PendingPickupState {
 	bool Active = false;
+	bool Charging = false;
 	std::vector<FootClass*> Units;
+	std::vector<CellStruct> ApproachCells;
 	CellStruct CrateCell = CellStruct::Empty;
 	DWORD DueTick = 0;
+	DWORD LastChargeTick = 0;
+	DWORD ChargeUntilTick = 0;
 };
 
 struct RouteCrateState {
@@ -388,8 +392,9 @@ std::vector<CellStruct> BuildApproachCells(const CellStruct& crateCell, size_t n
 	return cells;
 }
 
-void AssignApproachAndMove(const std::vector<FootClass*>& units, const CellStruct& crateCell) {
-	auto sortedUnits = units;
+std::vector<CellStruct> AssignApproachAndMove(std::vector<FootClass*>& sortedUnits, const CellStruct& crateCell) {
+	std::vector<CellStruct> assignedCells;
+
 	std::sort(sortedUnits.begin(), sortedUnits.end(), [crateCell](FootClass* a, FootClass* b) {
 		return CellDistance2(TryGetFootCell(a), crateCell) < CellDistance2(TryGetFootCell(b), crateCell);
 	});
@@ -398,8 +403,9 @@ void AssignApproachAndMove(const std::vector<FootClass*>& units, const CellStruc
 	if (approachCells.empty()) {
 		for (auto unit : sortedUnits) {
 			TryIssueMove(unit, crateCell);
+			assignedCells.push_back(crateCell);
 		}
-		return;
+		return assignedCells;
 	}
 
 	std::vector<bool> used(approachCells.size(), false);
@@ -425,10 +431,14 @@ void AssignApproachAndMove(const std::vector<FootClass*>& units, const CellStruc
 		if (found) {
 			used[bestIndex] = true;
 			TryIssueMove(unit, approachCells[bestIndex]);
+			assignedCells.push_back(approachCells[bestIndex]);
 		} else {
 			TryIssueMove(unit, crateCell);
+			assignedCells.push_back(crateCell);
 		}
 	}
+
+	return assignedCells;
 }
 
 bool StartPickupForUnits(std::vector<FootClass*> units, const CellStruct& crateCell) {
@@ -448,11 +458,16 @@ bool StartPickupForUnits(std::vector<FootClass*> units, const CellStruct& crateC
 	if (units.size() <= 1) {
 		TryIssueMove(units[0], crateCell);
 	} else {
-		AssignApproachAndMove(units, crateCell);
+		auto approachCells = AssignApproachAndMove(units, crateCell);
+		const DWORD now = GetTickCount();
 		g_pendingPickup.Active = true;
+		g_pendingPickup.Charging = false;
 		g_pendingPickup.Units = units;
+		g_pendingPickup.ApproachCells = approachCells;
 		g_pendingPickup.CrateCell = crateCell;
-		g_pendingPickup.DueTick = GetTickCount() + static_cast<DWORD>(Config::getCrateApproachDelay());
+		g_pendingPickup.DueTick = now + static_cast<DWORD>(std::max(Config::getCrateApproachDelay(), 6000));
+		g_pendingPickup.LastChargeTick = 0;
+		g_pendingPickup.ChargeUntilTick = 0;
 	}
 
 	Utils::LogFormat(
@@ -549,26 +564,77 @@ bool FindNearestRouteCrate(const std::vector<FootClass*>& units, CrateTarget* ou
 	return true;
 }
 
+bool IsUnitNearCell(FootClass* unit, const CellStruct& cell, int tolerance) {
+	const CellStruct current = TryGetFootCell(unit);
+	return AbsInt(static_cast<int>(current.X) - static_cast<int>(cell.X)) <= tolerance
+		&& AbsInt(static_cast<int>(current.Y) - static_cast<int>(cell.Y)) <= tolerance;
+}
+
+bool IsPickupApproachReady(const std::vector<FootClass*>& units, const std::vector<CellStruct>& approachCells, const CellStruct& crateCell) {
+	if (units.empty()) {
+		return false;
+	}
+
+	for (size_t i = 0; i < units.size(); ++i) {
+		FootClass* unit = units[i];
+		const CellStruct approach = i < approachCells.size() ? approachCells[i] : crateCell;
+		if (IsUnitNearCell(unit, approach, 1) || IsUnitNearCell(unit, crateCell, 1)) {
+			continue;
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
+void IssueCrateCharge(const std::vector<FootClass*>& units, const CellStruct& crateCell) {
+	for (auto unit : units) {
+		TryIssueMove(unit, crateCell);
+	}
+}
+
+void BeginCrateCharge(DWORD now) {
+	g_pendingPickup.Charging = true;
+	g_pendingPickup.LastChargeTick = 0;
+	g_pendingPickup.ChargeUntilTick = now + 7000;
+	Utils::LogFormat(
+		"CrateAssist pickup begin charge: units=%d crate=(%d,%d)",
+		static_cast<int>(g_pendingPickup.Units.size()),
+		g_pendingPickup.CrateCell.X,
+		g_pendingPickup.CrateCell.Y);
+}
+
 void TickPendingPickup() {
 	if (!g_pendingPickup.Active) {
 		return;
 	}
 
-	if (GetTickCount() < g_pendingPickup.DueTick) {
+	const DWORD now = GetTickCount();
+	g_pendingPickup.Units = FilterLiveUnits(g_pendingPickup.Units);
+	if (g_pendingPickup.Units.empty() || !TryIsActiveCrateCell(g_pendingPickup.CrateCell)) {
+		g_pendingPickup.Active = false;
 		return;
 	}
 
-	auto units = FilterLiveUnits(g_pendingPickup.Units);
-	for (auto unit : units) {
-		TryIssueMove(unit, g_pendingPickup.CrateCell);
+	if (!g_pendingPickup.Charging) {
+		if (!IsPickupApproachReady(g_pendingPickup.Units, g_pendingPickup.ApproachCells, g_pendingPickup.CrateCell)
+			&& now < g_pendingPickup.DueTick) {
+			return;
+		}
+
+		BeginCrateCharge(now);
 	}
 
-	Utils::LogFormat(
-		"CrateAssist pickup charge: units=%d crate=(%d,%d)",
-		static_cast<int>(units.size()),
-		g_pendingPickup.CrateCell.X,
-		g_pendingPickup.CrateCell.Y);
-	g_pendingPickup.Active = false;
+	if (now > g_pendingPickup.ChargeUntilTick) {
+		g_pendingPickup.Active = false;
+		return;
+	}
+
+	if (g_pendingPickup.LastChargeTick == 0 || now - g_pendingPickup.LastChargeTick >= 500) {
+		g_pendingPickup.LastChargeTick = now;
+		IssueCrateCharge(g_pendingPickup.Units, g_pendingPickup.CrateCell);
+	}
 }
 
 void SampleRoutePoint() {
@@ -690,6 +756,148 @@ void TickRouteRun() {
 	g_routeCrate.NextRouteIndex = (g_routeCrate.NextRouteIndex + 1) % g_routeCrate.Route.size();
 }
 
+enum class FormationMode {
+	Square,
+	Vertical,
+	Horizontal,
+};
+
+int CeilDiv(int value, int divisor) {
+	return divisor > 0 ? (value + divisor - 1) / divisor : value;
+}
+
+int SquareColumns(int count) {
+	int columns = 1;
+	while (columns * columns < count) {
+		++columns;
+	}
+	return columns;
+}
+
+bool HasCell(const std::vector<CellStruct>& cells, const CellStruct& cell) {
+	for (const auto& item : cells) {
+		if (SameCell(item, cell)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+CellStruct FindFormationCell(const CellStruct& preferred, const CellStruct& center, const std::vector<CellStruct>& used) {
+	if (TryCellExists(preferred) && !HasCell(used, preferred)) {
+		return preferred;
+	}
+
+	for (int radius = 1; radius <= 5; ++radius) {
+		for (int dy = -radius; dy <= radius; ++dy) {
+			for (int dx = -radius; dx <= radius; ++dx) {
+				if (AbsInt(dx) != radius && AbsInt(dy) != radius) {
+					continue;
+				}
+
+				CellStruct cell {
+					static_cast<short>(preferred.X + dx),
+					static_cast<short>(preferred.Y + dy)
+				};
+
+				if (TryCellExists(cell) && !HasCell(used, cell)) {
+					return cell;
+				}
+			}
+		}
+	}
+
+	if (TryCellExists(center) && !HasCell(used, center)) {
+		return center;
+	}
+
+	return preferred;
+}
+
+std::vector<CellStruct> BuildFormationTargets(int count, FormationMode mode, const CellStruct& center) {
+	std::vector<CellStruct> targets;
+	if (count <= 0) {
+		return targets;
+	}
+
+	int columns = 1;
+	int rows = 1;
+	if (mode == FormationMode::Square) {
+		columns = SquareColumns(count);
+		rows = CeilDiv(count, columns);
+	} else if (mode == FormationMode::Vertical) {
+		rows = std::min(10, count);
+		columns = CeilDiv(count, rows);
+	} else {
+		columns = std::min(10, count);
+		rows = CeilDiv(count, columns);
+	}
+
+	const int startX = -(columns / 2);
+	const int startY = -(rows / 2);
+
+	for (int i = 0; i < count; ++i) {
+		int col = 0;
+		int row = 0;
+		if (mode == FormationMode::Vertical) {
+			col = i / rows;
+			row = i % rows;
+		} else {
+			col = i % columns;
+			row = i / columns;
+		}
+
+		CellStruct preferred {
+			static_cast<short>(center.X + startX + col),
+			static_cast<short>(center.Y + startY + row)
+		};
+		targets.push_back(FindFormationCell(preferred, center, targets));
+	}
+
+	return targets;
+}
+
+void ApplySelectedFormation(FormationMode mode, const char* logName, const wchar_t* message) {
+	auto units = FilterLiveUnits(GetSelectedFootUnits());
+	if (units.empty()) {
+		PrintGameMessage(L"\x8BF7\x5148\x9009\x4E2D\x5355\x4F4D");
+		Utils::LogFormat("Formation failed: %s no selected units.", logName ? logName : "");
+		return;
+	}
+
+	const CellStruct center = GetGroupCenterCell(units);
+	auto targets = BuildFormationTargets(static_cast<int>(units.size()), mode, center);
+	std::vector<bool> used(targets.size(), false);
+
+	for (auto unit : units) {
+		const CellStruct current = TryGetFootCell(unit);
+		size_t bestIndex = 0;
+		bool found = false;
+		int bestScore = 0x7FFFFFFF;
+
+		for (size_t i = 0; i < targets.size(); ++i) {
+			if (used[i]) {
+				continue;
+			}
+
+			const int score = CellDistance2(current, targets[i]);
+			if (!found || score < bestScore) {
+				found = true;
+				bestScore = score;
+				bestIndex = i;
+			}
+		}
+
+		if (found) {
+			used[bestIndex] = true;
+			TryIssueMove(unit, targets[bestIndex]);
+		}
+	}
+
+	PrintGameMessage(message);
+	Utils::LogFormat("Formation applied: %s units=%d", logName ? logName : "", static_cast<int>(units.size()));
+}
+
 }
 
 void StartOptimalCratePickup() {
@@ -739,4 +947,16 @@ bool IsRouteCrateCaptureActive() {
 
 bool IsRouteCrateRunActive() {
 	return g_routeCrate.Running;
+}
+
+void ApplySelectedFormationSquare() {
+	ApplySelectedFormation(FormationMode::Square, "square", L"\x9635\x578B\x53E3");
+}
+
+void ApplySelectedFormationVertical() {
+	ApplySelectedFormation(FormationMode::Vertical, "vertical", L"\x9635\x578B\x0031");
+}
+
+void ApplySelectedFormationHorizontal() {
+	ApplySelectedFormation(FormationMode::Horizontal, "horizontal", L"\x9635\x578B\x4E00");
 }

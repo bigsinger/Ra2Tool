@@ -221,7 +221,7 @@ void TurnGrandCannon(BuildingClass* source) {
 	__try {
 		source->PrimaryFacing.SetDesired(facing);
 		source->SecondaryFacing.SetDesired(facing);
-		//source->BarrelFacing.SetDesired(facing);	// 枪管朝向不用动
+		//source->BarrelFacing.SetDesired(facing);
 		source->TurretIsRotating = TRUE;
 		Utils::LogFormat("GrandCannonAssist turn: source=%08X angle=%d raw=%d",
 			source->UniqueID, degrees, raw);
