@@ -4,7 +4,7 @@
 *.pdb
 Debug/*
 Release/*
-YRpp/*
+YRpp/
 */Debug/*
 */Release/*
 *.rar
