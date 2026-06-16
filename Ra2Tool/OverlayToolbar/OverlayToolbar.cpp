@@ -566,7 +566,7 @@ void HandleMouse(const ToolbarLayout& layout) {
 			if (ContainsPoint(layout.MessageItems[i], x, y) && i < g_quickMessages.size()) {
 				const std::wstring message = g_quickMessages[i];
 				g_messageOpen = false;
-				SendQuickGlobalMessage(message.c_str());
+				Chat(message.c_str());
 				return;
 			}
 		}

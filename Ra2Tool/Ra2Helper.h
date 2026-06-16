@@ -14,8 +14,7 @@ void GiveMeMoney();
 void LevelUpSelectings();
 void SetBoxAllMoney();
 void DisableDisguise();
-void Chat(const wchar_t* message, int nCbSize);
-bool SendQuickGlobalMessage(const wchar_t* message);
+void Chat(const wchar_t* message);
 
 void Install(HMODULE hModule);
 void Uninstall();

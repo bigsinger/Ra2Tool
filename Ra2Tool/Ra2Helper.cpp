@@ -409,7 +409,7 @@ inline unsigned int __stdcall GetColorEnum_69A310(unsigned int color) {
 	JMP_STD(0x69A310);
 }
 
-void PrintLocalQuickMessage(const wchar_t* message) {
+void SendChatMessage(const wchar_t* message) {
 	__try {
 		if (!message || !*message) {
 			return;
@@ -451,72 +451,6 @@ void PrintLocalQuickMessage(const wchar_t* message) {
 	}
 }
 
-bool SendQuickGlobalMessage(const wchar_t* message) {
-	if (!message || !*message) {
-		return false;
-	}
-
-	bool sent = false;
-
-	__try {
-		wchar_t text[112] = {};
-		wcsncpy_s(text, message, _TRUNCATE);
-
-		NodeNameType* sender = FindCurrentNodeName();
-		GlobalPacketType packet = {};
-		static_assert(sizeof(packet) == 455);
-		packet.Command = NetCommandType::NET_MESSAGE;
-
-		wchar_t senderName[20] = {};
-		if (sender) {
-			memcpy(packet.Name, sender->Name, sizeof(packet.Name));
-			wcsncpy_s(senderName, sender->Name, _TRUNCATE);
-			packet.GlobalPacketData.Message.PlayerColor = sender->Color;
-		} else {
-			MultiByteToWideChar(CP_ACP, 0, SessionClass::Instance.Handle, -1, senderName, _countof(senderName));
-			memcpy(packet.Name, senderName, sizeof(packet.Name));
-			packet.GlobalPacketData.Message.PlayerColor = SessionClass::Instance.PlayerColor;
-		}
-
-		packet.GlobalPacketData.Message.Unknown = false;
-		size_t cbSize = (wcsnlen_s(text, _countof(text)) + 1) * sizeof(wchar_t);
-		if (cbSize > sizeof(packet.GlobalPacketData.Message.Buf)) {
-			cbSize = sizeof(packet.GlobalPacketData.Message.Buf);
-		}
-		memcpy(packet.GlobalPacketData.Message.Buf, text, cbSize);
-		packet.GlobalPacketData.Message.NameCRC = ComputeNameCRC(senderName);
-
-		int count = static_cast<int>(IPXManagerClass::Instance.NumConnections);
-		if (count <= 0) {
-			count = SessionClass::Instance.MPlayerCount;
-		}
-		if (count > 8) {
-			count = 8;
-		}
-
-		if (SessionClass::IsMultiplayer() && count > 0) {
-			for (int i = 0; i < count; ++i) {
-				SendGlobalMessage_sub5410F0(
-					&IPXManagerClass::Instance,
-					&packet,
-					sizeof(packet),
-					1,
-					&SessionClass::Instance.MPStats[i].Address,
-					0,
-					0);
-			}
-			sent = true;
-		}
-	} __except (EXCEPTION_EXECUTE_HANDLER) {
-		Utils::Log("SendQuickGlobalMessage failed.");
-		sent = false;
-	}
-
-	PrintLocalQuickMessage(message);
-	Utils::LogFormat("QuickMessage send: global=%d", sent ? 1 : 0);
-	return sent;
-}
-
 void PrintGameMessage(const wchar_t* message) {
 	if (!message || !*message) {
 		return;
@@ -529,14 +463,8 @@ void PrintGameMessage(const wchar_t* message) {
 	}
 }
 
-// From .text:0055EDD2
-void SendChatMessage(const wchar_t *message, int nCbSize) {
-	SendQuickGlobalMessage(message);
-}
-
-void Chat(const wchar_t* message, int nCbSize) {
-	wchar_t msg[256] = L"我很菜 别打我~";
-	SendChatMessage(msg, sizeof(msg));
+void Chat(const wchar_t* msg) {
+	SendChatMessage(msg);
 }
 
 // 测试用例
