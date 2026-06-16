@@ -92,7 +92,7 @@ void CopyHouseName(HouseClass* house, wchar_t* buffer, size_t bufferCount) {
 
 	buffer[0] = L'\0';
 	if (!house) {
-		wcscpy_s(buffer, bufferCount, L"\x672A\x77E5");
+		wcscpy_s(buffer, bufferCount, L"未知");
 		return;
 	}
 
@@ -114,7 +114,7 @@ void CopyHouseName(HouseClass* house, wchar_t* buffer, size_t bufferCount) {
 		return;
 	}
 
-	wcscpy_s(buffer, bufferCount, L"\x672A\x77E5");
+	wcscpy_s(buffer, bufferCount, L"未知");
 }
 
 COLORREF ToColorRef(const ColorStruct& color) {
@@ -159,7 +159,7 @@ void ShowEnemyPlayerInfo(HDC hdc) {
 
 		SetBkMode(hdc, TRANSPARENT);
 		SetTextColor(hdc, RGB(230, 230, 230));
-		const wchar_t* header = L"\x989C\x8272  \x73A9\x5BB6                \x91D1\x94B1   \x5766\x514B  \x77FF\x8F66  \x5EFA\x7B51  \x6B65\x5175";
+		const wchar_t* header = L"颜色  玩家                金钱   坦克  矿车  建筑  步兵";
 		TextOutW(hdc, 16, 14, header, static_cast<int>(wcslen(header)));
 
 		int row = 0;

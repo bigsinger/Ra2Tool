@@ -9,6 +9,7 @@
 #include <HouseClass.h>
 #include <MessageListClass.h>
 #include <SessionClass.h>
+#include <WaypointPathClass.h>
 #include "Utils.h"
 #include "Config.h"
 #include "Ra2Header.h"
@@ -177,15 +178,10 @@ bool TryIssueMove(FootClass* foot, const CellStruct& cell) {
 			houseIndex,
 			TargetClass(foot),
 			Mission::Move,
-			TargetClass(),
+			TargetClass(cell),
 			TargetClass(cell),
 			TargetClass());
 		EventClass::OutList.Add(event);
-
-		if (!SessionClass::IsMultiplayer()) {
-			CoordStruct coord = CellClass::Cell2Coord(cell);
-			foot->MoveTo(&coord);
-		}
 
 		return true;
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -239,6 +235,63 @@ bool TryScreenCursorToCell(CellStruct* outCell) {
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return false;
 	}
+}
+
+bool TrySetGameWaypointMode(bool enabled) {
+	__try {
+		MapClass::Instance.SetWaypointMode(enabled ? 1 : 0, enabled);
+		Utils::LogFormat("CrateAssist game waypoint mode: %d", enabled ? 1 : 0);
+		return true;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("CrateAssist game waypoint mode failed.");
+		return false;
+	}
+}
+
+bool AppendRouteCell(std::vector<CellStruct>* route, const CellStruct& cell) {
+	if (!route || !TryCellExists(cell)) {
+		return false;
+	}
+
+	if (!route->empty() && CellDistance2(route->back(), cell) < 2) {
+		return false;
+	}
+
+	route->push_back(cell);
+	return true;
+}
+
+bool TryImportPlanningRoute() {
+	auto house = HouseClass::CurrentPlayer;
+	if (!house) {
+		return false;
+	}
+
+	std::vector<CellStruct> bestRoute;
+	for (int pathIndex = 0; pathIndex < 12; ++pathIndex) {
+		WaypointPathClass* path = house->PlanningPaths[pathIndex];
+		if (!path || path->Waypoints.Count <= 0 || !path->Waypoints.Items) {
+			continue;
+		}
+
+		std::vector<CellStruct> route;
+		for (int waypointIndex = 0; waypointIndex < path->Waypoints.Count; ++waypointIndex) {
+			AppendRouteCell(&route, path->Waypoints.Items[waypointIndex].Coords);
+		}
+
+		if (route.size() > bestRoute.size()) {
+			bestRoute.swap(route);
+		}
+	}
+
+	if (bestRoute.size() < 2) {
+		return false;
+	}
+
+	g_routeCrate.Route.swap(bestRoute);
+	Utils::LogFormat("CrateAssist imported planning route: points=%d",
+		static_cast<int>(g_routeCrate.Route.size()));
+	return true;
 }
 
 std::vector<FootClass*> GetSelectedFootUnits() {
@@ -434,13 +487,13 @@ std::vector<CellStruct> AssignApproachAndMove(std::vector<FootClass*>& sortedUni
 bool StartPickupForUnits(std::vector<FootClass*> units, const CellStruct& crateCell) {
 	units = FilterLiveUnits(units);
 	if (units.empty()) {
-		PrintGameMessage(L"\x8BF7\x5148\x9009\x4E2D\x5355\x4F4D");
+		PrintGameMessage(L"请先选中单位");
 		Utils::Log("CrateAssist pickup failed: no selected units.");
 		return false;
 	}
 
 	if (!TryIsActiveCrateCell(crateCell)) {
-		PrintGameMessage(L"\x672A\x627E\x5230\x53EF\x6361\x53D6\x7684\x7BB1\x5B50");
+		PrintGameMessage(L"未找到可拾取的箱子");
 		Utils::Log("CrateAssist pickup failed: no active crate.");
 		return false;
 	}
@@ -455,7 +508,9 @@ bool StartPickupForUnits(std::vector<FootClass*> units, const CellStruct& crateC
 		g_pendingPickup.Units = units;
 		g_pendingPickup.ApproachCells = approachCells;
 		g_pendingPickup.CrateCell = crateCell;
-		g_pendingPickup.DueTick = now + static_cast<DWORD>(std::max(Config::getCrateApproachDelay(), 6000));
+		const int configuredDelay = Config::getCrateApproachDelay();
+		const int chargeDelay = std::min(std::max(configuredDelay, 1200), 6000);
+		g_pendingPickup.DueTick = now + static_cast<DWORD>(chargeDelay);
 		g_pendingPickup.LastChargeTick = 0;
 		g_pendingPickup.ChargeUntilTick = 0;
 	}
@@ -579,7 +634,12 @@ bool IsPickupApproachReady(const std::vector<FootClass*>& units, const std::vect
 }
 
 void IssueCrateCharge(const std::vector<FootClass*>& units, const CellStruct& crateCell) {
-	for (auto unit : units) {
+	auto sortedUnits = FilterLiveUnits(units);
+	std::sort(sortedUnits.begin(), sortedUnits.end(), [crateCell](FootClass* a, FootClass* b) {
+		return CellDistance2(TryGetFootCell(a), crateCell) < CellDistance2(TryGetFootCell(b), crateCell);
+	});
+
+	for (auto unit : sortedUnits) {
 		TryIssueMove(unit, crateCell);
 	}
 }
@@ -621,7 +681,7 @@ void TickPendingPickup() {
 		return;
 	}
 
-	if (g_pendingPickup.LastChargeTick == 0 || now - g_pendingPickup.LastChargeTick >= 500) {
+	if (g_pendingPickup.LastChargeTick == 0 || now - g_pendingPickup.LastChargeTick >= 220) {
 		g_pendingPickup.LastChargeTick = now;
 		IssueCrateCharge(g_pendingPickup.Units, g_pendingPickup.CrateCell);
 	}
@@ -647,8 +707,9 @@ void SampleRoutePoint() {
 		return;
 	}
 
-	g_routeCrate.Route.push_back(cell);
-	Utils::LogFormat("CrateAssist route sample: (%d,%d)", cell.X, cell.Y);
+	if (AppendRouteCell(&g_routeCrate.Route, cell)) {
+		Utils::LogFormat("CrateAssist route sample: (%d,%d)", cell.X, cell.Y);
+	}
 }
 
 void StartRouteCapture() {
@@ -660,16 +721,19 @@ void StartRouteCapture() {
 	g_routeCrate.LastSampleTick = 0;
 	g_routeCrate.LastRouteMoveTick = 0;
 	g_routeCrate.LastCrateScanTick = 0;
-	PrintGameMessage(L"\x5F00\x59CB\x5708\x5B9A\x8DD1\x56FE\x8DEF\x7EBF");
+	TrySetGameWaypointMode(true);
+	PrintGameMessage(L"开始圈定跑图路线");
 	Utils::Log("CrateAssist route capture started.");
 }
 
 void StartRouteRun() {
 	g_routeCrate.Capturing = false;
+	TryImportPlanningRoute();
+	TrySetGameWaypointMode(false);
 
 	if (g_routeCrate.Route.size() < 2) {
 		g_routeCrate.Running = false;
-		PrintGameMessage(L"\x8DD1\x56FE\x8DEF\x7EBF\x70B9\x4E0D\x8DB3");
+		PrintGameMessage(L"跑图路线点不足");
 		Utils::Log("CrateAssist route run failed: not enough route points.");
 		return;
 	}
@@ -677,7 +741,7 @@ void StartRouteRun() {
 	g_routeCrate.Units = FilterLiveUnits(GetSelectedFootUnits());
 	if (g_routeCrate.Units.empty()) {
 		g_routeCrate.Running = false;
-		PrintGameMessage(L"\x8BF7\x5148\x9009\x4E2D\x5355\x4F4D");
+		PrintGameMessage(L"请先选中单位");
 		Utils::Log("CrateAssist route run failed: no selected units.");
 		return;
 	}
@@ -686,7 +750,7 @@ void StartRouteRun() {
 	g_routeCrate.NextRouteIndex = 0;
 	g_routeCrate.LastRouteMoveTick = 0;
 	g_routeCrate.LastCrateScanTick = 0;
-	PrintGameMessage(L"\x5F00\x59CB\x8DD1\x56FE\x6361\x7BB1");
+	PrintGameMessage(L"开始跑图捡箱");
 	Utils::LogFormat(
 		"CrateAssist route run started: units=%d route=%d",
 		static_cast<int>(g_routeCrate.Units.size()),
@@ -698,7 +762,8 @@ void StopRouteRun() {
 	g_routeCrate.Running = false;
 	g_routeCrate.Units.clear();
 	g_pendingPickup.Active = false;
-	PrintGameMessage(L"\x5DF2\x505C\x6B62\x8DD1\x56FE\x6361\x7BB1");
+	TrySetGameWaypointMode(false);
+	PrintGameMessage(L"已停止跑图捡箱");
 	Utils::Log("CrateAssist route run stopped.");
 }
 
@@ -850,7 +915,7 @@ std::vector<CellStruct> BuildFormationTargets(int count, FormationMode mode, con
 void ApplySelectedFormation(FormationMode mode, const char* logName, const wchar_t* message) {
 	auto units = FilterLiveUnits(GetSelectedFootUnits());
 	if (units.empty()) {
-		PrintGameMessage(L"\x8BF7\x5148\x9009\x4E2D\x5355\x4F4D");
+		PrintGameMessage(L"请先选中单位");
 		Utils::LogFormat("Formation failed: %s no selected units.", logName ? logName : "");
 		return;
 	}
@@ -893,14 +958,14 @@ void ApplySelectedFormation(FormationMode mode, const char* logName, const wchar
 void StartOptimalCratePickup() {
 	auto units = GetSelectedFootUnits();
 	if (units.empty()) {
-		PrintGameMessage(L"\x8BF7\x5148\x9009\x4E2D\x5355\x4F4D");
+		PrintGameMessage(L"请先选中单位");
 		Utils::Log("CrateAssist pickup failed: no selected units.");
 		return;
 	}
 
 	CrateTarget crate = {};
 	if (!FindNearestCrate(units, &crate)) {
-		PrintGameMessage(L"\x672A\x627E\x5230\x53EF\x6361\x53D6\x7684\x7BB1\x5B50");
+		PrintGameMessage(L"未找到可拾取的箱子");
 		Utils::Log("CrateAssist pickup failed: no nearest crate.");
 		return;
 	}
@@ -940,13 +1005,13 @@ bool IsRouteCrateRunActive() {
 }
 
 void ApplySelectedFormationSquare() {
-	ApplySelectedFormation(FormationMode::Square, "square", L"\x9635\x578B\x53E3");
+	ApplySelectedFormation(FormationMode::Square, "square", L"阵型口");
 }
 
 void ApplySelectedFormationVertical() {
-	ApplySelectedFormation(FormationMode::Vertical, "vertical", L"\x9635\x578B\x0031");
+	ApplySelectedFormation(FormationMode::Vertical, "vertical", L"阵型1");
 }
 
 void ApplySelectedFormationHorizontal() {
-	ApplySelectedFormation(FormationMode::Horizontal, "horizontal", L"\x9635\x578B\x4E00");
+	ApplySelectedFormation(FormationMode::Horizontal, "horizontal", L"阵型一");
 }

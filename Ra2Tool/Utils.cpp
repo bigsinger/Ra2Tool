@@ -4,20 +4,31 @@
 #include "Utils.h"
 #include "Config.h"
 
+namespace {
+
+constexpr const char* LOG_PREFIX = "[Ra2Tool] ";
+
+void OutputRa2ToolLog(const char* msg) {
+	char buffer[1200] = {};
+	sprintf_s(buffer, sizeof(buffer), "%s%s", LOG_PREFIX, msg ? msg : "");
+	OutputDebugStringA(buffer);
+}
+
+}
 
 // 打印日志信息
 void Utils::Log(DWORD error, const char* msg/* = NULL*/) {
 	if (Config::isDebugMode()) {
 		char buffer[1024] = {};
-		sprintf_s(buffer, sizeof(buffer), "Error: %lu Message: %s", error, msg);
-		OutputDebugStringA(buffer);
+		sprintf_s(buffer, sizeof(buffer), "Error: %lu Message: %s", error, msg ? msg : "");
+		OutputRa2ToolLog(buffer);
 	}
 }
 
 // 打印日志信息
 void Utils::Log(const char* msg) {
 	if (Config::isDebugMode()) {
-		OutputDebugStringA(msg);
+		OutputRa2ToolLog(msg);
 	}
 }
 
@@ -28,7 +39,7 @@ void Utils::LogFormat(const char* pFormat, ...) {
 		va_list args;
 		va_start(args, pFormat);
 		vsprintf_s(buffer, pFormat, args);
-		OutputDebugStringA(buffer);
+		OutputRa2ToolLog(buffer);
 		va_end(args);
 	}
 }

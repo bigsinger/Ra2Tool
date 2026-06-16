@@ -996,6 +996,12 @@
     <ClInclude Include="Utilities\Macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="OverlayToolbar\OverlayMixer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayToolbar\OverlayToolbar.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="$(YRppDir)\BeaconClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -1074,6 +1080,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="GrandCannonAssist.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayToolbar\OverlayMixer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayToolbar\OverlayToolbar.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="TipWindow.cpp">

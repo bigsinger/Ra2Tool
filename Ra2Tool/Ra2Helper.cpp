@@ -7,7 +7,9 @@
 #include <HouseClass.h>
 #include <IPXManagerClass.h>
 #include <MessageListClass.h>
+#include <RulesClass.h>
 #include <SessionClass.h>
+#include <ASMMacros.h>
 #include "Utils.h"
 #include "Config.h"
 #include "Ra2Header.h"
@@ -403,12 +405,49 @@ NodeNameType* FindCurrentNodeName() {
 	}
 }
 
+inline unsigned int __stdcall GetColorEnum_69A310(unsigned int color) {
+	JMP_STD(0x69A310);
+}
+
 void PrintLocalQuickMessage(const wchar_t* message) {
 	__try {
-		if (message && *message) {
-			MessageListClass::Instance.PrintMessage(message);
+		if (!message || !*message) {
+			return;
 		}
+
+		NodeNameType* sender = FindCurrentNodeName();
+		wchar_t displayName[32] = {};
+		int color = SessionClass::Instance.PlayerColor;
+		if (sender) {
+			wcsncpy_s(displayName, sender->Name, _TRUNCATE);
+			color = sender->Color;
+		} else {
+			MultiByteToWideChar(CP_ACP, 0, SessionClass::Instance.Handle, -1,
+				displayName, _countof(displayName));
+		}
+
+		if (!displayName[0]) {
+			wcscpy_s(displayName, L"玩家");
+		}
+
+		const TextPrintType style =
+			TextPrintType::UseGradPal |
+			TextPrintType::FullShadow |
+			TextPrintType::Point6Grad;
+		const int delay = RulesClass::Instance
+			? static_cast<int>(RulesClass::Instance->MessageDelay * 900.0)
+			: 0x96;
+
+		MessageListClass::Instance.AddMessage(
+			displayName,
+			color,
+			message,
+			static_cast<int>(GetColorEnum_69A310(static_cast<unsigned int>(color))),
+			style,
+			delay,
+			!SessionClass::IsMultiplayer());
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		MessageListClass::Instance.PrintMessage(message);
 	}
 }
 
