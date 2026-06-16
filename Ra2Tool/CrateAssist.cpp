@@ -60,16 +60,6 @@ bool SameCell(const CellStruct& a, const CellStruct& b) {
 	return a.X == b.X && a.Y == b.Y;
 }
 
-void PrintGameMessage(const wchar_t* message) {
-	if (!message || !*message) {
-		return;
-	}
-
-	__try {
-		MessageListClass::Instance.PrintMessage(message);
-	} __except (EXCEPTION_EXECUTE_HANDLER) {
-	}
-}
 
 bool TryGetCurrentHouseIndex(int* outHouseIndex) {
 	__try {

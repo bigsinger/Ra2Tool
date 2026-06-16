@@ -478,6 +478,18 @@ bool SendQuickGlobalMessage(const wchar_t* message) {
 	return sent;
 }
 
+void PrintGameMessage(const wchar_t* message) {
+	if (!message || !*message) {
+		return;
+	}
+
+	__try {
+		MessageListClass::Instance.PrintMessage(message);
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER) {
+	}
+}
+
 // From .text:0055EDD2
 void SendChatMessage(const wchar_t *message, int nCbSize) {
 	SendQuickGlobalMessage(message);

@@ -46,3 +46,4 @@ bool IsRouteCrateRunActive();
 void ApplySelectedFormationSquare();
 void ApplySelectedFormationVertical();
 void ApplySelectedFormationHorizontal();
+void PrintGameMessage(const wchar_t* message);
