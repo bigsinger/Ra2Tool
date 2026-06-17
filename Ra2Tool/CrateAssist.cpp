@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <string.h>
+#include <string>
 #include <vector>
 #include <algorithm>
 #include <MapClass.h>
+#include <MouseClass.h>
 #include <TacticalClass.h>
 #include <FootClass.h>
 #include <EventClass.h>
@@ -53,6 +55,7 @@ struct RouteCrateState {
 	DWORD LastSampleTick = 0;
 	DWORD LastCrateScanTick = 0;
 	DWORD LastPickupTick = 0;
+	bool LastLeftDown = false;
 };
 
 struct AutoPickupState {
@@ -269,13 +272,30 @@ bool TrySetGameWaypointMode(bool enabled) {
 	}
 }
 
-bool AppendRouteCell(std::vector<CellStruct>* route, const CellStruct& cell) {
+void TryShowRouteCaptureCursor() {
+	if (!g_routeCrate.Capturing || g_routeCrate.Area.Valid) {
+		return;
+	}
+
+	__try {
+		MouseClass::Instance.SetCursor(MouseCursorType::Waypoint, false);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	}
+}
+
+bool AppendRouteCell(std::vector<CellStruct>* route, const CellStruct& cell, bool allowNear) {
 	if (!route || !TryCellExists(cell)) {
 		return false;
 	}
 
-	if (!route->empty() && CellDistance2(route->back(), cell) < 2) {
-		return false;
+	if (!route->empty()) {
+		if (SameCell(route->back(), cell)) {
+			return false;
+		}
+
+		if (!allowNear && CellDistance2(route->back(), cell) < 2) {
+			return false;
+		}
 	}
 
 	route->push_back(cell);
@@ -291,8 +311,7 @@ bool BuildRouteArea(const std::vector<CellStruct>& route, CellArea* outArea) {
 	short maxX = route[0].X;
 	short minY = route[0].Y;
 	short maxY = route[0].Y;
-	const size_t usedCount = route.size() <= 3 ? 2 : route.size();
-	for (size_t i = 0; i < usedCount; ++i) {
+	for (size_t i = 0; i < route.size(); ++i) {
 		const CellStruct& cell = route[i];
 		minX = std::min(minX, cell.X);
 		maxX = std::max(maxX, cell.X);
@@ -315,19 +334,63 @@ bool BuildRouteArea(const std::vector<CellStruct>& route, CellArea* outArea) {
 	return true;
 }
 
-std::string GetCurrentMapId() {
+std::wstring DecodeAcpText(const char* text) {
+	if (!text || !*text) {
+		return std::wstring();
+	}
+
+	const int needed = MultiByteToWideChar(CP_ACP, 0, text, -1, NULL, 0);
+	if (needed <= 1) {
+		return std::wstring();
+	}
+
+	std::wstring result(static_cast<size_t>(needed - 1), L'\0');
+	MultiByteToWideChar(CP_ACP, 0, text, -1, &result[0], needed);
+	return result;
+}
+
+std::string WideToUtf8(const std::wstring& text) {
+	if (text.empty()) {
+		return std::string();
+	}
+
+	const int needed = WideCharToMultiByte(CP_UTF8, 0, text.c_str(), -1, NULL, 0, NULL, NULL);
+	if (needed <= 1) {
+		return std::string();
+	}
+
+	std::string result(static_cast<size_t>(needed - 1), '\0');
+	WideCharToMultiByte(CP_UTF8, 0, text.c_str(), -1, &result[0], needed, NULL, NULL);
+	return result;
+}
+
+std::wstring GetCurrentMapName() {
 	__try {
-		if (ScenarioClass::Instance && ScenarioClass::Instance->FileName[0]) {
-			return ScenarioClass::Instance->FileName;
+		if (ScenarioClass::Instance) {
+			if (ScenarioClass::Instance->Name[0]) {
+				return ScenarioClass::Instance->Name;
+			}
+
+			if (ScenarioClass::Instance->UINameLoaded[0]) {
+				return ScenarioClass::Instance->UINameLoaded;
+			}
+
+			if (ScenarioClass::Instance->UIName[0]) {
+				return DecodeAcpText(ScenarioClass::Instance->UIName);
+			}
+
+			if (ScenarioClass::Instance->FileName[0]) {
+				return DecodeAcpText(ScenarioClass::Instance->FileName);
+			}
 		}
 
 		if (Game::ScenarioName && Game::ScenarioName[0]) {
-			return Game::ScenarioName;
+			return DecodeAcpText(Game::ScenarioName);
 		}
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 	}
 
-	return "mapid";
+	return L"mapname";
 }
 
 void AppendMapAreaLog(const CellArea& area) {
@@ -342,7 +405,7 @@ void AppendMapAreaLog(const CellArea& area) {
 
 		HANDLE file = CreateFile(
 			path,
-			FILE_APPEND_DATA,
+			GENERIC_READ | FILE_APPEND_DATA,
 			FILE_SHARE_READ | FILE_SHARE_WRITE,
 			NULL,
 			OPEN_ALWAYS,
@@ -355,28 +418,44 @@ void AppendMapAreaLog(const CellArea& area) {
 
 		SYSTEMTIME now = {};
 		GetLocalTime(&now);
-		const std::string mapId = GetCurrentMapId();
-		char line[512] = {};
+		const std::string mapName = WideToUtf8(GetCurrentMapName());
+		char prefix[64] = {};
 		sprintf_s(
-			line,
-			sizeof(line),
-			"{%04d-%02d-%02d-%02d-%02d-%02d}: {%s}=%d, %d, %d, %d\r\n",
+			prefix,
+			sizeof(prefix),
+			"%04d-%02d-%02d-%02d-%02d-%02d ",
 			now.wYear,
 			now.wMonth,
 			now.wDay,
 			now.wHour,
 			now.wMinute,
-			now.wSecond,
-			mapId.c_str(),
+			now.wSecond);
+
+		char suffix[128] = {};
+		sprintf_s(
+			suffix,
+			sizeof(suffix),
+			"=%d,%d,%d,%d\r\n",
 			area.Min.X,
 			area.Min.Y,
 			area.Max.X,
 			area.Max.Y);
 
+		std::string line = prefix;
+		line += mapName.empty() ? "mapname" : mapName;
+		line += suffix;
+
+		DWORD highSize = 0;
+		const DWORD lowSize = GetFileSize(file, &highSize);
+		if (lowSize == 0 && highSize == 0) {
+			const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+			DWORD bomWritten = 0;
+			WriteFile(file, bom, sizeof(bom), &bomWritten, NULL);
+		}
 		DWORD written = 0;
-		WriteFile(file, line, static_cast<DWORD>(strlen(line)), &written, NULL);
+		WriteFile(file, line.c_str(), static_cast<DWORD>(line.size()), &written, NULL);
 		CloseHandle(file);
-		Utils::LogFormat("CrateAssist maparea saved: %s", line);
+		Utils::LogFormat("CrateAssist maparea saved: %s", line.c_str());
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		Utils::Log("CrateAssist maparea save failed.");
 	}
@@ -740,6 +819,23 @@ bool StartAutoPickupRound() {
 	return true;
 }
 
+bool IsAutoPickupStopRequested() {
+	if (!g_autoPickup.Active || g_pendingPickup.Active) {
+		return false;
+	}
+
+	__try {
+		for (auto unit : g_autoPickup.Units) {
+			if (unit && unit->CurrentMission == Mission::Stop) {
+				return true;
+			}
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	}
+
+	return false;
+}
+
 void TickAutoPickup() {
 	if (!g_autoPickup.Active || g_routeCrate.Running || g_routeCrate.Capturing) {
 		return;
@@ -758,7 +854,14 @@ void TickAutoPickup() {
 
 	if (!SameCell(g_autoPickup.ActiveCrateCell, CellStruct::Empty)
 		&& TryIsActiveCrateCell(g_autoPickup.ActiveCrateCell)) {
-		if (now - g_autoPickup.LastPickupTick >= 900) {
+		if (now - g_autoPickup.LastPickupTick >= 900 && IsAutoPickupStopRequested()) {
+			StopAutoPickup();
+			PrintGameMessage(L"已停止自动捡箱");
+			Utils::Log("CrateAssist auto pickup stopped by player stop command.");
+			return;
+		}
+
+		if (now - g_autoPickup.LastPickupTick >= 1500) {
 			CrateTarget crate = {};
 			crate.Cell = g_autoPickup.ActiveCrateCell;
 			StartPickupForUnits(g_autoPickup.Units, crate.Cell);
@@ -874,11 +977,13 @@ void TickPendingPickup() {
 
 void SampleRoutePoint() {
 	const DWORD now = GetTickCount();
-	if (now - g_routeCrate.LastSampleTick < static_cast<DWORD>(Config::getCrateRouteSampleInterval())) {
-		return;
-	}
+	const SHORT buttonState = GetAsyncKeyState(VK_LBUTTON);
+	const bool leftDown = (buttonState & 0x8000) != 0;
+	const bool leftClicked = (buttonState & 0x0001) != 0 || (leftDown && !g_routeCrate.LastLeftDown);
+	g_routeCrate.LastLeftDown = leftDown;
 
-	if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) == 0) {
+	if (!leftClicked
+		&& (!leftDown || now - g_routeCrate.LastSampleTick < static_cast<DWORD>(Config::getCrateRouteSampleInterval()))) {
 		return;
 	}
 
@@ -888,12 +993,13 @@ void SampleRoutePoint() {
 	}
 
 	g_routeCrate.LastSampleTick = now;
-	if (!g_routeCrate.Route.empty() && CellDistance2(g_routeCrate.Route.back(), cell) < 2) {
-		return;
-	}
-
-	if (AppendRouteCell(&g_routeCrate.Route, cell)) {
-		Utils::LogFormat("CrateAssist route sample: (%d,%d)", cell.X, cell.Y);
+	if (AppendRouteCell(&g_routeCrate.Route, cell, leftClicked)) {
+		Utils::LogFormat(
+			"CrateAssist route sample: (%d,%d) points=%d click=%d",
+			cell.X,
+			cell.Y,
+			static_cast<int>(g_routeCrate.Route.size()),
+			leftClicked ? 1 : 0);
 	}
 }
 
@@ -907,32 +1013,41 @@ void StartRouteCapture() {
 	g_routeCrate.Area = CellArea();
 	g_routeCrate.LastSampleTick = 0;
 	g_routeCrate.LastCrateScanTick = 0;
+	g_routeCrate.LastLeftDown = false;
 	TrySetGameWaypointMode(true);
+	TryShowRouteCaptureCursor();
 	PrintGameMessage(L"开始圈定捡箱区域");
 	Utils::Log("CrateAssist route area capture started.");
 }
 
 void StartRouteRun() {
+	CellArea area = {};
+	if (g_routeCrate.Area.Valid) {
+		area = g_routeCrate.Area;
+	} else if (!BuildRouteArea(g_routeCrate.Route, &area)) {
+		g_routeCrate.Running = false;
+		TrySetGameWaypointMode(true);
+		PrintGameMessage(L"捡箱区域点不足，请至少点击两个地图点");
+		Utils::LogFormat(
+			"CrateAssist route run failed: not enough area points, count=%d.",
+			static_cast<int>(g_routeCrate.Route.size()));
+		return;
+	}
+
+	auto selectedUnits = FilterLiveUnits(GetSelectedFootUnits());
+	if (selectedUnits.empty()) {
+		g_routeCrate.Running = false;
+		g_routeCrate.Area = area;
+		TrySetGameWaypointMode(false);
+		PrintGameMessage(L"请先选中可移动单位，再点击完成区域");
+		Utils::Log("CrateAssist route run pending: no selected units.");
+		return;
+	}
+
 	g_routeCrate.Capturing = false;
 	TrySetGameWaypointMode(false);
-
-	CellArea area = {};
-	if (!BuildRouteArea(g_routeCrate.Route, &area)) {
-		g_routeCrate.Running = false;
-		PrintGameMessage(L"捡箱区域点不足");
-		Utils::Log("CrateAssist route run failed: not enough area points.");
-		return;
-	}
-
 	AppendMapAreaLog(area);
-	g_routeCrate.Units = FilterLiveUnits(GetSelectedFootUnits());
-	if (g_routeCrate.Units.empty()) {
-		g_routeCrate.Running = false;
-		PrintGameMessage(L"请先选中单位");
-		Utils::Log("CrateAssist route run failed: no selected units.");
-		return;
-	}
-
+	g_routeCrate.Units = selectedUnits;
 	g_routeCrate.Running = true;
 	ClearRoutePickupState();
 	g_routeCrate.Area = area;
@@ -1188,7 +1303,7 @@ void StartRouteCratePickupInArea(short left, short top, short right, short botto
 	if (g_routeCrate.Units.empty()) {
 		g_routeCrate.Running = false;
 		g_routeCrate.Area = CellArea();
-		PrintGameMessage(L"请先选中单位");
+		PrintGameMessage(L"请先选中可移动单位");
 		Utils::Log("CrateAssist preset area failed: no selected units.");
 		return;
 	}
@@ -1224,7 +1339,10 @@ void ToggleRouteCratePickup() {
 
 void TickCrateAssist() {
 	if (g_routeCrate.Capturing) {
-		SampleRoutePoint();
+		if (!g_routeCrate.Area.Valid) {
+			TryShowRouteCaptureCursor();
+			SampleRoutePoint();
+		}
 	}
 
 	TickPendingPickup();

@@ -171,29 +171,6 @@ bool ReadConfigText(std::wstring* outText) {
 	return !outText->empty();
 }
 
-std::wstring CurrentMapId() {
-	__try {
-		if (ScenarioClass::Instance && ScenarioClass::Instance->FileName[0]) {
-			return DecodeMultiByte(
-				ScenarioClass::Instance->FileName,
-				static_cast<int>(strlen(ScenarioClass::Instance->FileName)),
-				CP_ACP,
-				0);
-		}
-
-		if (Game::ScenarioName && Game::ScenarioName[0]) {
-			return DecodeMultiByte(
-				Game::ScenarioName,
-				static_cast<int>(strlen(Game::ScenarioName)),
-				CP_ACP,
-				0);
-		}
-	} __except (EXCEPTION_EXECUTE_HANDLER) {
-	}
-
-	return L"mapid";
-}
-
 bool IsConfigSection(const std::wstring& line, const wchar_t* name) {
 	if (line.size() < 3 || line.front() != L'[' || line.back() != L']') {
 		return false;
@@ -316,12 +293,6 @@ bool ParseAreaNumbers(const std::wstring& text, AreaPreset* preset) {
 	return true;
 }
 
-bool IsAreaMapKeyMatch(const std::wstring& key, const std::wstring& mapId) {
-	return _wcsicmp(key.c_str(), mapId.c_str()) == 0
-		|| _wcsicmp(key.c_str(), L"mapid") == 0
-		|| _wcsicmp(key.c_str(), L"default") == 0;
-}
-
 void LoadAreaPresets() {
 	g_areaPresets.clear();
 
@@ -331,7 +302,6 @@ void LoadAreaPresets() {
 		return;
 	}
 
-	const std::wstring mapId = CurrentMapId();
 	bool inSection = false;
 	size_t offset = 0;
 	while (offset <= text.size()) {
@@ -367,20 +337,27 @@ void LoadAreaPresets() {
 
 		const std::wstring key = Trim(line.substr(0, equals));
 		const std::wstring value = Trim(line.substr(equals + 1));
-		if (!IsAreaMapKeyMatch(key, mapId)) {
+		if (_wcsicmp(key.c_str(), L"rect") != 0) {
 			continue;
 		}
 
 		const auto groups = SplitByPipe(value);
 		for (const auto& group : groups) {
+			if (g_areaPresets.size() >= MENU_MAX_VISIBLE) {
+				break;
+			}
+
 			AreaPreset preset = {};
 			if (ParseAreaNumbers(group, &preset)) {
 				g_areaPresets.push_back(preset);
 			}
 		}
+		break;
 	}
 
-	Utils::LogFormat("CustomToolbar area presets loaded: %d", static_cast<int>(g_areaPresets.size()));
+	Utils::LogFormat(
+		"CustomToolbar area presets loaded: %d",
+		static_cast<int>(g_areaPresets.size()));
 }
 
 int VisibleQuickMessageCount() {
@@ -700,9 +677,20 @@ void ToggleAreaPresets(HWND hwnd) {
 	if (g_areaPresets.empty()) {
 		LoadAreaPresets();
 	}
+
+	if (g_areaPresets.empty()) {
+		g_openDropdown = DropdownKind::None;
+		Utils::Log("CustomToolbar area preset empty, fallback to manual route capture.");
+		ToggleRouteCratePickup();
+		RepositionToolbar();
+		Topmost(hwnd);
+		InvalidateRect(hwnd, NULL, TRUE);
+		return;
+	}
+
 	g_openDropdown = g_openDropdown == DropdownKind::CrateArea
 		? DropdownKind::None
-		: (g_areaPresets.empty() ? DropdownKind::None : DropdownKind::CrateArea);
+		: DropdownKind::CrateArea;
 	RepositionToolbar();
 	Topmost(hwnd);
 	InvalidateRect(hwnd, NULL, TRUE);
