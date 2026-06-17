@@ -547,6 +547,14 @@ void HandleMouse(const ToolbarLayout& layout) {
 		}
 	}
 
+	if (ContainsPoint(layout.MessageRect, x, y)) {
+		if (g_quickMessages.empty()) {
+			LoadQuickMessages();
+		}
+		g_messageOpen = !g_messageOpen && !g_quickMessages.empty();
+		return;
+	}
+
 	g_messageOpen = false;
 	for (const auto& button : layout.Buttons) {
 		if (ContainsPoint(button.Rect, x, y)) {
