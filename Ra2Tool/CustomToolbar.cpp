@@ -78,6 +78,71 @@ struct ToolbarLayout {
 };
 
 std::vector<AreaPreset> g_areaPresets;
+int g_selectedAreaPresetIndex = -1;
+
+void NormalizeArea(short left, short top, short right, short bottom,
+		short* outLeft, short* outTop, short* outRight, short* outBottom) {
+	*outLeft = static_cast<short>(std::min(left, right));
+	*outTop = static_cast<short>(std::min(top, bottom));
+	*outRight = static_cast<short>(std::max(left, right));
+	*outBottom = static_cast<short>(std::max(top, bottom));
+}
+
+AreaPreset MakeAreaPreset(short left, short top, short right, short bottom) {
+	AreaPreset preset = {};
+	NormalizeArea(left, top, right, bottom, &preset.Left, &preset.Top, &preset.Right, &preset.Bottom);
+
+	wchar_t label[96] = {};
+	swprintf_s(label, _countof(label), L"%d,%d - %d,%d",
+		preset.Left, preset.Top, preset.Right, preset.Bottom);
+	preset.Label = label;
+	return preset;
+}
+
+bool SameAreaPreset(const AreaPreset& preset, short left, short top, short right, short bottom) {
+	short normalizedLeft = 0;
+	short normalizedTop = 0;
+	short normalizedRight = 0;
+	short normalizedBottom = 0;
+	NormalizeArea(left, top, right, bottom,
+		&normalizedLeft, &normalizedTop, &normalizedRight, &normalizedBottom);
+	return preset.Left == normalizedLeft
+		&& preset.Top == normalizedTop
+		&& preset.Right == normalizedRight
+		&& preset.Bottom == normalizedBottom;
+}
+
+void SelectAreaPreset(size_t index) {
+	g_selectedAreaPresetIndex = index < g_areaPresets.size() ? static_cast<int>(index) : -1;
+}
+
+void AddOrSelectAreaPreset(short left, short top, short right, short bottom) {
+	for (size_t i = 0; i < g_areaPresets.size(); ++i) {
+		if (SameAreaPreset(g_areaPresets[i], left, top, right, bottom)) {
+			SelectAreaPreset(i);
+			Utils::LogFormat("CustomToolbar area preset selected: %d", static_cast<int>(i));
+			return;
+		}
+	}
+
+	if (g_areaPresets.size() >= MENU_MAX_VISIBLE) {
+		g_areaPresets.erase(g_areaPresets.begin());
+		if (g_selectedAreaPresetIndex > 0) {
+			--g_selectedAreaPresetIndex;
+		} else {
+			g_selectedAreaPresetIndex = -1;
+		}
+	}
+
+	g_areaPresets.push_back(MakeAreaPreset(left, top, right, bottom));
+	SelectAreaPreset(g_areaPresets.size() - 1);
+	Utils::LogFormat(
+		"CustomToolbar area preset appended: (%d,%d)-(%d,%d)",
+		g_areaPresets.back().Left,
+		g_areaPresets.back().Top,
+		g_areaPresets.back().Right,
+		g_areaPresets.back().Bottom);
+}
 
 bool ContainsPoint(const RECT& rect, int x, int y) {
 	return x >= rect.left && x < rect.right && y >= rect.top && y < rect.bottom;
@@ -278,18 +343,11 @@ bool ParseAreaNumbers(const std::wstring& text, AreaPreset* preset) {
 		cursor = end;
 	}
 
-	const short left = static_cast<short>(std::min(values[0], values[2]));
-	const short top = static_cast<short>(std::min(values[1], values[3]));
-	const short right = static_cast<short>(std::max(values[0], values[2]));
-	const short bottom = static_cast<short>(std::max(values[1], values[3]));
-	preset->Left = left;
-	preset->Top = top;
-	preset->Right = right;
-	preset->Bottom = bottom;
-
-	wchar_t label[96] = {};
-	swprintf_s(label, _countof(label), L"%d,%d - %d,%d", left, top, right, bottom);
-	preset->Label = label;
+	*preset = MakeAreaPreset(
+		static_cast<short>(values[0]),
+		static_cast<short>(values[1]),
+		static_cast<short>(values[2]),
+		static_cast<short>(values[3]));
 	return true;
 }
 
@@ -358,6 +416,11 @@ void LoadAreaPresets() {
 	Utils::LogFormat(
 		"CustomToolbar area presets loaded: %d",
 		static_cast<int>(g_areaPresets.size()));
+	if (g_selectedAreaPresetIndex < 0 && !g_areaPresets.empty()) {
+		SelectAreaPreset(0);
+	} else if (g_selectedAreaPresetIndex >= static_cast<int>(g_areaPresets.size())) {
+		g_selectedAreaPresetIndex = g_areaPresets.empty() ? -1 : static_cast<int>(g_areaPresets.size() - 1);
+	}
 }
 
 int VisibleQuickMessageCount() {
@@ -487,9 +550,10 @@ void DrawDropdownButton(HDC hdc, const RECT& rect, const wchar_t* text, bool act
 	DrawCenteredText(hdc, rect, text, RGB(240, 240, 240));
 }
 
-void DrawMenuItems(HDC hdc, const std::vector<RECT>& rects, const std::vector<std::wstring>& texts) {
+void DrawMenuItems(HDC hdc, const std::vector<RECT>& rects, const std::vector<std::wstring>& texts, int selectedIndex = -1) {
 	for (size_t i = 0; i < rects.size(); ++i) {
-		FillSolid(hdc, rects[i], (i % 2) == 0 ? RGB(31, 34, 37) : RGB(38, 41, 44));
+		const bool selected = static_cast<int>(i) == selectedIndex;
+		FillSolid(hdc, rects[i], selected ? RGB(60, 78, 56) : ((i % 2) == 0 ? RGB(31, 34, 37) : RGB(38, 41, 44)));
 		if (i < texts.size()) {
 			DrawCenteredText(hdc, rects[i], texts[i].c_str(), RGB(242, 242, 242));
 		}
@@ -515,16 +579,22 @@ void DrawToolbar(HWND hwnd) {
 		for (const auto& preset : g_areaPresets) {
 			texts.push_back(preset.Label);
 		}
-		DrawMenuItems(hdc, layout.AreaPresetItems, texts);
+		DrawMenuItems(hdc, layout.AreaPresetItems, texts, g_selectedAreaPresetIndex);
 	}
 
 	for (const auto& button : layout.Buttons) {
 		DrawButton(hdc, button);
 	}
 
-	DrawDropdownButton(hdc, layout.AreaPresetRect,
-		g_areaPresets.empty() ? L"无预设区域" : L"预设区域",
-		g_openDropdown == DropdownKind::CrateArea);
+	std::wstring areaText = L"无预设区域";
+	if (!g_areaPresets.empty()) {
+		if (g_selectedAreaPresetIndex >= 0 && g_selectedAreaPresetIndex < static_cast<int>(g_areaPresets.size())) {
+			areaText = g_areaPresets[static_cast<size_t>(g_selectedAreaPresetIndex)].Label;
+		} else {
+			areaText = L"预设区域";
+		}
+	}
+	DrawDropdownButton(hdc, layout.AreaPresetRect, areaText.c_str(), g_openDropdown == DropdownKind::CrateArea);
 	DrawDropdownButton(hdc, layout.QuickMessageRect,
 		g_quickMessages.empty() ? L"无快捷消息" : L"快捷消息",
 		g_openDropdown == DropdownKind::QuickMessage);
@@ -634,7 +704,19 @@ void HandleButtonClick(int id, HWND hwnd) {
 		break;
 	case ButtonRouteCrate:
 		Utils::Log("CustomToolbar click: RouteCrate");
-		ToggleRouteCratePickup();
+		{
+			const bool wasCapturing = IsRouteCrateCaptureActive();
+			ToggleRouteCratePickup();
+			if (wasCapturing && IsRouteCrateRunActive()) {
+				short left = 0;
+				short top = 0;
+				short right = 0;
+				short bottom = 0;
+				if (GetRouteCrateArea(&left, &top, &right, &bottom)) {
+					AddOrSelectAreaPreset(left, top, right, bottom);
+				}
+			}
+		}
 		break;
 	case ButtonFormationSquare:
 		Utils::Log("CustomToolbar click: FormationSquare");
@@ -717,6 +799,7 @@ void HandleToolbarClick(HWND hwnd, int x, int y) {
 		for (size_t i = 0; i < layout.AreaPresetItems.size(); ++i) {
 			if (ContainsPoint(layout.AreaPresetItems[i], x, y) && i < g_areaPresets.size()) {
 				const AreaPreset preset = g_areaPresets[i];
+				SelectAreaPreset(i);
 				g_openDropdown = DropdownKind::None;
 				RepositionToolbar();
 				Topmost(hwnd);
@@ -813,8 +896,10 @@ LRESULT CALLBACK EnemyInfoWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		EndPaint(hwnd, &ps);
 		break;
 	}
+	case WM_NCHITTEST:
+		return HTTRANSPARENT;
 	case WM_MOUSEACTIVATE:
-		return MA_NOACTIVATE;
+		return MA_NOACTIVATEANDEAT;
 	case WM_ERASEBKGND:
 		return 1;
 	case WM_CLOSE:
@@ -889,7 +974,7 @@ void CreateEnemyInfoWindow() {
 	}
 
 	HWND hwnd = CreateWindowExW(
-		WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,
+		WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TRANSPARENT,
 		L"RA2EnemyInfoPanel",
 		L"RA2EnemyInfoPanel",
 		WS_POPUP | (Config::isShowEnemyInfo() ? WS_VISIBLE : 0),

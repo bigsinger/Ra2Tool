@@ -46,6 +46,7 @@ void StartRouteCratePickupInArea(short left, short top, short right, short botto
 void TickCrateAssist();
 bool IsRouteCrateCaptureActive();
 bool IsRouteCrateRunActive();
+bool GetRouteCrateArea(short* left, short* top, short* right, short* bottom);
 void ApplySelectedFormationSquare();
 void ApplySelectedFormationVertical();
 void ApplySelectedFormationHorizontal();

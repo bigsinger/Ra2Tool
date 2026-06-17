@@ -44,6 +44,16 @@ bool IsGrandCannon(BuildingClass* building) {
 	}
 }
 
+bool IsGrandCannonReady(BuildingClass* building) {
+	__try {
+		return IsGrandCannon(building)
+			&& building->BState != static_cast<int>(BStateType::Construction)
+			&& building->Health > 0;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return false;
+	}
+}
+
 bool IsEnemyHouse(HouseClass* house) {
 	__try {
 		auto current = HouseClass::CurrentPlayer;
@@ -269,7 +279,7 @@ void ScanGrandCannons(bool forceActions) {
 	const int count = GetBuildingArrayCount();
 	for (int i = 0; i < count; ++i) {
 		auto building = GetBuildingArrayItem(i);
-		if (!IsGrandCannon(building)) {
+		if (!IsGrandCannonReady(building)) {
 			continue;
 		}
 

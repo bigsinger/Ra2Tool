@@ -212,12 +212,33 @@ bool TryIssueMove(FootClass* foot, const CellStruct& cell) {
 	}
 }
 
+bool TryIssueStop(FootClass* foot) {
+	int houseIndex = -1;
+	if (!TryGetCurrentHouseIndex(&houseIndex) || !foot) {
+		return false;
+	}
+
+	__try {
+		EventClass event(
+			houseIndex,
+			TargetClass(foot),
+			Mission::Stop,
+			TargetClass(),
+			TargetClass(),
+			TargetClass());
+		EventClass::OutList.Add(event);
+
+		return true;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return false;
+	}
+}
+
 bool IsCustomToolbarWindowAtPoint(HWND hwnd) {
 	while (hwnd) {
 		char className[64] = {};
 		GetClassNameA(hwnd, className, sizeof(className));
-		if (strcmp(className, "RA2CustomToolbar") == 0
-			|| strcmp(className, "RA2EnemyInfoPanel") == 0) {
+		if (strcmp(className, "RA2CustomToolbar") == 0) {
 			return true;
 		}
 		hwnd = GetParent(hwnd);
@@ -778,6 +799,14 @@ void StopAutoPickup() {
 	g_autoPickup.ActiveCrateCell = CellStruct::Empty;
 	g_autoPickup.LastPickupTick = 0;
 	g_autoPickup.LastScanTick = 0;
+	g_pendingPickup.Active = false;
+	g_pendingPickup.Charging = false;
+	g_pendingPickup.Units.clear();
+	g_pendingPickup.ApproachCells.clear();
+	g_pendingPickup.CrateCell = CellStruct::Empty;
+	g_pendingPickup.DueTick = 0;
+	g_pendingPickup.LastChargeTick = 0;
+	g_pendingPickup.ChargeUntilTick = 0;
 }
 
 void ClearRouteStateForManualPickup() {
@@ -820,13 +849,19 @@ bool StartAutoPickupRound() {
 }
 
 bool IsAutoPickupStopRequested() {
-	if (!g_autoPickup.Active || g_pendingPickup.Active) {
+	if (!g_autoPickup.Active) {
 		return false;
 	}
 
 	__try {
 		for (auto unit : g_autoPickup.Units) {
-			if (unit && unit->CurrentMission == Mission::Stop) {
+			if (unit && (unit->CurrentMission == Mission::Stop || unit->QueuedMission == Mission::Stop)) {
+				return true;
+			}
+		}
+
+		for (auto unit : g_pendingPickup.Units) {
+			if (unit && (unit->CurrentMission == Mission::Stop || unit->QueuedMission == Mission::Stop)) {
 				return true;
 			}
 		}
@@ -834,6 +869,34 @@ bool IsAutoPickupStopRequested() {
 	}
 
 	return false;
+}
+
+void IssueStopForAutoPickupUnits() {
+	std::vector<FootClass*> units = g_autoPickup.Units;
+	for (auto unit : g_pendingPickup.Units) {
+		bool exists = false;
+		for (auto known : units) {
+			if (known == unit) {
+				exists = true;
+				break;
+			}
+		}
+
+		if (!exists) {
+			units.push_back(unit);
+		}
+	}
+
+	for (auto unit : FilterLiveUnits(units)) {
+		TryIssueStop(unit);
+	}
+}
+
+void CancelAutoPickupByStop() {
+	IssueStopForAutoPickupUnits();
+	StopAutoPickup();
+	PrintGameMessage(L"已停止自动捡箱");
+	Utils::Log("CrateAssist auto pickup stopped by player stop command.");
 }
 
 void TickAutoPickup() {
@@ -855,9 +918,7 @@ void TickAutoPickup() {
 	if (!SameCell(g_autoPickup.ActiveCrateCell, CellStruct::Empty)
 		&& TryIsActiveCrateCell(g_autoPickup.ActiveCrateCell)) {
 		if (now - g_autoPickup.LastPickupTick >= 900 && IsAutoPickupStopRequested()) {
-			StopAutoPickup();
-			PrintGameMessage(L"已停止自动捡箱");
-			Utils::Log("CrateAssist auto pickup stopped by player stop command.");
+			CancelAutoPickupByStop();
 			return;
 		}
 
@@ -949,6 +1010,13 @@ void TickPendingPickup() {
 	}
 
 	const DWORD now = GetTickCount();
+	if (g_autoPickup.Active
+		&& now - g_autoPickup.LastPickupTick >= 500
+		&& IsAutoPickupStopRequested()) {
+		CancelAutoPickupByStop();
+		return;
+	}
+
 	g_pendingPickup.Units = FilterLiveUnits(g_pendingPickup.Units);
 	if (g_pendingPickup.Units.empty() || !TryIsActiveCrateCell(g_pendingPickup.CrateCell)) {
 		g_pendingPickup.Active = false;
@@ -1356,6 +1424,18 @@ bool IsRouteCrateCaptureActive() {
 
 bool IsRouteCrateRunActive() {
 	return g_routeCrate.Running;
+}
+
+bool GetRouteCrateArea(short* left, short* top, short* right, short* bottom) {
+	if (!g_routeCrate.Area.Valid || !left || !top || !right || !bottom) {
+		return false;
+	}
+
+	*left = g_routeCrate.Area.Min.X;
+	*top = g_routeCrate.Area.Min.Y;
+	*right = g_routeCrate.Area.Max.X;
+	*bottom = g_routeCrate.Area.Max.Y;
+	return true;
 }
 
 void ApplySelectedFormationSquare() {
