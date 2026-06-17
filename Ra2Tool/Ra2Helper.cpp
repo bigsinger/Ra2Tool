@@ -721,6 +721,11 @@ byte backupCode[5] = {};
 bool OpenLog() {
 	OutputDebugStringA("[Ra2] OpenLog");
 
+	if (SessionClass::IsMultiplayer()) {
+		Utils::Log("游戏日志输出功能在多人模式下可能存在问题，本次不会开启，推荐在单人模式下使用。");
+		return false; 
+	}
+
 	void* oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0; // 0x4068E0 是一个空函数，就一个retn
 	memcpy(&backupCode, oldFunc, 5u);
 	return installHook(oldFunc, (DWORD)&ra2log);
