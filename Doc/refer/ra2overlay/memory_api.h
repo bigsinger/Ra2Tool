@@ -1,0 +1,103 @@
+#pragma once
+#include <cstdint>
+#include <memory>
+#include <ranges>
+#include <unordered_map>
+#include <vector>
+
+#include "hook_point.h"
+#include "logging.h"
+#include "macro.h"
+
+namespace ra2overlay {
+namespace hook {
+
+class HandleGuard;
+
+class MemoryAPI {
+ public:
+  static MemoryAPI* instance() { return inst_.get(); }
+  static void Init();
+  static void Destroy();
+  MemoryAPI();
+  ~MemoryAPI();
+  MemoryAPI(MemoryAPI&&) = delete;
+  MemoryAPI& operator=(MemoryAPI&&) = delete;
+
+  bool ReadMemory(uint32_t address, std::span<uint8_t> data) const;
+
+  template <class T>
+    requires(!std::is_same_v<T, std::span<uint8_t>>)
+  bool ReadMemory(uint32_t address, T* data) const {
+    return ReadMemory(
+        address,
+        std::span<uint8_t>(reinterpret_cast<uint8_t*>(data), sizeof(T)));
+  }
+
+  bool ReadAddress(uint32_t address, uint32_t* data) const;
+
+  template <size_t N>
+    requires(N >= 1)
+  bool ReadAddress(uint32_t address, uint32_t const (&offsets)[N],
+                   uint32_t* addr_output) const {
+    CHECK(addr_output != nullptr);
+    uint32_t addr_data;
+    if (!ReadAddress(address, &addr_data)) {
+      return false;
+    }
+    for (uint32_t offset : offsets | std::views::take(N - 1)) {
+      uint32_t addr_next = addr_data + offset;
+      if (!ReadAddress(addr_next, &addr_data)) {
+        return false;
+      }
+    }
+    *addr_output = addr_data + offsets[N - 1];
+    return true;
+  }
+
+  template <size_t N>
+    requires(N >= 1)
+  bool ReadMemory(uint32_t address, uint32_t const (&offsets)[N],
+                  uint32_t* data) const {
+    CHECK(data != nullptr);
+    uint32_t addr_output;
+    if (!ReadAddress(address, offsets, &addr_output)) {
+      return false;
+    }
+    return ReadMemory(addr_output, data);
+  }
+
+  bool WriteMemory(uint32_t address, std::span<const uint8_t> data) const;
+
+  template <class T>
+    requires(!std::is_convertible_v<T, std::span<const uint8_t>>)
+  bool WriteMemory(uint32_t address, T data) const {
+    return WriteMemory(
+        address,
+        std::span<const uint8_t>(reinterpret_cast<uint8_t*>(&data), sizeof(T)));
+  }
+
+  bool HasHook(const HookPoint hook_point) const;
+  bool HookJump(const HookPoint hook_point, void* dest);
+  bool HookNop(const HookPoint hook_point);
+  bool RestoreHook(const HookPoint hook_point);
+
+  bool CheckHandle() const;
+  bool AutoAssemble(std::string_view script, bool activate) const;
+
+ private:
+  static std::unique_ptr<MemoryAPI> inst_;
+  std::unique_ptr<HandleGuard> handle_;
+  template <class T, size_t Size>
+  using inlined_vector = std::vector<T>;
+  std::unordered_map<uint32_t /*addr*/, inlined_vector<uint8_t, 10>> hooks_;
+
+  bool WriteHook(uint32_t addr, std::span<const uint8_t> code);
+  // For reclaiming resources.
+  void RestoreAllHooks();
+
+  DISALLOW_COPY_AND_ASSIGN(MemoryAPI);
+};
+
+}  // namespace hook
+}  // namespace ra2overlay
