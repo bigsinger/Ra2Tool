@@ -108,6 +108,7 @@
     <ClInclude Include="Utilities\Macro.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommandBarButtons.cpp" />
     <ClCompile Include="Crate.cpp" />
     <ClCompile Include="CrateAssist.cpp" />
     <ClCompile Include="CustomToolbar.cpp" />

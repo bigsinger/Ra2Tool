@@ -68,6 +68,7 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
     case WM_DESTROY:
         UnInitTipWindow();
         UnInitCustomToolbar();
+        UninitCommandBarButtons();
         PostQuitMessage(0);
         break;
     case WM_CREATE:
@@ -77,6 +78,7 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         if (Config::isCustomToolbarEnabled() || Config::isShowEnemyInfo()) {
             InitCustomToolbar();
         }
+        InitCommandBarButtons();
         if (Config::isCustomToolbarEnabled()) {
             SetTimer(hwnd, TIMER_ID_CrateAssist, 200, NULL);
         }

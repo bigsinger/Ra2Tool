@@ -1,4 +1,6 @@
 #include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
 #include <string.h>
 #include <vector>
 #include <algorithm>
@@ -8,7 +10,9 @@
 #include <EventClass.h>
 #include <HouseClass.h>
 #include <MessageListClass.h>
+#include <ScenarioClass.h>
 #include <SessionClass.h>
+#include <Unsorted.h>
 #include "Utils.h"
 #include "Config.h"
 #include "Ra2Header.h"
@@ -51,8 +55,17 @@ struct RouteCrateState {
 	DWORD LastPickupTick = 0;
 };
 
+struct AutoPickupState {
+	bool Active = false;
+	std::vector<FootClass*> Units;
+	CellStruct ActiveCrateCell = CellStruct::Empty;
+	DWORD LastPickupTick = 0;
+	DWORD LastScanTick = 0;
+};
+
 PendingPickupState g_pendingPickup;
 RouteCrateState g_routeCrate;
+AutoPickupState g_autoPickup;
 
 int AbsInt(int value) {
 	return value < 0 ? -value : value;
@@ -200,7 +213,8 @@ bool IsCustomToolbarWindowAtPoint(HWND hwnd) {
 	while (hwnd) {
 		char className[64] = {};
 		GetClassNameA(hwnd, className, sizeof(className));
-		if (strcmp(className, "RA2CustomToolbar") == 0) {
+		if (strcmp(className, "RA2CustomToolbar") == 0
+			|| strcmp(className, "RA2EnemyInfoPanel") == 0) {
 			return true;
 		}
 		hwnd = GetParent(hwnd);
@@ -277,7 +291,9 @@ bool BuildRouteArea(const std::vector<CellStruct>& route, CellArea* outArea) {
 	short maxX = route[0].X;
 	short minY = route[0].Y;
 	short maxY = route[0].Y;
-	for (const auto& cell : route) {
+	const size_t usedCount = route.size() <= 3 ? 2 : route.size();
+	for (size_t i = 0; i < usedCount; ++i) {
+		const CellStruct& cell = route[i];
 		minX = std::min(minX, cell.X);
 		maxX = std::max(maxX, cell.X);
 		minY = std::min(minY, cell.Y);
@@ -297,6 +313,73 @@ bool BuildRouteArea(const std::vector<CellStruct>& route, CellArea* outArea) {
 	outArea->Min = CellStruct { minX, minY };
 	outArea->Max = CellStruct { maxX, maxY };
 	return true;
+}
+
+std::string GetCurrentMapId() {
+	__try {
+		if (ScenarioClass::Instance && ScenarioClass::Instance->FileName[0]) {
+			return ScenarioClass::Instance->FileName;
+		}
+
+		if (Game::ScenarioName && Game::ScenarioName[0]) {
+			return Game::ScenarioName;
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	}
+
+	return "mapid";
+}
+
+void AppendMapAreaLog(const CellArea& area) {
+	if (!area.Valid) {
+		return;
+	}
+
+	__try {
+		TCHAR path[MAX_PATH] = {};
+		Utils::GetStartPath(g_thisModule, path, MAX_PATH);
+		_tcscat_s(path, MAX_PATH, _T("maparea.txt"));
+
+		HANDLE file = CreateFile(
+			path,
+			FILE_APPEND_DATA,
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
+			NULL,
+			OPEN_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+		if (file == INVALID_HANDLE_VALUE) {
+			Utils::Log(GetLastError(), "CrateAssist maparea open failed.");
+			return;
+		}
+
+		SYSTEMTIME now = {};
+		GetLocalTime(&now);
+		const std::string mapId = GetCurrentMapId();
+		char line[512] = {};
+		sprintf_s(
+			line,
+			sizeof(line),
+			"{%04d-%02d-%02d-%02d-%02d-%02d}: {%s}=%d, %d, %d, %d\r\n",
+			now.wYear,
+			now.wMonth,
+			now.wDay,
+			now.wHour,
+			now.wMinute,
+			now.wSecond,
+			mapId.c_str(),
+			area.Min.X,
+			area.Min.Y,
+			area.Max.X,
+			area.Max.Y);
+
+		DWORD written = 0;
+		WriteFile(file, line, static_cast<DWORD>(strlen(line)), &written, NULL);
+		CloseHandle(file);
+		Utils::LogFormat("CrateAssist maparea saved: %s", line);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("CrateAssist maparea save failed.");
+	}
 }
 
 std::vector<FootClass*> GetSelectedFootUnits() {
@@ -610,6 +693,89 @@ void ClearRoutePickupState() {
 	g_routeCrate.LastPickupTick = 0;
 }
 
+void StopAutoPickup() {
+	g_autoPickup.Active = false;
+	g_autoPickup.Units.clear();
+	g_autoPickup.ActiveCrateCell = CellStruct::Empty;
+	g_autoPickup.LastPickupTick = 0;
+	g_autoPickup.LastScanTick = 0;
+}
+
+void ClearRouteStateForManualPickup() {
+	g_routeCrate.Capturing = false;
+	g_routeCrate.Running = false;
+	g_routeCrate.Route.clear();
+	g_routeCrate.Units.clear();
+	g_routeCrate.Area = CellArea();
+	ClearRoutePickupState();
+	TrySetGameWaypointMode(false);
+}
+
+bool StartAutoPickupRound() {
+	g_autoPickup.Units = FilterLiveUnits(g_autoPickup.Units);
+	if (g_autoPickup.Units.empty()) {
+		StopAutoPickup();
+		PrintGameMessage(L"请先选中单位");
+		Utils::Log("CrateAssist auto pickup stopped: no live units.");
+		return false;
+	}
+
+	CrateTarget crate = {};
+	if (!FindNearestCrate(g_autoPickup.Units, &crate)) {
+		StopAutoPickup();
+		PrintGameMessage(L"未找到可拾取的箱子");
+		Utils::Log("CrateAssist auto pickup stopped: no crate.");
+		return false;
+	}
+
+	if (!StartPickupForUnits(g_autoPickup.Units, crate.Cell)) {
+		StopAutoPickup();
+		return false;
+	}
+
+	g_autoPickup.Active = true;
+	g_autoPickup.ActiveCrateCell = crate.Cell;
+	g_autoPickup.LastPickupTick = GetTickCount();
+	g_autoPickup.LastScanTick = g_autoPickup.LastPickupTick;
+	return true;
+}
+
+void TickAutoPickup() {
+	if (!g_autoPickup.Active || g_routeCrate.Running || g_routeCrate.Capturing) {
+		return;
+	}
+
+	g_autoPickup.Units = FilterLiveUnits(g_autoPickup.Units);
+	if (g_autoPickup.Units.empty()) {
+		StopAutoPickup();
+		return;
+	}
+
+	const DWORD now = GetTickCount();
+	if (g_pendingPickup.Active) {
+		return;
+	}
+
+	if (!SameCell(g_autoPickup.ActiveCrateCell, CellStruct::Empty)
+		&& TryIsActiveCrateCell(g_autoPickup.ActiveCrateCell)) {
+		if (now - g_autoPickup.LastPickupTick >= 900) {
+			CrateTarget crate = {};
+			crate.Cell = g_autoPickup.ActiveCrateCell;
+			StartPickupForUnits(g_autoPickup.Units, crate.Cell);
+			g_autoPickup.LastPickupTick = now;
+		}
+		return;
+	}
+
+	g_autoPickup.ActiveCrateCell = CellStruct::Empty;
+	if (now - g_autoPickup.LastScanTick < 300) {
+		return;
+	}
+
+	g_autoPickup.LastScanTick = now;
+	StartAutoPickupRound();
+}
+
 bool IsUnitNearCell(FootClass* unit, const CellStruct& cell, int tolerance) {
 	const CellStruct current = TryGetFootCell(unit);
 	return AbsInt(static_cast<int>(current.X) - static_cast<int>(cell.X)) <= tolerance
@@ -732,6 +898,7 @@ void SampleRoutePoint() {
 }
 
 void StartRouteCapture() {
+	StopAutoPickup();
 	g_routeCrate.Capturing = true;
 	g_routeCrate.Running = false;
 	ClearRoutePickupState();
@@ -757,6 +924,7 @@ void StartRouteRun() {
 		return;
 	}
 
+	AppendMapAreaLog(area);
 	g_routeCrate.Units = FilterLiveUnits(GetSelectedFootUnits());
 	if (g_routeCrate.Units.empty()) {
 		g_routeCrate.Running = false;
@@ -786,6 +954,7 @@ void StopRouteRun() {
 	g_routeCrate.Area = CellArea();
 	ClearRoutePickupState();
 	g_pendingPickup.Active = false;
+	StopAutoPickup();
 	TrySetGameWaypointMode(false);
 	PrintGameMessage(L"已停止区域捡箱");
 	Utils::Log("CrateAssist route run stopped.");
@@ -988,14 +1157,55 @@ void StartOptimalCratePickup() {
 		return;
 	}
 
-	CrateTarget crate = {};
-	if (!FindNearestCrate(units, &crate)) {
-		PrintGameMessage(L"未找到可拾取的箱子");
-		Utils::Log("CrateAssist pickup failed: no nearest crate.");
+	ClearRouteStateForManualPickup();
+	g_pendingPickup.Active = false;
+	g_autoPickup.Active = true;
+	g_autoPickup.Units = FilterLiveUnits(units);
+	g_autoPickup.ActiveCrateCell = CellStruct::Empty;
+	g_autoPickup.LastPickupTick = 0;
+	g_autoPickup.LastScanTick = 0;
+	StartAutoPickupRound();
+}
+
+void StartRouteCratePickupInArea(short left, short top, short right, short bottom) {
+	StopAutoPickup();
+	g_pendingPickup.Active = false;
+	g_routeCrate.Capturing = false;
+	TrySetGameWaypointMode(false);
+
+	CellArea area = {};
+	area.Valid = true;
+	area.Min = CellStruct {
+		static_cast<short>(std::min(left, right)),
+		static_cast<short>(std::min(top, bottom))
+	};
+	area.Max = CellStruct {
+		static_cast<short>(std::max(left, right)),
+		static_cast<short>(std::max(top, bottom))
+	};
+
+	g_routeCrate.Units = FilterLiveUnits(GetSelectedFootUnits());
+	if (g_routeCrate.Units.empty()) {
+		g_routeCrate.Running = false;
+		g_routeCrate.Area = CellArea();
+		PrintGameMessage(L"请先选中单位");
+		Utils::Log("CrateAssist preset area failed: no selected units.");
 		return;
 	}
 
-	StartPickupForUnits(units, crate.Cell);
+	g_routeCrate.Running = true;
+	g_routeCrate.Route.clear();
+	ClearRoutePickupState();
+	g_routeCrate.Area = area;
+	g_routeCrate.LastCrateScanTick = 0;
+	PrintGameMessage(L"开始预设区域捡箱");
+	Utils::LogFormat(
+		"CrateAssist preset route run started: units=%d area=(%d,%d)-(%d,%d)",
+		static_cast<int>(g_routeCrate.Units.size()),
+		g_routeCrate.Area.Min.X,
+		g_routeCrate.Area.Min.Y,
+		g_routeCrate.Area.Max.X,
+		g_routeCrate.Area.Max.Y);
 }
 
 void ToggleRouteCratePickup() {
@@ -1018,6 +1228,7 @@ void TickCrateAssist() {
 	}
 
 	TickPendingPickup();
+	TickAutoPickup();
 	TickRouteRun();
 }
 

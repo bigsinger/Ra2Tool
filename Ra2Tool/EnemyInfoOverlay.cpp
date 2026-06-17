@@ -353,64 +353,90 @@ void ShowEnemyPlayerInfo(HDC hdc) {
 	}
 
 	__try {
-		int enemyCount = 0;
+		std::vector<EnemyStats> enemies;
 		for (int i = 0; i < HouseClass::Array.Count; ++i) {
-			if (IsEnemyHouse(HouseClass::Array.GetItem(i))) {
-				++enemyCount;
+			auto house = HouseClass::Array.GetItem(i);
+			if (IsEnemyHouse(house)) {
+				enemies.push_back(BuildStats(house));
 			}
 		}
 
-		if (enemyCount <= 0) {
+		RECT client = { 0, 0, 190, 300 };
+		HWND hwnd = WindowFromDC(hdc);
+		if (hwnd) {
+			GetClientRect(hwnd, &client);
+		}
+
+		HBRUSH bg = CreateSolidBrush(RGB(21, 24, 25));
+		FillRect(hdc, &client, bg);
+		DeleteObject(bg);
+
+		HFONT font = CreateFontW(
+			-14,
+			0,
+			0,
+			0,
+			FW_NORMAL,
+			FALSE,
+			FALSE,
+			FALSE,
+			DEFAULT_CHARSET,
+			OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS,
+			CLEARTYPE_QUALITY,
+			DEFAULT_PITCH | FF_DONTCARE,
+			L"Microsoft YaHei");
+		HGDIOBJ oldFont = SelectObject(hdc, font);
+
+		SetBkMode(hdc, TRANSPARENT);
+		SetTextColor(hdc, RGB(245, 245, 245));
+		RECT headerRect = { 8, 6, client.right - 8, 28 };
+		DrawTextW(hdc, L"敌情信息", -1, &headerRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+
+		if (enemies.empty()) {
+			SetTextColor(hdc, RGB(210, 210, 210));
+			RECT emptyRect = { 8, 34, client.right - 8, 56 };
+			DrawTextW(hdc, L"暂无敌方信息", -1, &emptyRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+			SelectObject(hdc, oldFont);
+			DeleteObject(font);
 			return;
 		}
 
-		const int rowHeight = 18;
-		const int panelWidth = 380;
-		const int panelHeight = 28 + enemyCount * rowHeight;
-		RECT panel = { 8, 8, 8 + panelWidth, 8 + panelHeight };
-
-		DrawPanelBackground(hdc, panel);
-
-		SetBkMode(hdc, TRANSPARENT);
-		SetTextColor(hdc, RGB(230, 230, 230));
-		const wchar_t* header = L"颜色  玩家                金钱   坦克  矿车  建筑  步兵";
-		TextOutW(hdc, 16, 14, header, static_cast<int>(wcslen(header)));
-
-		int row = 0;
-		for (int i = 0; i < HouseClass::Array.Count; ++i) {
-			auto house = HouseClass::Array.GetItem(i);
-			if (!IsEnemyHouse(house)) {
-				continue;
+		const int itemHeight = 78;
+		for (size_t i = 0; i < enemies.size(); ++i) {
+			const EnemyStats& stats = enemies[i];
+			auto house = stats.House;
+			const int y = 32 + static_cast<int>(i) * itemHeight;
+			if (y + itemHeight > client.bottom) {
+				break;
 			}
 
-			auto stats = BuildStats(house);
-			const int y = 34 + row * rowHeight;
-
-			RECT colorRect = { 18, y + 3, 34, y + 15 };
+			RECT colorRect = { 8, y + 7, 22, y + 21 };
 			HBRUSH colorBrush = CreateSolidBrush(ToColorRef(house->Color));
 			FillRect(hdc, &colorRect, colorBrush);
 			DeleteObject(colorBrush);
 
-			HBRUSH frameBrush = CreateSolidBrush(RGB(180, 180, 180));
-			FrameRect(hdc, &colorRect, frameBrush);
-			DeleteObject(frameBrush);
-
 			wchar_t name[32] = {};
 			CopyHouseName(house, name, _countof(name));
 
-			wchar_t line[256] = {};
-			swprintf_s(line, _countof(line), L"%-20ls %8d %5d %6d %4d %4d",
-				name,
-				house->Balance,
-				stats.Tanks,
-				stats.Harvesters,
-				house->OwnedBuildings,
-				house->OwnedInfantry);
-
+			wchar_t line[96] = {};
+			swprintf_s(line, _countof(line), L"玩家: %ls", name);
 			SetTextColor(hdc, RGB(245, 245, 245));
-			TextOutW(hdc, 42, y, line, static_cast<int>(wcslen(line)));
-			++row;
+			TextOutW(hdc, 28, y + 4, line, static_cast<int>(wcslen(line)));
+
+			swprintf_s(line, _countof(line), L"金钱: %d", house->Balance);
+			SetTextColor(hdc, RGB(226, 226, 226));
+			TextOutW(hdc, 8, y + 25, line, static_cast<int>(wcslen(line)));
+
+			swprintf_s(line, _countof(line), L"坦克: %d  矿车: %d", stats.Tanks, stats.Harvesters);
+			TextOutW(hdc, 8, y + 43, line, static_cast<int>(wcslen(line)));
+
+			swprintf_s(line, _countof(line), L"建筑: %d  步兵: %d", house->OwnedBuildings, house->OwnedInfantry);
+			TextOutW(hdc, 8, y + 61, line, static_cast<int>(wcslen(line)));
 		}
+
+		SelectObject(hdc, oldFont);
+		DeleteObject(font);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 	}
 }

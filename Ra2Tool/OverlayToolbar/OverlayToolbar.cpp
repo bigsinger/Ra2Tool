@@ -640,10 +640,10 @@ void EnsureHookInstalled() {
 
 void InitOverlayToolbar() {
 	LoadQuickMessages();
-	EnsureHookInstalled();
-	g_enabled = true;
+	//EnsureHookInstalled();
+	//g_enabled = true;
 	g_messageOpen = false;
-	Utils::Log("InitOverlayToolbar!");
+	Utils::Log("InitOverlayToolbar skipped: draw hook disabled.");
 }
 
 void UninitOverlayToolbar() {

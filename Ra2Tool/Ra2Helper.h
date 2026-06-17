@@ -27,6 +27,8 @@ void UnInitTipWindow();
 
 void InitCustomToolbar();
 void UnInitCustomToolbar();
+void InitCommandBarButtons();
+void UninitCommandBarButtons();
 
 void AutoRepair();
 
@@ -40,6 +42,7 @@ void ForceGrandCannonScan();
 
 void StartOptimalCratePickup();
 void ToggleRouteCratePickup();
+void StartRouteCratePickupInArea(short left, short top, short right, short bottom);
 void TickCrateAssist();
 bool IsRouteCrateCaptureActive();
 bool IsRouteCrateRunActive();
