@@ -122,7 +122,7 @@ private:
 public:
 	static bool isGrandCannonAssistEnabled() {
 		if (_iGrandCannonAssistFlag == UNINITED_FLAG) {
-			_iGrandCannonAssistFlag = ::GetPrivateProfileInt("grandcannon", "Enable", TRUE, _configFilePath);
+			_iGrandCannonAssistFlag = ::GetPrivateProfileInt("cannon", "Enable", TRUE, _configFilePath);
 		}
 		return _iGrandCannonAssistFlag > 0;
 	}
@@ -133,7 +133,7 @@ private:
 public:
 	static bool isGrandCannonAutoTurnEnabled() {
 		if (_iGrandCannonAutoTurnFlag == UNINITED_FLAG) {
-			_iGrandCannonAutoTurnFlag = ::GetPrivateProfileInt("grandcannon", "AutoTurn", TRUE, _configFilePath);
+			_iGrandCannonAutoTurnFlag = ::GetPrivateProfileInt("cannon", "AutoTurn", TRUE, _configFilePath);
 		}
 		return _iGrandCannonAutoTurnFlag > 0;
 	}
@@ -148,7 +148,7 @@ private:
 public:
 	static int getGrandCannonTurnAngle() {
 		if (_iGrandCannonTurnAngle == UNINITED_FLAG) {
-			_iGrandCannonTurnAngle = ::GetPrivateProfileInt("grandcannon", "TurnAngle", 0, _configFilePath);
+			_iGrandCannonTurnAngle = ::GetPrivateProfileInt("cannon", "TurnAngle", 0, _configFilePath);
 		}
 		return _iGrandCannonTurnAngle;
 	}
@@ -159,7 +159,7 @@ private:
 public:
 	static int getGrandCannonBuildingType() {
 		if (_iGrandCannonBuildingType == UNINITED_FLAG) {
-			_iGrandCannonBuildingType = ::GetPrivateProfileInt("grandcannon", "BuildingType", 64, _configFilePath);
+			_iGrandCannonBuildingType = ::GetPrivateProfileInt("cannon", "BuildingType", 64, _configFilePath);
 		}
 		return _iGrandCannonBuildingType;
 	}
@@ -170,7 +170,7 @@ private:
 public:
 	static int getGrandCannonScanInterval() {
 		if (_iGrandCannonScanInterval == UNINITED_FLAG) {
-			_iGrandCannonScanInterval = ::GetPrivateProfileInt("grandcannon", "ScanInterval", 200, _configFilePath);
+			_iGrandCannonScanInterval = ::GetPrivateProfileInt("cannon", "ScanInterval", 200, _configFilePath);
 		}
 		return _iGrandCannonScanInterval > 0 ? _iGrandCannonScanInterval : 200;
 	}

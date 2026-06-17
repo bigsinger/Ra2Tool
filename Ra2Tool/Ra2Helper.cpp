@@ -1,4 +1,5 @@
 ﻿#include <windows.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <tchar.h>
 #include <string.h>
@@ -16,6 +17,25 @@
 #include "Ra2Helper.h"
 
 HINSTANCE g_thisModule = NULL;		// 当前模块句柄
+
+#pragma pack(push, 1)
+struct ChatGlobalPacket {
+	int Command;
+	wchar_t Name[22];
+	wchar_t Message[112];
+	int PlayerColor;
+	BYTE Reserved[8];
+	int NameCRC;
+	BYTE Padding[455 - 0x120];
+};
+#pragma pack(pop)
+
+static_assert(sizeof(ChatGlobalPacket) == 455);
+static_assert(offsetof(ChatGlobalPacket, Command) == 0x0);
+static_assert(offsetof(ChatGlobalPacket, Name) == 0x4);
+static_assert(offsetof(ChatGlobalPacket, Message) == 0x30);
+static_assert(offsetof(ChatGlobalPacket, PlayerColor) == 0x110);
+static_assert(offsetof(ChatGlobalPacket, NameCRC) == 0x11C);
 //////////////////////////////////////////////////
 // YRpp 函数重载有问题，这里再写一遍
 void MakeEventClass(EventClass* eventClass, int houseIndex, EventType eventType, int id, int rtti) {
@@ -389,6 +409,61 @@ int32_t ComputeNameCRC(wchar_t* name) {
 	return crc;
 }
 
+int IPXNumConnections(IPXManagerClass* self) {
+	int result = 0;
+	__asm {
+		mov ecx, self
+		mov eax, 0x00540F90
+		call eax
+		mov result, eax
+	}
+	return result;
+}
+
+int IPXConnectionID(IPXManagerClass* self, int index) {
+	int result = 0;
+	__asm {
+		push index
+		mov ecx, self
+		mov eax, 0x00540FA0
+		call eax
+		mov result, eax
+	}
+	return result;
+}
+
+wchar_t* IPXConnectionPlayerName(IPXManagerClass* self, int connectionId) {
+	wchar_t* result = nullptr;
+	__asm {
+		push connectionId
+		mov ecx, self
+		mov eax, 0x00540FC0
+		call eax
+		mov result, eax
+	}
+	return result;
+}
+
+IPXAddressClass* IPXConnectionAddress(IPXManagerClass* self, int connectionId) {
+	IPXAddressClass* result = nullptr;
+	__asm {
+		push connectionId
+		mov ecx, self
+		mov eax, 0x00541000
+		call eax
+		mov result, eax
+	}
+	return result;
+}
+
+void IPXService(IPXManagerClass* self) {
+	__asm {
+		mov ecx, self
+		mov eax, 0x00541820
+		call eax
+	}
+}
+
 NodeNameType* FindCurrentNodeName() {
 	__try {
 		const int houseIndex = HouseClass::CurrentPlayer ? HouseClass::CurrentPlayer->ArrayIndex : -1;
@@ -409,27 +484,38 @@ inline unsigned int __stdcall GetColorEnum_69A310(unsigned int color) {
 	JMP_STD(0x69A310);
 }
 
-void SendChatMessage(const wchar_t* message) {
+void CopyCurrentChatIdentity(wchar_t* displayName, size_t displayNameCount, int* color) {
+	if (!displayName || displayNameCount == 0 || !color) {
+		return;
+	}
+
+	displayName[0] = L'\0';
+	*color = SessionClass::Instance.PlayerColor;
+
 	__try {
-		if (!message || !*message) {
+		NodeNameType* sender = FindCurrentNodeName();
+		if (sender) {
+			wcsncpy_s(displayName, displayNameCount, sender->Name, _TRUNCATE);
+			*color = sender->Color;
 			return;
 		}
 
-		NodeNameType* sender = FindCurrentNodeName();
-		wchar_t displayName[32] = {};
-		int color = SessionClass::Instance.PlayerColor;
-		if (sender) {
-			wcsncpy_s(displayName, sender->Name, _TRUNCATE);
-			color = sender->Color;
-		} else {
-			MultiByteToWideChar(CP_ACP, 0, SessionClass::Instance.Handle, -1,
-				displayName, _countof(displayName));
-		}
+		MultiByteToWideChar(CP_ACP, 0, SessionClass::Instance.Handle, -1,
+			displayName, static_cast<int>(displayNameCount));
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	}
 
-		if (!displayName[0]) {
-			wcscpy_s(displayName, L"玩家");
-		}
+	if (!displayName[0]) {
+		wcscpy_s(displayName, displayNameCount, L"玩家");
+	}
+}
 
+void DisplayChatMessage(const wchar_t* displayName, int color, const wchar_t* message) {
+	if (!message || !*message) {
+		return;
+	}
+
+	__try {
 		const TextPrintType style =
 			TextPrintType::UseGradPal |
 			TextPrintType::FullShadow |
@@ -442,13 +528,85 @@ void SendChatMessage(const wchar_t* message) {
 			displayName,
 			color,
 			message,
-			static_cast<int>(GetColorEnum_69A310(static_cast<unsigned int>(color))),
+			static_cast<int>(GetColorEnum_69A310(color)),
 			style,
 			delay,
 			!SessionClass::IsMultiplayer());
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		MessageListClass::Instance.PrintMessage(message);
 	}
+}
+
+bool BuildChatGlobalPacket(const wchar_t* message, ChatGlobalPacket* packet) {
+	if (!message || !*message || !packet) {
+		return false;
+	}
+
+	memset(packet, 0, sizeof(*packet));
+	packet->Command = NET_MESSAGE;
+	CopyCurrentChatIdentity(packet->Name, _countof(packet->Name), &packet->PlayerColor);
+	wcsncpy_s(packet->Message, message, _TRUNCATE);
+	packet->NameCRC = ComputeNameCRC(packet->Name);
+	return true;
+}
+
+int SendChatPacketToConnections(ChatGlobalPacket* packet) {
+	if (!packet || !SessionClass::IsMultiplayer()) {
+		return 0;
+	}
+
+	int sentCount = 0;
+	__try {
+		IPXManagerClass* ipx = &IPXManagerClass::Instance;
+		const int connectionCount = IPXNumConnections(ipx);
+		if (connectionCount <= 0) {
+			return 0;
+		}
+
+		for (int houseIndex = 0; houseIndex < HouseClass::Array.Count; ++houseIndex) {
+			HouseClass* house = HouseClass::Array.GetItem(houseIndex);
+			if (!house || !house->Type || !house->Type->Multiplay || !house->UIName[0]) {
+				continue;
+			}
+
+			for (int connectionIndex = 0; connectionIndex < connectionCount; ++connectionIndex) {
+				const int connectionId = IPXConnectionID(ipx, connectionIndex);
+				wchar_t* connectionName = IPXConnectionPlayerName(ipx, connectionId);
+				if (!connectionName || wcscmp(house->UIName, connectionName) != 0) {
+					continue;
+				}
+
+				IPXAddressClass* address = IPXConnectionAddress(ipx, connectionId);
+				if (!address) {
+					continue;
+				}
+
+				SendGlobalMessage_sub5410F0(ipx, packet, sizeof(*packet), 1, address, 0, 0);
+				IPXService(ipx);
+				++sentCount;
+			}
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("SendChatPacketToConnections failed.");
+	}
+
+	return sentCount;
+}
+
+void SendChatMessage(const wchar_t* message) {
+	ChatGlobalPacket packet = {};
+	if (!BuildChatGlobalPacket(message, &packet)) {
+		return;
+	}
+
+	const int sentCount = SendChatPacketToConnections(&packet);
+	DisplayChatMessage(packet.Name, packet.PlayerColor, packet.Message);
+	Utils::LogFormat(
+		"Chat send: multiplayer=%d sent=%d color=%d crc=%d",
+		SessionClass::IsMultiplayer() ? 1 : 0,
+		sentCount,
+		packet.PlayerColor,
+		packet.NameCRC);
 }
 
 void PrintGameMessage(const wchar_t* message) {

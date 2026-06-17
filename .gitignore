@@ -44,3 +44,4 @@ Archive*
 *.exe
 *.out
 *.app
+*.lock

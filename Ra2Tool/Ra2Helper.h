@@ -32,6 +32,7 @@ void AutoRepair();
 
 void ShowCrateInfo(HDC hdc);
 void ShowEnemyPlayerInfo(HDC hdc);
+void DrawEnemyInfoOverlay();
 
 void InitGrandCannonAssist();
 void TickGrandCannonAssist();

@@ -64,7 +64,6 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         if (Config::isAutoShowCrate()) {
             ShowCrateInfo(hdc);
         }
-        ShowEnemyPlayerInfo(hdc);
 
         EndPaint(hwnd, &ps);
     }

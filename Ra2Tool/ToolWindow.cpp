@@ -71,11 +71,13 @@ LRESULT CALLBACK ToolWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
         PostQuitMessage(0);
         break;
     case WM_CREATE:
-        if (Config::isAutoShowCrate() || Config::isShowEnemyInfo()) {
+        if (Config::isAutoShowCrate()) {
             InitTipWindow();
         }
-        if (Config::isCustomToolbarEnabled()) {
+        if (Config::isCustomToolbarEnabled() || Config::isShowEnemyInfo()) {
             InitCustomToolbar();
+        }
+        if (Config::isCustomToolbarEnabled()) {
             SetTimer(hwnd, TIMER_ID_CrateAssist, 200, NULL);
         }
         if (Config::isGrandCannonAssistEnabled()) {

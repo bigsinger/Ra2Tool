@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cwctype>
 #include <string>
-#include <utility>
 #include <vector>
 #include <windows.h>
 #include <Surface.h>
@@ -18,12 +17,11 @@ namespace {
 constexpr DWORD HOOK_POINT = 0x004F4573;
 DWORD g_hookReturn = 0x004F4578;
 
-constexpr int TOOLBAR_HEIGHT = 76;
+constexpr int TOOLBAR_HEIGHT = 24;
 constexpr int MENU_ITEM_HEIGHT = 22;
 constexpr int MENU_MAX_VISIBLE = 6;
-constexpr int BUTTON_WIDTH = 82;
 constexpr int BUTTON_HEIGHT = 24;
-constexpr int BUTTON_GAP = 6;
+constexpr int BUTTON_GAP = 1;
 
 bool g_enabled = false;
 bool g_hookInstalled = false;
@@ -107,18 +105,6 @@ void FillRectRGBA(std::vector<unsigned char>* pixels, int width, int height, con
 			BlendPixel(pixels, width, height, x, y, r, g, b, a);
 		}
 	}
-}
-
-void DrawFrame(std::vector<unsigned char>* pixels, int width, int height, const RECT& rect,
-	unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
-	RECT top { rect.left, rect.top, rect.right, rect.top + 1 };
-	RECT bottom { rect.left, rect.bottom - 1, rect.right, rect.bottom };
-	RECT left { rect.left, rect.top, rect.left + 1, rect.bottom };
-	RECT right { rect.right - 1, rect.top, rect.right, rect.bottom };
-	FillRectRGBA(pixels, width, height, top, r, g, b, a);
-	FillRectRGBA(pixels, width, height, bottom, r, g, b, a);
-	FillRectRGBA(pixels, width, height, left, r, g, b, a);
-	FillRectRGBA(pixels, width, height, right, r, g, b, a);
 }
 
 HFONT CreateToolbarFont() {
@@ -289,9 +275,8 @@ bool ReadConfigText(std::wstring* outText) {
 }
 
 std::vector<std::wstring> ParseQuickMessages(const std::wstring& text) {
-	std::vector<std::pair<int, std::wstring>> indexed;
-	int configuredCount = 0;
 	bool inSection = false;
+	std::wstring rawMessages;
 	size_t offset = 0;
 
 	while (offset <= text.size()) {
@@ -316,7 +301,7 @@ std::vector<std::wstring> ParseQuickMessages(const std::wstring& text) {
 
 		if (line.front() == L'[' && line.back() == L']') {
 			std::wstring section = Trim(line.substr(1, line.size() - 2));
-			inSection = _wcsicmp(section.c_str(), L"quickmessages") == 0;
+			inSection = _wcsicmp(section.c_str(), L"chat") == 0;
 			continue;
 		}
 
@@ -335,27 +320,28 @@ std::vector<std::wstring> ParseQuickMessages(const std::wstring& text) {
 			continue;
 		}
 
-		if (_wcsicmp(key.c_str(), L"Count") == 0) {
-			configuredCount = _wtoi(value.c_str());
-			continue;
-		}
-
-		const int index = _wtoi(key.c_str());
-		if (index > 0) {
-			indexed.push_back(std::make_pair(index, value));
+		if (_wcsicmp(key.c_str(), L"msg") == 0) {
+			rawMessages = value;
+			break;
 		}
 	}
 
-	std::sort(indexed.begin(), indexed.end(), [](const auto& a, const auto& b) {
-		return a.first < b.first;
-	});
-
 	std::vector<std::wstring> messages;
-	for (const auto& item : indexed) {
-		if (configuredCount > 0 && item.first > configuredCount) {
-			continue;
+	size_t begin = 0;
+	while (begin <= rawMessages.size()) {
+		size_t separator = rawMessages.find(L'|', begin);
+		std::wstring item = separator == std::wstring::npos
+			? rawMessages.substr(begin)
+			: rawMessages.substr(begin, separator - begin);
+		item = Trim(item);
+		if (!item.empty()) {
+			messages.push_back(item);
 		}
-		messages.push_back(item.second);
+
+		if (separator == std::wstring::npos) {
+			break;
+		}
+		begin = separator + 1;
 	}
 
 	return messages;
@@ -377,53 +363,46 @@ ToolbarLayout BuildLayout(int surfaceWidth, int surfaceHeight) {
 	ToolbarLayout layout = {};
 	const int menuCount = g_messageOpen ? std::min(static_cast<int>(g_quickMessages.size()), MENU_MAX_VISIBLE) : 0;
 	const int menuHeight = menuCount > 0 ? menuCount * MENU_ITEM_HEIGHT + 4 : 0;
-	layout.Width = std::min(760, std::max(320, surfaceWidth - 16));
+	layout.Width = std::min(760, std::max(320, surfaceWidth - 4));
 	layout.Height = TOOLBAR_HEIGHT + menuHeight;
 	layout.X = std::max(0, (surfaceWidth - layout.Width) / 2);
-	layout.Y = std::max(0, surfaceHeight - layout.Height - 4);
+	layout.Y = std::max(0, surfaceHeight - layout.Height);
 	layout.ToolbarTop = menuHeight;
 
-	const int row1Y = layout.ToolbarTop + 8;
-	const int row2Y = layout.ToolbarTop + 42;
-	int x = 8;
-	layout.Buttons.push_back({ ButtonToggleTurn, { x, row1Y, x + BUTTON_WIDTH, row1Y + BUTTON_HEIGHT },
-		Config::isGrandCannonAutoTurnEnabled() ? L"自转:开" : L"自转:关", Config::isGrandCannonAutoTurnEnabled() });
-	x += BUTTON_WIDTH + BUTTON_GAP;
-	layout.Buttons.push_back({ ButtonToggleInfo, { x, row1Y, x + BUTTON_WIDTH, row1Y + BUTTON_HEIGHT },
-		Config::isShowEnemyInfo() ? L"敌情:开" : L"敌情:关", Config::isShowEnemyInfo() });
-	x += BUTTON_WIDTH + BUTTON_GAP;
-	layout.Buttons.push_back({ ButtonScanCannon, { x, row1Y, x + BUTTON_WIDTH, row1Y + BUTTON_HEIGHT },
-		L"扫巨炮", true });
-	x += BUTTON_WIDTH + BUTTON_GAP;
-	layout.Buttons.push_back({ ButtonPickCrate, { x, row1Y, x + BUTTON_WIDTH, row1Y + BUTTON_HEIGHT },
-		L"捡箱子", true });
-	x += BUTTON_WIDTH + BUTTON_GAP;
+	const int rowY = layout.ToolbarTop;
+	int x = 0;
+	auto addButton = [&layout, &x, rowY](int id, int width, const wchar_t* text, bool active) {
+		layout.Buttons.push_back({ id, { x, rowY, x + width, rowY + BUTTON_HEIGHT }, text, active });
+		x += width + BUTTON_GAP;
+	};
+
+	addButton(ButtonToggleTurn, 62,
+		Config::isGrandCannonAutoTurnEnabled() ? L"自转:开" : L"自转:关", Config::isGrandCannonAutoTurnEnabled());
+	addButton(ButtonToggleInfo, 62,
+		Config::isShowEnemyInfo() ? L"敌情:开" : L"敌情:关", Config::isShowEnemyInfo());
+	addButton(ButtonScanCannon, 56, L"扫巨炮", true);
+	addButton(ButtonPickCrate, 56, L"捡箱", true);
 
 	const wchar_t* routeText = L"跑图捡箱";
 	if (IsRouteCrateCaptureActive()) {
-		routeText = L"完成路线";
+		routeText = L"完成区域";
 	} else if (IsRouteCrateRunActive()) {
 		routeText = L"停止跑图";
 	}
-	layout.Buttons.push_back({ ButtonRouteCrate, { x, row1Y, x + BUTTON_WIDTH, row1Y + BUTTON_HEIGHT },
-		routeText, IsRouteCrateCaptureActive() || IsRouteCrateRunActive() });
+	addButton(ButtonRouteCrate, 70, routeText, IsRouteCrateCaptureActive() || IsRouteCrateRunActive());
+	addButton(ButtonFormationSquare, 52, L"阵口", true);
+	addButton(ButtonFormationVertical, 52, L"阵一", true);
+	addButton(ButtonFormationHorizontal, 52, L"阵丨", true);
 
-	int row2X = 8;
-	layout.Buttons.push_back({ ButtonFormationSquare, { row2X, row2Y, row2X + BUTTON_WIDTH, row2Y + BUTTON_HEIGHT },
-		L"阵型口", true });
-	row2X += BUTTON_WIDTH + BUTTON_GAP;
-	layout.Buttons.push_back({ ButtonFormationVertical, { row2X, row2Y, row2X + BUTTON_WIDTH, row2Y + BUTTON_HEIGHT },
-		L"阵型1", true });
-	row2X += BUTTON_WIDTH + BUTTON_GAP;
-	layout.Buttons.push_back({ ButtonFormationHorizontal, { row2X, row2Y, row2X + BUTTON_WIDTH, row2Y + BUTTON_HEIGHT },
-		L"阵型一", true });
-
-	const int messageLeft = std::min(layout.Width - 168, 448);
-	layout.MessageRect = { messageLeft, row2Y, layout.Width - 8, row2Y + BUTTON_HEIGHT };
+	int messageLeft = x;
+	if (layout.Width - messageLeft < 96) {
+		messageLeft = std::max(0, layout.Width - 102);
+	}
+	layout.MessageRect = { messageLeft, rowY, layout.Width, rowY + BUTTON_HEIGHT };
 
 	for (int i = 0; i < menuCount; ++i) {
 		const int itemTop = layout.ToolbarTop - 2 - (menuCount - i) * MENU_ITEM_HEIGHT;
-		layout.MessageItems.push_back({ messageLeft, itemTop, layout.Width - 8, itemTop + MENU_ITEM_HEIGHT });
+		layout.MessageItems.push_back({ messageLeft, itemTop, layout.Width, itemTop + MENU_ITEM_HEIGHT });
 	}
 
 	return layout;
@@ -433,14 +412,12 @@ void DrawButton(std::vector<unsigned char>* pixels, int width, int height, const
 	const unsigned char base = button.Active ? 64 : 52;
 	const unsigned char green = button.Active ? 92 : 58;
 	FillRectRGBA(pixels, width, height, button.Rect, base, green, 66, 236);
-	DrawFrame(pixels, width, height, button.Rect, 142, 148, 138, 255);
 	DrawTextRGBA(pixels, width, height, button.Rect, button.Text, true);
 }
 
 void DrawToolbar(const ToolbarLayout& layout, std::vector<unsigned char>* pixels) {
 	RECT toolbarRect { 0, layout.ToolbarTop, layout.Width, layout.Height };
 	FillRectRGBA(pixels, layout.Width, layout.Height, toolbarRect, 26, 28, 27, 232);
-	DrawFrame(pixels, layout.Width, layout.Height, toolbarRect, 86, 90, 88, 255);
 
 	for (const auto& button : layout.Buttons) {
 		DrawButton(pixels, layout.Width, layout.Height, button);
@@ -448,7 +425,6 @@ void DrawToolbar(const ToolbarLayout& layout, std::vector<unsigned char>* pixels
 
 	const bool hasMessages = !g_quickMessages.empty();
 	FillRectRGBA(pixels, layout.Width, layout.Height, layout.MessageRect, 48, 52, 56, 238);
-	DrawFrame(pixels, layout.Width, layout.Height, layout.MessageRect, 146, 150, 156, 255);
 	DrawTextRGBA(pixels, layout.Width, layout.Height, layout.MessageRect,
 		hasMessages ? L"快捷消息" : L"无快捷消息", false);
 
@@ -463,7 +439,6 @@ void DrawToolbar(const ToolbarLayout& layout, std::vector<unsigned char>* pixels
 		layout.ToolbarTop - 2
 	};
 	FillRectRGBA(pixels, layout.Width, layout.Height, menuRect, 22, 24, 26, 242);
-	DrawFrame(pixels, layout.Width, layout.Height, menuRect, 128, 132, 138, 255);
 
 	for (size_t i = 0; i < layout.MessageItems.size(); ++i) {
 		const RECT& itemRect = layout.MessageItems[i];
@@ -572,14 +547,6 @@ void HandleMouse(const ToolbarLayout& layout) {
 		}
 	}
 
-	if (ContainsPoint(layout.MessageRect, x, y)) {
-		if (g_quickMessages.empty()) {
-			LoadQuickMessages();
-		}
-		g_messageOpen = !g_messageOpen && !g_quickMessages.empty();
-		return;
-	}
-
 	g_messageOpen = false;
 	for (const auto& button : layout.Buttons) {
 		if (ContainsPoint(button.Rect, x, y)) {
@@ -617,6 +584,12 @@ void RenderOverlayToolbarFrameUnsafe() {
 	const int surfaceWidth = surface->GetWidth();
 	const int surfaceHeight = surface->GetHeight();
 	if (surfaceWidth <= 0 || surfaceHeight <= TOOLBAR_HEIGHT) {
+		return;
+	}
+
+	DrawEnemyInfoOverlay();
+
+	if (!Config::isCustomToolbarEnabled()) {
 		return;
 	}
 
@@ -658,10 +631,6 @@ void EnsureHookInstalled() {
 }
 
 void InitOverlayToolbar() {
-	if (!Config::isCustomToolbarEnabled()) {
-		return;
-	}
-
 	LoadQuickMessages();
 	EnsureHookInstalled();
 	g_enabled = true;

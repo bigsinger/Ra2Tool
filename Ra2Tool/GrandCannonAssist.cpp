@@ -1,12 +1,10 @@
 #include <windows.h>
-#include <cmath>
 #include <unordered_set>
 #include <vector>
 #include <algorithm>
 #include <BuildingClass.h>
 #include <EventClass.h>
 #include <HouseClass.h>
-#include <MapClass.h>
 #include <SessionClass.h>
 #include <TargetClass.h>
 #include "Utils.h"
@@ -220,38 +218,10 @@ void TurnGrandCannon(BuildingClass* source) {
 
 	__try {
 		if (SessionClass::IsMultiplayer()) {
-			const int range = source->GetWeaponRange(0);
-			int distanceCells = range > 0 ? range / 256 : 8;
-			distanceCells = std::min(std::max(distanceCells, 3), 32);
-
-			const double radians = static_cast<double>(degrees) * 3.14159265358979323846 / 180.0;
-			const int dx = static_cast<int>(std::round(std::sin(radians) * distanceCells));
-			const int dy = static_cast<int>(std::round(-std::cos(radians) * distanceCells));
-			const CellStruct origin = source->GetMapCoords();
-			CellStruct targetCell {
-				static_cast<short>(origin.X + dx),
-				static_cast<short>(origin.Y + dy)
-			};
-
-			if (!MapClass::Instance.TryGetCellAt(targetCell)) {
-				targetCell = origin;
-			}
-
-			EventClass event(
-				HouseClass::CurrentPlayer->ArrayIndex,
-				TargetClass(source),
-				Mission::Attack,
-				TargetClass(targetCell),
-				TargetClass(targetCell),
-				TargetClass());
-			EventClass::OutList.Add(event);
-
 			Utils::LogFormat(
-				"GrandCannonAssist turn event: source=%08X angle=%d cell=(%d,%d)",
+				"GrandCannonAssist turn skipped in multiplayer: source=%08X angle=%d",
 				source->UniqueID,
-				degrees,
-				targetCell.X,
-				targetCell.Y);
+				degrees);
 			return;
 		}
 

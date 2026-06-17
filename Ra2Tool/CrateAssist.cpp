@@ -9,7 +9,6 @@
 #include <HouseClass.h>
 #include <MessageListClass.h>
 #include <SessionClass.h>
-#include <WaypointPathClass.h>
 #include "Utils.h"
 #include "Config.h"
 #include "Ra2Header.h"
@@ -33,15 +32,23 @@ struct PendingPickupState {
 	DWORD ChargeUntilTick = 0;
 };
 
+struct CellArea {
+	bool Valid = false;
+	CellStruct Min = CellStruct::Empty;
+	CellStruct Max = CellStruct::Empty;
+};
+
 struct RouteCrateState {
 	bool Capturing = false;
 	bool Running = false;
+	bool PickingCrate = false;
 	std::vector<CellStruct> Route;
 	std::vector<FootClass*> Units;
-	size_t NextRouteIndex = 0;
+	CellArea Area;
+	CellStruct ActiveCrateCell = CellStruct::Empty;
 	DWORD LastSampleTick = 0;
-	DWORD LastRouteMoveTick = 0;
 	DWORD LastCrateScanTick = 0;
+	DWORD LastPickupTick = 0;
 };
 
 PendingPickupState g_pendingPickup;
@@ -178,7 +185,7 @@ bool TryIssueMove(FootClass* foot, const CellStruct& cell) {
 			houseIndex,
 			TargetClass(foot),
 			Mission::Move,
-			TargetClass(cell),
+			TargetClass(),
 			TargetClass(cell),
 			TargetClass());
 		EventClass::OutList.Add(event);
@@ -261,36 +268,34 @@ bool AppendRouteCell(std::vector<CellStruct>* route, const CellStruct& cell) {
 	return true;
 }
 
-bool TryImportPlanningRoute() {
-	auto house = HouseClass::CurrentPlayer;
-	if (!house) {
+bool BuildRouteArea(const std::vector<CellStruct>& route, CellArea* outArea) {
+	if (!outArea || route.size() < 2) {
 		return false;
 	}
 
-	std::vector<CellStruct> bestRoute;
-	for (int pathIndex = 0; pathIndex < 12; ++pathIndex) {
-		WaypointPathClass* path = house->PlanningPaths[pathIndex];
-		if (!path || path->Waypoints.Count <= 0 || !path->Waypoints.Items) {
-			continue;
-		}
-
-		std::vector<CellStruct> route;
-		for (int waypointIndex = 0; waypointIndex < path->Waypoints.Count; ++waypointIndex) {
-			AppendRouteCell(&route, path->Waypoints.Items[waypointIndex].Coords);
-		}
-
-		if (route.size() > bestRoute.size()) {
-			bestRoute.swap(route);
-		}
+	short minX = route[0].X;
+	short maxX = route[0].X;
+	short minY = route[0].Y;
+	short maxY = route[0].Y;
+	for (const auto& cell : route) {
+		minX = std::min(minX, cell.X);
+		maxX = std::max(maxX, cell.X);
+		minY = std::min(minY, cell.Y);
+		maxY = std::max(maxY, cell.Y);
 	}
 
-	if (bestRoute.size() < 2) {
-		return false;
+	if (minX == maxX) {
+		--minX;
+		++maxX;
+	}
+	if (minY == maxY) {
+		--minY;
+		++maxY;
 	}
 
-	g_routeCrate.Route.swap(bestRoute);
-	Utils::LogFormat("CrateAssist imported planning route: points=%d",
-		static_cast<int>(g_routeCrate.Route.size()));
+	outArea->Valid = true;
+	outArea->Min = CellStruct { minX, minY };
+	outArea->Max = CellStruct { maxX, maxY };
 	return true;
 }
 
@@ -397,6 +402,23 @@ bool FindNearestCrate(const std::vector<FootClass*>& units, CrateTarget* outCrat
 
 	*outCrate = best;
 	return true;
+}
+
+int ClosestUnitDistance2(const std::vector<FootClass*>& units, const CellStruct& cell) {
+	int best = 0x7FFFFFFF;
+	for (auto unit : units) {
+		const CellStruct unitCell = TryGetFootCell(unit);
+		if (unitCell == CellStruct::Empty) {
+			continue;
+		}
+
+		const int distance = CellDistance2(unitCell, cell);
+		if (distance < best) {
+			best = distance;
+		}
+	}
+
+	return best;
 }
 
 std::vector<CellStruct> BuildApproachCells(const CellStruct& crateCell, size_t neededCount) {
@@ -523,58 +545,12 @@ bool StartPickupForUnits(std::vector<FootClass*> units, const CellStruct& crateC
 	return true;
 }
 
-double PointSegmentDistance2(const CellStruct& point, const CellStruct& a, const CellStruct& b) {
-	const double px = point.X;
-	const double py = point.Y;
-	const double ax = a.X;
-	const double ay = a.Y;
-	const double bx = b.X;
-	const double by = b.Y;
-	const double vx = bx - ax;
-	const double vy = by - ay;
-	const double wx = px - ax;
-	const double wy = py - ay;
-	const double length2 = vx * vx + vy * vy;
-
-	if (length2 <= 0.0001) {
-		const double dx = px - ax;
-		const double dy = py - ay;
-		return dx * dx + dy * dy;
-	}
-
-	double t = (wx * vx + wy * vy) / length2;
-	if (t < 0.0) {
-		t = 0.0;
-	} else if (t > 1.0) {
-		t = 1.0;
-	}
-
-	const double cx = ax + t * vx;
-	const double cy = ay + t * vy;
-	const double dx = px - cx;
-	const double dy = py - cy;
-	return dx * dx + dy * dy;
-}
-
-bool IsCrateNearRoute(const CellStruct& crateCell) {
-	const int width = Config::getCrateRouteWidth();
-	const double threshold = static_cast<double>(width * width);
-
-	if (g_routeCrate.Route.empty()) {
-		return false;
-	}
-
-	if (g_routeCrate.Route.size() == 1) {
-		return CellDistance2(crateCell, g_routeCrate.Route[0]) <= width * width;
-	}
-
-	for (size_t i = 1; i < g_routeCrate.Route.size(); ++i) {
-		if (PointSegmentDistance2(crateCell, g_routeCrate.Route[i - 1], g_routeCrate.Route[i]) <= threshold) {
-			return true;
-		}
-	}
-
-	return false;
+bool IsCrateInRouteArea(const CellStruct& crateCell) {
+	return g_routeCrate.Area.Valid
+		&& crateCell.X >= g_routeCrate.Area.Min.X
+		&& crateCell.X <= g_routeCrate.Area.Max.X
+		&& crateCell.Y >= g_routeCrate.Area.Min.Y
+		&& crateCell.Y <= g_routeCrate.Area.Max.Y;
 }
 
 bool FindNearestRouteCrate(const std::vector<FootClass*>& units, CrateTarget* outCrate) {
@@ -589,11 +565,15 @@ bool FindNearestRouteCrate(const std::vector<FootClass*>& units, CrateTarget* ou
 	CrateTarget best = {};
 
 	for (const auto& crate : crates) {
-		if (!IsCrateNearRoute(crate.Cell)) {
+		if (!IsCrateInRouteArea(crate.Cell)) {
 			continue;
 		}
 
-		const int score = CellDistance2(center, crate.Cell);
+		int score = ClosestUnitDistance2(units, crate.Cell);
+		if (score == 0x7FFFFFFF) {
+			score = CellDistance2(center, crate.Cell);
+		}
+
 		if (!found || score < bestScore) {
 			found = true;
 			bestScore = score;
@@ -607,6 +587,27 @@ bool FindNearestRouteCrate(const std::vector<FootClass*>& units, CrateTarget* ou
 
 	*outCrate = best;
 	return true;
+}
+
+bool StartRouteCratePickup(const CrateTarget& crate) {
+	if (!StartPickupForUnits(g_routeCrate.Units, crate.Cell)) {
+		return false;
+	}
+
+	g_routeCrate.PickingCrate = true;
+	g_routeCrate.ActiveCrateCell = crate.Cell;
+	g_routeCrate.LastPickupTick = GetTickCount();
+	Utils::LogFormat(
+		"CrateAssist route pickup started: crate=(%d,%d)",
+		crate.Cell.X,
+		crate.Cell.Y);
+	return true;
+}
+
+void ClearRoutePickupState() {
+	g_routeCrate.PickingCrate = false;
+	g_routeCrate.ActiveCrateCell = CellStruct::Empty;
+	g_routeCrate.LastPickupTick = 0;
 }
 
 bool IsUnitNearCell(FootClass* unit, const CellStruct& cell, int tolerance) {
@@ -638,6 +639,24 @@ void IssueCrateCharge(const std::vector<FootClass*>& units, const CellStruct& cr
 	std::sort(sortedUnits.begin(), sortedUnits.end(), [crateCell](FootClass* a, FootClass* b) {
 		return CellDistance2(TryGetFootCell(a), crateCell) < CellDistance2(TryGetFootCell(b), crateCell);
 	});
+
+	if (sortedUnits.empty()) {
+		return;
+	}
+
+	if (sortedUnits.size() > 1) {
+		for (auto unit : sortedUnits) {
+			if (IsUnitNearCell(unit, crateCell, 2)) {
+				TryIssueMove(unit, crateCell);
+				Utils::LogFormat(
+					"CrateAssist pickup charge nearest: unit=%08X crate=(%d,%d)",
+					unit->UniqueID,
+					crateCell.X,
+					crateCell.Y);
+				return;
+			}
+		}
+	}
 
 	for (auto unit : sortedUnits) {
 		TryIssueMove(unit, crateCell);
@@ -715,26 +734,26 @@ void SampleRoutePoint() {
 void StartRouteCapture() {
 	g_routeCrate.Capturing = true;
 	g_routeCrate.Running = false;
+	ClearRoutePickupState();
 	g_routeCrate.Route.clear();
 	g_routeCrate.Units.clear();
-	g_routeCrate.NextRouteIndex = 0;
+	g_routeCrate.Area = CellArea();
 	g_routeCrate.LastSampleTick = 0;
-	g_routeCrate.LastRouteMoveTick = 0;
 	g_routeCrate.LastCrateScanTick = 0;
 	TrySetGameWaypointMode(true);
-	PrintGameMessage(L"开始圈定跑图路线");
-	Utils::Log("CrateAssist route capture started.");
+	PrintGameMessage(L"开始圈定捡箱区域");
+	Utils::Log("CrateAssist route area capture started.");
 }
 
 void StartRouteRun() {
 	g_routeCrate.Capturing = false;
-	TryImportPlanningRoute();
 	TrySetGameWaypointMode(false);
 
-	if (g_routeCrate.Route.size() < 2) {
+	CellArea area = {};
+	if (!BuildRouteArea(g_routeCrate.Route, &area)) {
 		g_routeCrate.Running = false;
-		PrintGameMessage(L"跑图路线点不足");
-		Utils::Log("CrateAssist route run failed: not enough route points.");
+		PrintGameMessage(L"捡箱区域点不足");
+		Utils::Log("CrateAssist route run failed: not enough area points.");
 		return;
 	}
 
@@ -747,23 +766,28 @@ void StartRouteRun() {
 	}
 
 	g_routeCrate.Running = true;
-	g_routeCrate.NextRouteIndex = 0;
-	g_routeCrate.LastRouteMoveTick = 0;
+	ClearRoutePickupState();
+	g_routeCrate.Area = area;
 	g_routeCrate.LastCrateScanTick = 0;
-	PrintGameMessage(L"开始跑图捡箱");
+	PrintGameMessage(L"开始区域捡箱");
 	Utils::LogFormat(
-		"CrateAssist route run started: units=%d route=%d",
+		"CrateAssist route run started: units=%d area=(%d,%d)-(%d,%d)",
 		static_cast<int>(g_routeCrate.Units.size()),
-		static_cast<int>(g_routeCrate.Route.size()));
+		g_routeCrate.Area.Min.X,
+		g_routeCrate.Area.Min.Y,
+		g_routeCrate.Area.Max.X,
+		g_routeCrate.Area.Max.Y);
 }
 
 void StopRouteRun() {
 	g_routeCrate.Capturing = false;
 	g_routeCrate.Running = false;
 	g_routeCrate.Units.clear();
+	g_routeCrate.Area = CellArea();
+	ClearRoutePickupState();
 	g_pendingPickup.Active = false;
 	TrySetGameWaypointMode(false);
-	PrintGameMessage(L"已停止跑图捡箱");
+	PrintGameMessage(L"已停止区域捡箱");
 	Utils::Log("CrateAssist route run stopped.");
 }
 
@@ -783,32 +807,33 @@ void TickRouteRun() {
 	}
 
 	const DWORD now = GetTickCount();
+	if (g_routeCrate.PickingCrate) {
+		if (TryIsActiveCrateCell(g_routeCrate.ActiveCrateCell)) {
+			if (g_routeCrate.LastPickupTick != 0
+				&& now - g_routeCrate.LastPickupTick < 800) {
+				return;
+			}
+
+			CrateTarget crate = {};
+			crate.Cell = g_routeCrate.ActiveCrateCell;
+			if (StartRouteCratePickup(crate)) {
+				return;
+			}
+		}
+
+		ClearRoutePickupState();
+		g_routeCrate.LastCrateScanTick = 0;
+	}
+
 	if (now - g_routeCrate.LastCrateScanTick >= 500) {
 		g_routeCrate.LastCrateScanTick = now;
 
 		CrateTarget crate = {};
 		if (FindNearestRouteCrate(g_routeCrate.Units, &crate)) {
-			StartPickupForUnits(g_routeCrate.Units, crate.Cell);
+			StartRouteCratePickup(crate);
 			return;
 		}
 	}
-
-	if (g_routeCrate.Route.empty()) {
-		return;
-	}
-
-	if (g_routeCrate.LastRouteMoveTick != 0
-		&& now - g_routeCrate.LastRouteMoveTick < static_cast<DWORD>(Config::getCrateRouteMoveInterval())) {
-		return;
-	}
-
-	g_routeCrate.LastRouteMoveTick = now;
-	const CellStruct dest = g_routeCrate.Route[g_routeCrate.NextRouteIndex % g_routeCrate.Route.size()];
-	for (auto unit : g_routeCrate.Units) {
-		TryIssueMove(unit, dest);
-	}
-
-	g_routeCrate.NextRouteIndex = (g_routeCrate.NextRouteIndex + 1) % g_routeCrate.Route.size();
 }
 
 enum class FormationMode {
