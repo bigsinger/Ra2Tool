@@ -28,6 +28,30 @@ void Topmost(HWND hwnd) {
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
+bool RefreshGameClientBounds(HWND hwnd, bool moveWindow) {
+    HWND hGameMain = GetMainWindowForProcessId(GetCurrentProcessId());
+    RECT client = {};
+    POINT topLeft = { 0, 0 };
+    if (!hGameMain || !GetClientRect(hGameMain, &client) || !ClientToScreen(hGameMain, &topLeft)) {
+        return false;
+    }
+
+    if (Config::isCustomToolbarEnabled() && client.bottom - client.top > 48) {
+        client.bottom -= 24;
+    }
+
+    gameClientRect = client;
+    gameClientTopLeft = topLeft;
+    if (moveWindow && hwnd) {
+        SetWindowPos(hwnd, HWND_TOPMOST, topLeft.x, topLeft.y,
+            client.right - client.left,
+            client.bottom - client.top,
+            SWP_NOACTIVATE | SWP_SHOWWINDOW);
+    }
+
+    return true;
+}
+
 // 强制刷新
 void RefreshLabels(HWND hwnd) {
     ::InvalidateRect(hwnd, NULL, TRUE);
@@ -38,9 +62,12 @@ LRESULT CALLBACK TipWindowWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     switch (msg) {
     case WM_TIMER:
         if (wParam == TIMER_ID_SHOWTIP) {
+            RefreshGameClientBounds(hwnd, false);
             RefreshLabels(hwnd); // 强制刷新
         } else if (wParam == TIMER_ID_TOPMOST) {
-            Topmost(hwnd);
+            if (!RefreshGameClientBounds(hwnd, true)) {
+                Topmost(hwnd);
+            }
         }
         break;
     case WM_PAINT: {
@@ -104,8 +131,7 @@ unsigned __stdcall ThreadProcCreateTipWindow(void* param) {
     //HWND hGameMain = FindWindowW(L"Yuris Revenge", L"Yuris Revenge);
     gameClientTopLeft = { 0, 0 };   // 需要每次初始化
     HWND hGameMain = GetMainWindowForProcessId(GetCurrentProcessId());
-    GetClientRect(hGameMain, &gameClientRect);
-    ClientToScreen(hGameMain, &gameClientTopLeft);
+    RefreshGameClientBounds(NULL, false);
     Utils::LogFormat("Game Wnd: %p Client Rect: (%d, %d, %d, %d)", hGameMain,
         gameClientTopLeft.x, gameClientTopLeft.y,
 		gameClientRect.right, gameClientRect.bottom);

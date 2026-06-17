@@ -1,6 +1,8 @@
 ﻿#include <stdio.h>
+#include <string.h>
 #include <tchar.h>
 #include <windows.h>
+#include <Unsorted.h>
 #include "Utils.h"
 #include "Config.h"
 
@@ -12,6 +14,15 @@ void OutputRa2ToolLog(const char* msg) {
 	char buffer[1200] = {};
 	sprintf_s(buffer, sizeof(buffer), "%s%s", LOG_PREFIX, msg ? msg : "");
 	OutputDebugStringA(buffer);
+}
+
+bool IsRa2ToolWindowClass(HWND hwnd) {
+	char className[64] = {};
+	GetClassNameA(hwnd, className, sizeof(className));
+	return strcmp(className, "RA2ToolWindow") == 0
+		|| strcmp(className, "RA2CustomToolbar") == 0
+		|| strcmp(className, "RA2EnemyInfoPanel") == 0
+		|| strcmp(className, "RA2TipWindow") == 0;
 }
 
 }
@@ -51,6 +62,18 @@ void Utils::GetStartPath(HMODULE hModule, TCHAR* szBuffer, int nBufferCountSize/
 }
 
 HWND GetMainWindowForProcessId(DWORD targetPid) {
+	__try {
+		HWND gameHwnd = Game::hWnd;
+		DWORD gamePid = 0;
+		if (gameHwnd && IsWindow(gameHwnd)) {
+			GetWindowThreadProcessId(gameHwnd, &gamePid);
+			if (gamePid == targetPid) {
+				return gameHwnd;
+			}
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+	}
+
 	HWND targetHwnd = NULL;
     DWORD pid = 0;
     HWND hwnd = GetTopWindow(NULL);
@@ -58,7 +81,7 @@ HWND GetMainWindowForProcessId(DWORD targetPid) {
         GetWindowThreadProcessId(hwnd, &pid);
         if (pid == targetPid) {
             // 过滤子窗口，确保是顶层窗口（无 owner）+ 可见
-            if (GetWindow(hwnd, GW_OWNER) == NULL && IsWindowVisible(hwnd)) {
+            if (GetWindow(hwnd, GW_OWNER) == NULL && IsWindowVisible(hwnd) && !IsRa2ToolWindowClass(hwnd)) {
 				targetHwnd = hwnd;
 				break;
             }

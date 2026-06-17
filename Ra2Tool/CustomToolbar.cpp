@@ -593,8 +593,8 @@ void RepositionToolbar() {
 	const int x = topLeft.x + std::max(0, (clientWidth - toolbarWidth) / 2);
 	const int y = topLeft.y + std::max(0, clientHeight - layout.Height);
 
-	SetWindowPos(g_hwndCustomToolbar, HWND_TOPMOST, x, y, toolbarWidth, layout.Height,
-		SWP_NOACTIVATE | SWP_SHOWWINDOW);
+	SetWindowPos(g_hwndCustomToolbar, NULL, x, y, toolbarWidth, layout.Height,
+		SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 void RepositionEnemyInfo() {
@@ -614,8 +614,8 @@ void RepositionEnemyInfo() {
 	const int bottomReserved = Config::isCustomToolbarEnabled() ? TOOLBAR_HEIGHT + 4 : 4;
 	const int x = topLeft.x + std::max(0, clientWidth - ENEMY_PANEL_WIDTH - 6);
 	const int y = topLeft.y + std::max(0, clientHeight - ENEMY_PANEL_HEIGHT - bottomReserved);
-	SetWindowPos(g_hwndEnemyInfo, HWND_TOPMOST, x, y, ENEMY_PANEL_WIDTH, ENEMY_PANEL_HEIGHT,
-		SWP_NOACTIVATE | SWP_SHOWWINDOW);
+	SetWindowPos(g_hwndEnemyInfo, NULL, x, y, ENEMY_PANEL_WIDTH, ENEMY_PANEL_HEIGHT,
+		SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 void RefreshEnemyInfoWindow() {
@@ -677,6 +677,7 @@ void HandleButtonClick(int id, HWND hwnd) {
 
 	g_openDropdown = DropdownKind::None;
 	RepositionToolbar();
+	Topmost(hwnd);
 	InvalidateRect(hwnd, NULL, TRUE);
 	if (g_hwndTipWindow) {
 		InvalidateRect(g_hwndTipWindow, NULL, TRUE);
@@ -691,6 +692,7 @@ void ToggleQuickMessages(HWND hwnd) {
 		? DropdownKind::None
 		: (g_quickMessages.empty() ? DropdownKind::None : DropdownKind::QuickMessage);
 	RepositionToolbar();
+	Topmost(hwnd);
 	InvalidateRect(hwnd, NULL, TRUE);
 }
 
@@ -702,6 +704,7 @@ void ToggleAreaPresets(HWND hwnd) {
 		? DropdownKind::None
 		: (g_areaPresets.empty() ? DropdownKind::None : DropdownKind::CrateArea);
 	RepositionToolbar();
+	Topmost(hwnd);
 	InvalidateRect(hwnd, NULL, TRUE);
 }
 
@@ -716,6 +719,7 @@ void HandleToolbarClick(HWND hwnd, int x, int y) {
 				const std::wstring message = g_quickMessages[i];
 				g_openDropdown = DropdownKind::None;
 				RepositionToolbar();
+				Topmost(hwnd);
 				InvalidateRect(hwnd, NULL, TRUE);
 				Chat(message.c_str());
 				return;
@@ -727,6 +731,7 @@ void HandleToolbarClick(HWND hwnd, int x, int y) {
 				const AreaPreset preset = g_areaPresets[i];
 				g_openDropdown = DropdownKind::None;
 				RepositionToolbar();
+				Topmost(hwnd);
 				InvalidateRect(hwnd, NULL, TRUE);
 				StartRouteCratePickupInArea(preset.Left, preset.Top, preset.Right, preset.Bottom);
 				return;
@@ -753,6 +758,7 @@ void HandleToolbarClick(HWND hwnd, int x, int y) {
 	}
 
 	RepositionToolbar();
+	Topmost(hwnd);
 	InvalidateRect(hwnd, NULL, TRUE);
 }
 
@@ -765,7 +771,9 @@ LRESULT CALLBACK CustomToolbarWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 			InvalidateRect(hwnd, NULL, TRUE);
 		} else if (wParam == TIMER_ID_TOPMOST) {
 			Topmost(hwnd);
-			Topmost(g_hwndEnemyInfo);
+			if (Config::isShowEnemyInfo()) {
+				Topmost(g_hwndEnemyInfo);
+			}
 		}
 		break;
 	case WM_PAINT:
@@ -805,7 +813,9 @@ LRESULT CALLBACK EnemyInfoWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 			RepositionEnemyInfo();
 			InvalidateRect(hwnd, NULL, TRUE);
 		} else if (wParam == TIMER_ID_TOPMOST) {
-			Topmost(hwnd);
+			if (Config::isShowEnemyInfo()) {
+				Topmost(hwnd);
+			}
 		}
 		break;
 	case WM_PAINT: {
@@ -882,6 +892,7 @@ void CreateToolbarWindow() {
 	SetTimer(hwnd, TIMER_ID_REFRESH, 300, NULL);
 	SetTimer(hwnd, TIMER_ID_TOPMOST, 2000, NULL);
 	RepositionToolbar();
+	Topmost(hwnd);
 }
 
 void CreateEnemyInfoWindow() {
@@ -913,6 +924,9 @@ void CreateEnemyInfoWindow() {
 	SetTimer(hwnd, TIMER_ID_REFRESH, 500, NULL);
 	SetTimer(hwnd, TIMER_ID_TOPMOST, 2000, NULL);
 	RefreshEnemyInfoWindow();
+	if (Config::isShowEnemyInfo()) {
+		Topmost(hwnd);
+	}
 }
 
 unsigned __stdcall ThreadProcCreateCustomToolbar(void*) {

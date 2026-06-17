@@ -166,7 +166,7 @@ unsigned __stdcall ThreadProcCreateToolWindow(void* param) {
         WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,// 扩展样式
         className,                          // 窗口类名
         className,                          // 窗口标题
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,   // 窗口样式
+        WS_POPUP,                           // 窗口样式
         -900, -900, 0, 0,                   // 窗口位置和尺寸
         NULL,                               // 父窗口
         nullptr,                            // 菜单
