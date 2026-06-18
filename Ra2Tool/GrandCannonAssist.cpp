@@ -1,10 +1,12 @@
 #include <windows.h>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <algorithm>
 #include <BuildingClass.h>
 #include <EventClass.h>
 #include <HouseClass.h>
+#include <InfantryClass.h>
 #include <SessionClass.h>
 #include <TargetClass.h>
 #include "Utils.h"
@@ -15,7 +17,9 @@ namespace {
 
 std::unordered_set<DWORD> knownOwnGrandCannons;
 std::unordered_set<DWORD> knownEnemyGrandCannons;
+std::unordered_map<DWORD, DWORD> lastEngineerRepairTicks;
 bool grandCannonKnownSetReady = false;
+DWORD lastNoEngineerMessageTick = 0;
 
 DWORD GetBuildingKey(BuildingClass* building) {
 	if (!building) {
@@ -186,6 +190,121 @@ BuildingClass* FindNearestEnemyGrandCannonInRange(BuildingClass* source) {
 	return best;
 }
 
+int HealthPercent(BuildingClass* building) {
+	__try {
+		if (!building || !building->Type || building->Type->Strength <= 0) {
+			return 100;
+		}
+
+		const int health = std::max(0, building->Health);
+		return std::min(100, (health * 100) / building->Type->Strength);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return 100;
+	}
+}
+
+bool IsOwnEngineer(InfantryClass* infantry) {
+	__try {
+		return infantry
+			&& infantry->Owner == HouseClass::CurrentPlayer
+			&& infantry->IsAlive
+			&& infantry->IsOnMap
+			&& !infantry->InLimbo
+			&& infantry->Type
+			&& (infantry->Type->Engineer || infantry->IsEngineer());
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return false;
+	}
+}
+
+InfantryClass* FindNearestEngineer(BuildingClass* target) {
+	InfantryClass* best = nullptr;
+	int bestDistance = INT_MAX;
+
+	__try {
+		for (int i = 0; i < InfantryClass::Array.Count; ++i) {
+			InfantryClass* infantry = InfantryClass::Array.GetItem(i);
+			if (!IsOwnEngineer(infantry)) {
+				continue;
+			}
+
+			const int distance = DistanceBetween(infantry, target);
+			if (distance < bestDistance) {
+				best = infantry;
+				bestDistance = distance;
+			}
+		}
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return nullptr;
+	}
+
+	return best;
+}
+
+void NotifyNoEngineer() {
+	const DWORD now = GetTickCount();
+	if (now - lastNoEngineerMessageTick < 5000) {
+		return;
+	}
+
+	lastNoEngineerMessageTick = now;
+	PrintGameMessage(L"当前没有工程师，无法执行巨炮抢修");
+	Utils::Log("GrandCannonAssist engineer repair failed: no engineer.");
+}
+
+void IssueEngineerRepair(InfantryClass* engineer, BuildingClass* target) {
+	if (!engineer || !target || engineer->Owner != HouseClass::CurrentPlayer) {
+		return;
+	}
+
+	__try {
+		EventClass event(
+			HouseClass::CurrentPlayer->ArrayIndex,
+			TargetClass(engineer),
+			Mission::Repair,
+			TargetClass(target),
+			TargetClass(target),
+			TargetClass());
+		EventClass::OutList.Add(event);
+		Utils::LogFormat(
+			"GrandCannonAssist engineer repair: engineer=%08X target=%08X hp=%d%%",
+			engineer->UniqueID,
+			target->UniqueID,
+			HealthPercent(target));
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("GrandCannonAssist engineer repair failed.");
+	}
+}
+
+void TryEngineerRepairGrandCannon(BuildingClass* cannon) {
+	if (!Config::isGrandCannonEngineerRepairEnabled() || !IsOwnGrandCannon(cannon)) {
+		return;
+	}
+
+	const int threshold = Config::getGrandCannonEngineerRepairThreshold();
+	const int healthPercent = HealthPercent(cannon);
+	if (healthPercent <= 0 || healthPercent >= threshold) {
+		return;
+	}
+
+	const DWORD now = GetTickCount();
+	const DWORD key = GetBuildingKey(cannon);
+	auto last = lastEngineerRepairTicks.find(key);
+	if (last != lastEngineerRepairTicks.end() && now - last->second < 3000) {
+		return;
+	}
+
+	InfantryClass* engineer = FindNearestEngineer(cannon);
+	if (!engineer) {
+		NotifyNoEngineer();
+		lastEngineerRepairTicks[key] = now;
+		return;
+	}
+
+	IssueEngineerRepair(engineer, cannon);
+	lastEngineerRepairTicks[key] = now;
+}
+
 void IssueAttack(BuildingClass* source, BuildingClass* target, const char* reason) {
 	if (!source || !target || !source->Owner || source->Owner != HouseClass::CurrentPlayer) {
 		return;
@@ -320,6 +439,10 @@ void ScanGrandCannons(bool forceActions) {
 	for (auto building : newEnemy) {
 		HandleEnemyGrandCannonReady(building);
 	}
+
+	for (auto building : GetOwnGrandCannons()) {
+		TryEngineerRepairGrandCannon(building);
+	}
 }
 
 }
@@ -327,7 +450,9 @@ void ScanGrandCannons(bool forceActions) {
 void InitGrandCannonAssist() {
 	knownOwnGrandCannons.clear();
 	knownEnemyGrandCannons.clear();
+	lastEngineerRepairTicks.clear();
 	grandCannonKnownSetReady = false;
+	lastNoEngineerMessageTick = 0;
 }
 
 void TickGrandCannonAssist() {

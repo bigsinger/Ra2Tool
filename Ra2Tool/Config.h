@@ -176,6 +176,34 @@ public:
 	}
 
 private:
+	// 巨炮受损后是否自动派工程师抢修
+	inline static int _iGrandCannonEngineerRepairFlag = UNINITED_FLAG;
+public:
+	static bool isGrandCannonEngineerRepairEnabled() {
+		if (_iGrandCannonEngineerRepairFlag == UNINITED_FLAG) {
+			_iGrandCannonEngineerRepairFlag = ::GetPrivateProfileInt("cannon", "EngineerRepair", TRUE, _configFilePath);
+		}
+		return _iGrandCannonEngineerRepairFlag > 0;
+	}
+
+private:
+	// 巨炮工程师抢修血量阈值，0-100百分比
+	inline static int _iGrandCannonEngineerRepairThreshold = UNINITED_FLAG;
+public:
+	static int getGrandCannonEngineerRepairThreshold() {
+		if (_iGrandCannonEngineerRepairThreshold == UNINITED_FLAG) {
+			_iGrandCannonEngineerRepairThreshold = ::GetPrivateProfileInt("cannon", "EngineerRepairThreshold", 50, _configFilePath);
+		}
+		if (_iGrandCannonEngineerRepairThreshold < 0) {
+			return 0;
+		}
+		if (_iGrandCannonEngineerRepairThreshold > 100) {
+			return 100;
+		}
+		return _iGrandCannonEngineerRepairThreshold;
+	}
+
+private:
 	// 是否显示敌方玩家信息
 	inline static int _iShowEnemyInfoFlag = UNINITED_FLAG;
 public:

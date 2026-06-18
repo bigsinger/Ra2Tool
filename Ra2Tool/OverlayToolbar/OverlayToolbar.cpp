@@ -10,12 +10,13 @@
 #include <Surface.h>
 #include "Utils.h"
 #include "Config.h"
+#include "Ra2Header.h"
 #include "Ra2Helper.h"
 
 namespace {
 
-constexpr DWORD HOOK_POINT = 0x004F4573;
-DWORD g_hookReturn = 0x004F4578;
+constexpr DWORD HOOK_POINT = RA2_HOOK_OVERLAY_DRAW;
+DWORD g_hookReturn = RA2_HOOK_OVERLAY_DRAW_RETURN;
 
 constexpr int TOOLBAR_HEIGHT = 24;
 constexpr int MENU_ITEM_HEIGHT = 22;
@@ -620,7 +621,7 @@ void __declspec(naked) OverlayToolbarDrawHook() {
 		pushad
 		call RenderOverlayToolbarFrame
 		popad
-		mov eax, 0x00A8B8B4
+		mov eax, RA2_ADDR_OVERLAY_SURFACE
 		mov eax, [eax]
 		jmp dword ptr [g_hookReturn]
 	}

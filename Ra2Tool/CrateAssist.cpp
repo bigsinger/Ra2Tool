@@ -64,11 +64,20 @@ struct AutoPickupState {
 	CellStruct ActiveCrateCell = CellStruct::Empty;
 	DWORD LastPickupTick = 0;
 	DWORD LastScanTick = 0;
+	DWORD StopDetectionReadyTick = 0;
+};
+
+struct StopHoldState {
+	bool Active = false;
+	std::vector<FootClass*> Units;
+	DWORD UntilTick = 0;
+	DWORD LastStopTick = 0;
 };
 
 PendingPickupState g_pendingPickup;
 RouteCrateState g_routeCrate;
 AutoPickupState g_autoPickup;
+StopHoldState g_stopHold;
 
 int AbsInt(int value) {
 	return value < 0 ? -value : value;
@@ -100,7 +109,7 @@ bool TryGetCurrentHouseIndex(int* outHouseIndex) {
 
 int TryGetSelectedCount() {
 	__try {
-		return *reinterpret_cast<int*>(0x00A8ECC8);
+		return *reinterpret_cast<int*>(RA2_ADDR_SELECTED_COUNT);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return 0;
 	}
@@ -108,7 +117,7 @@ int TryGetSelectedCount() {
 
 TechnoClass* TryGetSelectedTechno(int index) {
 	__try {
-		auto selected = *reinterpret_cast<TechnoClass***>(0x00A8ECBC);
+		auto selected = *reinterpret_cast<TechnoClass***>(RA2_ADDR_SELECTED_OBJECTS);
 		return selected ? selected[index] : nullptr;
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return nullptr;
@@ -799,6 +808,7 @@ void StopAutoPickup() {
 	g_autoPickup.ActiveCrateCell = CellStruct::Empty;
 	g_autoPickup.LastPickupTick = 0;
 	g_autoPickup.LastScanTick = 0;
+	g_autoPickup.StopDetectionReadyTick = 0;
 	g_pendingPickup.Active = false;
 	g_pendingPickup.Charging = false;
 	g_pendingPickup.Units.clear();
@@ -845,6 +855,7 @@ bool StartAutoPickupRound() {
 	g_autoPickup.ActiveCrateCell = crate.Cell;
 	g_autoPickup.LastPickupTick = GetTickCount();
 	g_autoPickup.LastScanTick = g_autoPickup.LastPickupTick;
+	g_autoPickup.StopDetectionReadyTick = g_autoPickup.LastPickupTick + 100;
 	return true;
 }
 
@@ -871,7 +882,7 @@ bool IsAutoPickupStopRequested() {
 	return false;
 }
 
-void IssueStopForAutoPickupUnits() {
+std::vector<FootClass*> CollectAutoPickupUnits() {
 	std::vector<FootClass*> units = g_autoPickup.Units;
 	for (auto unit : g_pendingPickup.Units) {
 		bool exists = false;
@@ -887,16 +898,46 @@ void IssueStopForAutoPickupUnits() {
 		}
 	}
 
+	return FilterLiveUnits(units);
+}
+
+void IssueStopForUnits(const std::vector<FootClass*>& units) {
 	for (auto unit : FilterLiveUnits(units)) {
 		TryIssueStop(unit);
 	}
 }
 
 void CancelAutoPickupByStop() {
-	IssueStopForAutoPickupUnits();
+	auto units = CollectAutoPickupUnits();
+	IssueStopForUnits(units);
 	StopAutoPickup();
+	g_stopHold.Active = !units.empty();
+	g_stopHold.Units = units;
+	g_stopHold.UntilTick = GetTickCount() + 1500;
+	g_stopHold.LastStopTick = 0;
 	PrintGameMessage(L"已停止自动捡箱");
 	Utils::Log("CrateAssist auto pickup stopped by player stop command.");
+}
+
+void TickStopHold() {
+	if (!g_stopHold.Active) {
+		return;
+	}
+
+	const DWORD now = GetTickCount();
+	g_stopHold.Units = FilterLiveUnits(g_stopHold.Units);
+	if (g_stopHold.Units.empty() || now > g_stopHold.UntilTick) {
+		g_stopHold.Active = false;
+		g_stopHold.Units.clear();
+		g_stopHold.UntilTick = 0;
+		g_stopHold.LastStopTick = 0;
+		return;
+	}
+
+	if (g_stopHold.LastStopTick == 0 || now - g_stopHold.LastStopTick >= 180) {
+		g_stopHold.LastStopTick = now;
+		IssueStopForUnits(g_stopHold.Units);
+	}
 }
 
 void TickAutoPickup() {
@@ -917,7 +958,7 @@ void TickAutoPickup() {
 
 	if (!SameCell(g_autoPickup.ActiveCrateCell, CellStruct::Empty)
 		&& TryIsActiveCrateCell(g_autoPickup.ActiveCrateCell)) {
-		if (now - g_autoPickup.LastPickupTick >= 900 && IsAutoPickupStopRequested()) {
+		if (now >= g_autoPickup.StopDetectionReadyTick && IsAutoPickupStopRequested()) {
 			CancelAutoPickupByStop();
 			return;
 		}
@@ -927,6 +968,7 @@ void TickAutoPickup() {
 			crate.Cell = g_autoPickup.ActiveCrateCell;
 			StartPickupForUnits(g_autoPickup.Units, crate.Cell);
 			g_autoPickup.LastPickupTick = now;
+			g_autoPickup.StopDetectionReadyTick = now + 100;
 		}
 		return;
 	}
@@ -1011,7 +1053,7 @@ void TickPendingPickup() {
 
 	const DWORD now = GetTickCount();
 	if (g_autoPickup.Active
-		&& now - g_autoPickup.LastPickupTick >= 500
+		&& now >= g_autoPickup.StopDetectionReadyTick
 		&& IsAutoPickupStopRequested()) {
 		CancelAutoPickupByStop();
 		return;
@@ -1340,6 +1382,10 @@ void StartOptimalCratePickup() {
 		return;
 	}
 
+	g_stopHold.Active = false;
+	g_stopHold.Units.clear();
+	g_stopHold.UntilTick = 0;
+	g_stopHold.LastStopTick = 0;
 	ClearRouteStateForManualPickup();
 	g_pendingPickup.Active = false;
 	g_autoPickup.Active = true;
@@ -1347,6 +1393,7 @@ void StartOptimalCratePickup() {
 	g_autoPickup.ActiveCrateCell = CellStruct::Empty;
 	g_autoPickup.LastPickupTick = 0;
 	g_autoPickup.LastScanTick = 0;
+	g_autoPickup.StopDetectionReadyTick = 0;
 	StartAutoPickupRound();
 }
 
@@ -1406,6 +1453,8 @@ void ToggleRouteCratePickup() {
 }
 
 void TickCrateAssist() {
+	TickStopHold();
+
 	if (g_routeCrate.Capturing) {
 		if (!g_routeCrate.Area.Valid) {
 			TryShowRouteCaptureCursor();

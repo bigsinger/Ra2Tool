@@ -22,12 +22,13 @@
 #include <CRT.h>
 #include <MessageListClass.h>
 #include <Utilities/Macro.h>
+#include "../Ra2Header.h"
 
 char Debug::StringBuffer[0x1000];
 
 void Debug::Log(const char* pFormat, ...)
 {
-	JMP_STD(0x4068E0);
+	JMP_STD(RA2_FUNC_EMPTY_LOG_STUB);
 }
 
 void Debug::LogAndMessage(const char* pFormat, ...)
@@ -77,11 +78,11 @@ void Debug::FatalErrorAndExit(ExitCode nExitCode, const char* pFormat, ...)
 }
 
 DEFINE_PATCH( // Add new line after "Init Secondary MixFiles....."
-	/* Offset */ 0x825F9B,
+	/* Offset */ RA2_PATCH_DEBUG_NEWLINE,
 	/*   Data */ '\n'
 );
 
 DEFINE_PATCH( // Replace SUN.INI with RA2MD.INI in the debug.log
-	/* Offset */ 0x8332F4,
+	/* Offset */ RA2_PATCH_DEBUG_RA2MD_INI,
 	/*   Data */ "-------- Loading RA2MD.INI settings --------\n"
 );

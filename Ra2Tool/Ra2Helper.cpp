@@ -47,7 +47,7 @@ void MakeEventClass(EventClass* eventClass, int houseIndex, EventType eventType,
 		push typeId
 		push houseIndex
 		mov ecx, eventClass
-		mov eax, 0x004C65E0
+		mov eax, RA2_FUNC_EVENT_TARGET_CTOR
 		call eax
 		popad
 	}
@@ -59,21 +59,21 @@ void MakeEventClass(EventClass* eventClass, int houseIndex, EventType eventType,
 void OpenMap() {
 	_asm {
 		pushad
-		mov eax, 0x00A83D4C
+		mov eax, RA2_ADDR_CURRENT_HOUSE
 		mov edx, [eax]
-		mov ecx, 0x0087F7E8
+		mov ecx, RA2_ADDR_MOUSE_CLASS
 		push edx
-		mov eax,0x00577D90
+		mov eax, RA2_FUNC_REVEAL_MAP
 		call eax
 		popad
 	}
 }
 
-// 雷达全开 [[0x00A8B230] + 0x34A4] = 1
+// 雷达全开 [[RA2_ADDR_SCENARIO_CLASS] + 0x34A4] = 1
 void OpenRadar() {
 	_asm {
 		pushad
-		mov eax, 0x00A8B230
+		mov eax, RA2_ADDR_SCENARIO_CLASS
 		mov eax, [eax]
 		mov byte ptr [eax + 0x34A4], 0x1
 		popad
@@ -83,10 +83,10 @@ void OpenRadar() {
 void _openTechOne(int objType, int index) {
 	_asm {
 		pushad
-		mov ecx, 0x0087F7E8
+		mov ecx, RA2_ADDR_MOUSE_CLASS
 		push index
 		push objType
-		mov eax, 0x006A6300
+		mov eax, RA2_FUNC_REVEAL_TECH
 		call eax
 		popad
 	}
@@ -99,8 +99,8 @@ void _openTechAll(int objType, int count) {
 	label:
 		push esi
 		push objType			// 0x7是建筑；0x10(也可能是0xF)是步兵；0x28是车船；0x1F=武器
-		mov ecx, 0x0087F7E8
-		mov eax, 0x006A6300
+		mov ecx, RA2_ADDR_MOUSE_CLASS
+		mov eax, RA2_FUNC_REVEAL_TECH
 		call eax
 		inc esi
 		cmp esi, count			// 可以填一个编号上限值，参考上述ini
@@ -190,17 +190,17 @@ bool OpenPsiSensor(bool bforce) {
 	__try {
 		_asm {
 			pushad
-			mov eax, 0x00A8ECC8
+			mov eax, RA2_ADDR_SELECTED_COUNT
 			mov eax, [eax]					//选中单位的数量
 			cmp eax, 0						//是否有选中单位
 			je exit1
-			mov eax, 0x00A8ECBC
+			mov eax, RA2_ADDR_SELECTED_OBJECTS
 			mov eax, [eax]
 			mov eax, [eax]					// +0
 			mov eax, [eax]					// +0
-			cmp eax, 0x007E3EBC				// Building vt
+			cmp eax, RA2_VTABLE_BUILDING				// Building vt
 			jnz exit1
-			mov eax, 0x00A8ECBC
+			mov eax, RA2_ADDR_SELECTED_OBJECTS
 			mov eax, [eax]
 			mov eax, [eax]					// +0
 			mov eax, [eax + 0x520]			// +0x520
@@ -232,26 +232,26 @@ void PlaceOre() {
 void _clearBeacon() {
 	_asm {
 		pushad
-		mov ecx, 0x0089C3B0
+		mov ecx, RA2_ADDR_BEACON_MANAGER
 		push - 1
 		push 0
-		mov eax, 0x004311C0
+		mov eax, RA2_FUNC_CLEAR_BEACON_ONE
 		call eax
 		popad
 	}
 }
 
 // 清除信标：一次批量清除玩家自己的3个信标
-// 004FC1C6: sub_431410(dword_89C3B0, *(_DWORD *)(dword_A83D4C + 0x30));
+// 游戏内部也通过 beacon manager 和当前玩家索引批量删除信标。
 void ClearBeacons() {
 	_asm {
 		pushad
-		mov     eax, 0x00A83D4C
+		mov     eax, RA2_ADDR_CURRENT_HOUSE
 		mov     eax, [eax]
 		mov     eax, [eax + 0x30]
 		push    eax
-		mov     ecx, 0x0089C3B0
-		mov eax, 0x00431410
+		mov     ecx, RA2_ADDR_BEACON_MANAGER
+		mov eax, RA2_FUNC_CLEAR_BEACONS_BY_HOUSE
 		call eax
 		popad
 	}
@@ -290,7 +290,7 @@ void GiveMeMoney() {
 
 	_asm {
 		pushad
-		mov eax, 0x00A83D4C
+		mov eax, RA2_ADDR_CURRENT_HOUSE
 		mov eax, [eax]
 		mov dword ptr[eax + 0x30C], 0x7FFFFFFF
 		popad
@@ -301,10 +301,10 @@ void GiveMeMoney() {
 void SetBoxAllMoney() {
 	if (SessionClass::IsMultiplayer()) { return; }
 
-	const LPVOID MethodTableAddr = (LPVOID)0x004833C4;
+	const LPVOID MethodTableAddr = (LPVOID)RA2_FUNC_CRATE_METHOD_TABLE;
 	const size_t MethodTableCount = 0x12;
 	const SIZE_T MethodTableSize = MethodTableCount * sizeof(DWORD);
-	const DWORD JumpToAddr = 0x00482463;	// 捡到的是金钱的跳转地址
+	const DWORD JumpToAddr = RA2_FUNC_CRATE_MONEY_EFFECT;	// 捡到的是金钱的跳转地址
 
 	// 修改代码保护属性
 	DWORD dwOldProtect = 0;
@@ -330,11 +330,11 @@ void LevelUpSelectings() {
 
 	__asm {
 		pushad
-		mov eax, 0x00A8ECBC
+		mov eax, RA2_ADDR_SELECTED_OBJECTS
 		mov ebx, [eax]				// the first selecting unit address
 		mov eax, 0
 	_goon:
-		mov ecx, 0x00A8ECC8
+		mov ecx, RA2_ADDR_SELECTED_COUNT
 		cmp eax, [ecx]				// check if selecting anything
 		jge _exit1
 		mov ecx, [ebx + eax * 4]	// unit address
@@ -390,7 +390,7 @@ void SendGlobalMessage_sub5410F0(IPXManagerClass* self, void* buf, int buflen, i
 		push buflen
 		push buf
 		mov ecx, self
-		mov eax, 0x005410F0
+		mov eax, RA2_FUNC_SEND_GLOBAL_MESSAGE
 		call eax
 		popad
 	}
@@ -401,7 +401,7 @@ int32_t ComputeNameCRC(wchar_t* name) {
 	__asm {
 		pushad
 		mov ecx, name
-		mov eax, 0x005DAC00
+		mov eax, RA2_FUNC_COMPUTE_NAME_CRC
 		call eax
 		mov crc, eax
 		popad
@@ -413,7 +413,7 @@ int IPXNumConnections(IPXManagerClass* self) {
 	int result = 0;
 	__asm {
 		mov ecx, self
-		mov eax, 0x00540F90
+		mov eax, RA2_FUNC_IPX_NUM_CONNECTIONS
 		call eax
 		mov result, eax
 	}
@@ -425,7 +425,7 @@ int IPXConnectionID(IPXManagerClass* self, int index) {
 	__asm {
 		push index
 		mov ecx, self
-		mov eax, 0x00540FA0
+		mov eax, RA2_FUNC_IPX_CONNECTION_ID
 		call eax
 		mov result, eax
 	}
@@ -437,7 +437,7 @@ wchar_t* IPXConnectionPlayerName(IPXManagerClass* self, int connectionId) {
 	__asm {
 		push connectionId
 		mov ecx, self
-		mov eax, 0x00540FC0
+		mov eax, RA2_FUNC_IPX_CONNECTION_NAME
 		call eax
 		mov result, eax
 	}
@@ -449,7 +449,7 @@ IPXAddressClass* IPXConnectionAddress(IPXManagerClass* self, int connectionId) {
 	__asm {
 		push connectionId
 		mov ecx, self
-		mov eax, 0x00541000
+		mov eax, RA2_FUNC_IPX_CONNECTION_ADDRESS
 		call eax
 		mov result, eax
 	}
@@ -459,7 +459,7 @@ IPXAddressClass* IPXConnectionAddress(IPXManagerClass* self, int connectionId) {
 void IPXService(IPXManagerClass* self) {
 	__asm {
 		mov ecx, self
-		mov eax, 0x00541820
+		mov eax, RA2_FUNC_IPX_SERVICE
 		call eax
 	}
 }
@@ -481,7 +481,7 @@ NodeNameType* FindCurrentNodeName() {
 }
 
 inline unsigned int __stdcall GetColorEnum_69A310(unsigned int color) {
-	JMP_STD(0x69A310);
+	JMP_STD(RA2_FUNC_COLOR_ENUM);
 }
 
 void CopyCurrentChatIdentity(wchar_t* displayName, size_t displayNameCount, int* color) {
@@ -636,8 +636,8 @@ void TestCases() {
 //#include <Utilities/Macro.h>
 //#include "Ext/NetHack.h"
 //{ // NetHack
-//	Patch::Apply_CALL(0x7B3D75, NetHack::SendTo);   // UDPInterfaceClass::Message_Handler
-//	Patch::Apply_CALL(0x7B3EEC, NetHack::RecvFrom); // UDPInterfaceClass::Message_Handler
+//	Patch::Apply_CALL(/* UDP send hook */, NetHack::SendTo);
+//	Patch::Apply_CALL(/* UDP recv hook */, NetHack::RecvFrom);
 //}
 }
 
@@ -726,7 +726,7 @@ bool OpenLog() {
 		return false; 
 	}
 
-	void* oldFunc = (byte*)GetModuleHandleA(0) + 0x68E0; // 0x4068E0 是一个空函数，就一个retn
+	void* oldFunc = (byte*)GetModuleHandleA(0) + RA2_OFFSET_EMPTY_LOG_STUB; // RA2_FUNC_EMPTY_LOG_STUB 是一个空函数，就一个retn
 	memcpy(&backupCode, oldFunc, 5u);
 	return installHook(oldFunc, (DWORD)&ra2log);
 }
@@ -740,9 +740,9 @@ bool OpenLog() {
 	 __try {
 		 _asm {
 			 pushad
-			 mov eax, 0x00A83D4C
+			 mov eax, RA2_ADDR_CURRENT_HOUSE
 			 mov eax, [eax]
-			 mov eax, 0x0087F7E8
+			 mov eax, RA2_ADDR_MOUSE_CLASS
 			 mov eax, [eax]
 			 popad
 		 }

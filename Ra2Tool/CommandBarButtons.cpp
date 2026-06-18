@@ -19,10 +19,33 @@ struct CommandButtonEntry {
 
 constexpr size_t COMMAND_BUTTON_VISIBLE_SLOT_START = 9;
 constexpr size_t COMMAND_BUTTON_OBJECT_START = 11;
-constexpr size_t COMMAND_BUTTON_COUNT = 3;
 constexpr int COMMAND_BUTTON_BASE_ID = 214;
 constexpr int COMMAND_BUTTON_BASE_X = 48;
 constexpr int COMMAND_BUTTON_STEP = 52;
+
+using CommandButtonCallback = void (*)();
+
+void OnCommandButtonPreset1();
+void OnCommandButtonPreset2();
+void OnCommandButtonPreset3();
+
+static const char* SHPFileNames[] = {
+	"Button09.SHP",
+	"Button10.SHP",
+	"Button11.SHP"
+};
+
+static const char* CommandButtonTooltips[] = {
+	"Button Tip 1",
+	"Button Tip 2",
+	"Button Tip 3"
+};
+
+static CommandButtonCallback CommandButtonCallbacks[] = {
+	OnCommandButtonPreset1,
+	OnCommandButtonPreset2,
+	OnCommandButtonPreset3
+};
 
 std::vector<CommandButtonEntry> g_commandButtons;
 HHOOK g_wndProcHook = NULL;
@@ -31,6 +54,24 @@ bool g_createAttempted = false;
 int g_lastCreateFrame = 0;
 
 void CreateCommandButtons();
+
+void OnCommandButtonPreset1() {
+	Utils::Log("CommandBar preset button 1 callback.");
+}
+
+void OnCommandButtonPreset2() {
+	Utils::Log("CommandBar preset button 2 callback.");
+}
+
+void OnCommandButtonPreset3() {
+	Utils::Log("CommandBar preset button 3 callback.");
+}
+
+size_t GetCommandButtonCount() {
+	return std::min(
+		std::min(_countof(SHPFileNames), _countof(CommandButtonTooltips)),
+		_countof(CommandButtonCallbacks));
+}
 
 bool GetGameClientSize(int* width, int* height) {
 	if (!width || !height) {
@@ -93,7 +134,10 @@ POINT CalculateCommandButtonStart(ShapeButtonClass* buttonList, SHPStruct* shp) 
 		y = detectedY;
 	}
 
-	const int requiredWidth = static_cast<int>(COMMAND_BUTTON_COUNT - 1) * step + buttonWidth;
+	const size_t buttonCount = GetCommandButtonCount();
+	const int requiredWidth = buttonCount > 0
+		? static_cast<int>(buttonCount - 1) * step + buttonWidth
+		: buttonWidth;
 	if (x + requiredWidth > clientWidth - 4) {
 		x = std::max(4, clientWidth - requiredWidth - 4);
 	}
@@ -141,8 +185,9 @@ void PrepareCommandButton(ShapeButtonClass* button, SHPStruct* shp, int x, int y
 
 bool AreCommandButtonsValid() {
 	__try {
-		auto* buttonIndexList = reinterpret_cast<int32_t*>(0x00B0CB78);
-		for (size_t i = 0; i < COMMAND_BUTTON_COUNT; ++i) {
+		auto* buttonIndexList = reinterpret_cast<int32_t*>(RA2_ADDR_COMMAND_BUTTON_INDEX);
+		const size_t buttonCount = GetCommandButtonCount();
+		for (size_t i = 0; i < buttonCount; ++i) {
 			const size_t visibleSlot = COMMAND_BUTTON_VISIBLE_SLOT_START + i;
 			const size_t buttonIndex = COMMAND_BUTTON_OBJECT_START + i;
 			if (buttonIndexList[visibleSlot] != static_cast<int32_t>(buttonIndex)) {
@@ -159,7 +204,7 @@ bool AreCommandButtonsValid() {
 				return false;
 			}
 		}
-		return g_commandButtons.size() == COMMAND_BUTTON_COUNT;
+		return g_commandButtons.size() == buttonCount;
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return false;
 	}
@@ -174,7 +219,11 @@ void CheckCommandButtons() {
 		const bool pressed = entry.Button->IsPressed;
 		DisableButtonFlash(entry.Button);
 		if (pressed && !entry.WasPressed) {
-			Utils::LogFormat("CommandBar preset button %d clicked.", entry.PresetIndex);
+			Utils::LogFormat("CommandBar preset button %d clicked.", entry.PresetIndex + 1);
+			const size_t index = static_cast<size_t>(entry.PresetIndex);
+			if (index < _countof(CommandButtonCallbacks) && CommandButtonCallbacks[index]) {
+				CommandButtonCallbacks[index]();
+			}
 		}
 		entry.WasPressed = pressed;
 	}
@@ -227,23 +276,32 @@ bool InstallWndProcHook() {
 
 void CreateCommandButtons() {
 	__try {
-		auto* buttonIndexList = reinterpret_cast<int32_t*>(0x00B0CB78);
-		auto* buttonList = reinterpret_cast<ShapeButtonClass*>(0x00B0C1C0);
-		SHPStruct* shp = FileSystem::LoadSHPFile("Button11.SHP");
-		if (!shp) {
-			Utils::Log("CommandBarButtons Button11.SHP load failed.");
+		const size_t buttonCount = GetCommandButtonCount();
+		if (buttonCount == 0) {
+			Utils::Log("CommandBarButtons no configured buttons.");
 			return;
 		}
 
-		const POINT start = CalculateCommandButtonStart(buttonList, shp);
-		const int step = std::max(COMMAND_BUTTON_STEP, static_cast<int>(shp->Width) + 4);
-		static const char* tooltips[COMMAND_BUTTON_COUNT] = {
-			"Ra2Tool preset 1",
-			"Ra2Tool preset 2",
-			"Ra2Tool preset 3"
-		};
+		auto* buttonIndexList = reinterpret_cast<int32_t*>(RA2_ADDR_COMMAND_BUTTON_INDEX);
+		auto* buttonList = reinterpret_cast<ShapeButtonClass*>(RA2_ADDR_COMMAND_BUTTON_LIST);
+		std::vector<SHPStruct*> shpFiles;
+		shpFiles.reserve(buttonCount);
+		int maxButtonWidth = 48;
+		for (size_t i = 0; i < buttonCount; ++i) {
+			SHPStruct* shp = FileSystem::LoadSHPFile(SHPFileNames[i]);
+			if (!shp) {
+				Utils::LogFormat("CommandBarButtons %s load failed.", SHPFileNames[i]);
+				return;
+			}
+
+			shpFiles.push_back(shp);
+			maxButtonWidth = std::max(maxButtonWidth, static_cast<int>(shp->Width));
+		}
+
+		const POINT start = CalculateCommandButtonStart(buttonList, shpFiles[0]);
+		const int step = std::max(COMMAND_BUTTON_STEP, maxButtonWidth + 4);
 		g_commandButtons.clear();
-		for (size_t i = 0; i < COMMAND_BUTTON_COUNT; ++i) {
+		for (size_t i = 0; i < buttonCount; ++i) {
 			const size_t visibleSlot = COMMAND_BUTTON_VISIBLE_SLOT_START + i;
 			const size_t buttonIndex = COMMAND_BUTTON_OBJECT_START + i;
 			buttonIndexList[visibleSlot] = static_cast<int32_t>(buttonIndex);
@@ -251,17 +309,18 @@ void CreateCommandButtons() {
 			ShapeButtonClass* button = buttonList + buttonIndex;
 			PrepareCommandButton(
 				button,
-				shp,
+				shpFiles[i],
 				start.x + static_cast<int>(i) * step,
 				start.y,
 				COMMAND_BUTTON_BASE_ID + static_cast<int>(buttonIndex));
 
-			ShapeButtonClass::SetToolTip(button, tooltips[i]);
-			g_commandButtons.push_back({ button, static_cast<int>(i + 1), false });
+			ShapeButtonClass::SetToolTip(button, CommandButtonTooltips[i]);
+			g_commandButtons.push_back({ button, static_cast<int>(i), false });
 		}
 
 		Utils::LogFormat(
-			"CommandBarButtons created 3 preset buttons: start=(%d,%d) step=%d.",
+			"CommandBarButtons created %d preset buttons: start=(%d,%d) step=%d.",
+			static_cast<int>(buttonCount),
 			start.x,
 			start.y,
 			step);
