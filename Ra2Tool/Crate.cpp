@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <windows.h>
 #include <MapClass.h>
 #include <TacticalClass.h>
 #include "Utils.h"

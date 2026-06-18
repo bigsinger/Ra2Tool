@@ -7,6 +7,7 @@
 #include <EventClass.h>
 #include <HouseClass.h>
 #include <InfantryClass.h>
+#include <MapClass.h>
 #include <SessionClass.h>
 #include <TargetClass.h>
 #include "Utils.h"
@@ -20,6 +21,19 @@ std::unordered_set<DWORD> knownEnemyGrandCannons;
 std::unordered_map<DWORD, DWORD> lastEngineerRepairTicks;
 bool grandCannonKnownSetReady = false;
 DWORD lastNoEngineerMessageTick = 0;
+
+struct EngineerRepairTask {
+	InfantryClass* Engineer = nullptr;
+	BuildingClass* Target = nullptr;
+	DWORD LastMissionTick = 0;
+	DWORD LastActionTick = 0;
+};
+
+std::unordered_map<DWORD, EngineerRepairTask> engineerRepairTasks;
+
+int AbsInt(int value) {
+	return value < 0 ? -value : value;
+}
 
 DWORD GetBuildingKey(BuildingClass* building) {
 	if (!building) {
@@ -252,7 +266,7 @@ void NotifyNoEngineer() {
 	Utils::Log("GrandCannonAssist engineer repair failed: no engineer.");
 }
 
-void IssueEngineerRepair(InfantryClass* engineer, BuildingClass* target) {
+void IssueEngineerMission(InfantryClass* engineer, BuildingClass* target, Mission mission, const char* reason) {
 	if (!engineer || !target || engineer->Owner != HouseClass::CurrentPlayer) {
 		return;
 	}
@@ -261,18 +275,161 @@ void IssueEngineerRepair(InfantryClass* engineer, BuildingClass* target) {
 		EventClass event(
 			HouseClass::CurrentPlayer->ArrayIndex,
 			TargetClass(engineer),
-			Mission::Repair,
+			mission,
 			TargetClass(target),
 			TargetClass(target),
 			TargetClass());
 		EventClass::OutList.Add(event);
 		Utils::LogFormat(
-			"GrandCannonAssist engineer repair: engineer=%08X target=%08X hp=%d%%",
+			"GrandCannonAssist engineer mission: engineer=%08X target=%08X mission=%d reason=%s hp=%d%%",
 			engineer->UniqueID,
 			target->UniqueID,
+			static_cast<int>(mission),
+			reason ? reason : "",
 			HealthPercent(target));
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
-		Utils::Log("GrandCannonAssist engineer repair failed.");
+		Utils::Log("GrandCannonAssist engineer mission failed.");
+	}
+}
+
+bool IssueEngineerRepairAction(InfantryClass* engineer, BuildingClass* target, const char* reason) {
+	if (!engineer || !target || engineer->Owner != HouseClass::CurrentPlayer) {
+		return false;
+	}
+
+	__try {
+		Action action = engineer->MouseOverObject(target, false);
+		if (action == Action::None || action == Action::NoRepair || action == Action::NoGRepair) {
+			action = Action::GRepair;
+		}
+
+		bool result = engineer->ObjectClickedAction(action, target, false);
+		if (!result && action != Action::GRepair) {
+			result = engineer->ObjectClickedAction(Action::GRepair, target, false);
+		}
+		if (!result && action != Action::Repair) {
+			result = engineer->ObjectClickedAction(Action::Repair, target, false);
+		}
+		if (!result && action != Action::Capture) {
+			result = engineer->ObjectClickedAction(Action::Capture, target, false);
+		}
+
+		Utils::LogFormat(
+			"GrandCannonAssist engineer action: engineer=%08X target=%08X action=%d reason=%s result=%d hp=%d%%",
+			engineer->UniqueID,
+			target->UniqueID,
+			static_cast<int>(action),
+			reason ? reason : "",
+			result ? 1 : 0,
+			HealthPercent(target));
+		return result;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("GrandCannonAssist engineer action failed.");
+		return false;
+	}
+}
+
+bool IssueEngineerClickedMission(InfantryClass* engineer, BuildingClass* target, Mission mission, const char* reason) {
+	if (!engineer || !target || engineer->Owner != HouseClass::CurrentPlayer) {
+		return false;
+	}
+
+	__try {
+		const CellStruct targetCell = target->GetMapCoords();
+		CellClass* cell = MapClass::Instance.TryGetCellAt(targetCell);
+		const bool result = engineer->ClickedMission(mission, target, cell, cell);
+		Utils::LogFormat(
+			"GrandCannonAssist engineer clicked mission: engineer=%08X target=%08X mission=%d reason=%s result=%d hp=%d%%",
+			engineer->UniqueID,
+			target->UniqueID,
+			static_cast<int>(mission),
+			reason ? reason : "",
+			result ? 1 : 0,
+			HealthPercent(target));
+		return result;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		Utils::Log("GrandCannonAssist engineer clicked mission failed.");
+		return false;
+	}
+}
+
+void IssueEngineerRepairCommand(InfantryClass* engineer, BuildingClass* target, const char* reason) {
+	IssueEngineerRepairAction(engineer, target, reason);
+	IssueEngineerClickedMission(engineer, target, Mission::Capture, reason);
+	IssueEngineerMission(engineer, target, Mission::Capture, reason);
+}
+
+void IssueEngineerRepair(InfantryClass* engineer, BuildingClass* target) {
+	IssueEngineerRepairCommand(engineer, target, "start");
+	const DWORD key = GetBuildingKey(target);
+	if (key) {
+		EngineerRepairTask task;
+		task.Engineer = engineer;
+		task.Target = target;
+		task.LastMissionTick = GetTickCount();
+		task.LastActionTick = task.LastMissionTick;
+		engineerRepairTasks[key] = task;
+	}
+}
+
+bool IsEngineerNearTarget(InfantryClass* engineer, BuildingClass* target) {
+	if (!engineer || !target) {
+		return false;
+	}
+
+	__try {
+		const CellStruct engineerCell = engineer->GetMapCoords();
+		const CellStruct targetCell = target->GetMapCoords();
+		if (AbsInt(static_cast<int>(engineerCell.X) - static_cast<int>(targetCell.X)) <= 3
+			&& AbsInt(static_cast<int>(engineerCell.Y) - static_cast<int>(targetCell.Y)) <= 3) {
+			return true;
+		}
+
+		return DistanceBetween(engineer, target) <= 1024;
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return false;
+	}
+}
+
+void TickEngineerRepairTasks() {
+	const DWORD now = GetTickCount();
+	std::vector<DWORD> finished;
+
+	for (auto& item : engineerRepairTasks) {
+		EngineerRepairTask& task = item.second;
+		if (!IsOwnEngineer(task.Engineer) || !IsOwnGrandCannon(task.Target) || !task.Target->IsAlive) {
+			finished.push_back(item.first);
+			continue;
+		}
+
+		if (task.Target->Health >= task.Target->Type->Strength) {
+			finished.push_back(item.first);
+			continue;
+		}
+
+		if (IsEngineerNearTarget(task.Engineer, task.Target)) {
+			if (now - task.LastActionTick >= 800) {
+				IssueEngineerRepairAction(task.Engineer, task.Target, "near-action");
+				IssueEngineerClickedMission(task.Engineer, task.Target, Mission::Capture, "near-capture");
+				task.LastActionTick = now;
+			}
+
+			if (now - task.LastMissionTick >= 1200) {
+				IssueEngineerMission(task.Engineer, task.Target, Mission::Capture, "near-capture");
+				task.LastMissionTick = now;
+			}
+			continue;
+		}
+
+		if (now - task.LastMissionTick >= 2500) {
+			IssueEngineerRepairCommand(task.Engineer, task.Target, "retry");
+			task.LastMissionTick = now;
+			task.LastActionTick = now;
+		}
+	}
+
+	for (DWORD key : finished) {
+		engineerRepairTasks.erase(key);
 	}
 }
 
@@ -289,6 +446,10 @@ void TryEngineerRepairGrandCannon(BuildingClass* cannon) {
 
 	const DWORD now = GetTickCount();
 	const DWORD key = GetBuildingKey(cannon);
+	if (engineerRepairTasks.find(key) != engineerRepairTasks.end()) {
+		return;
+	}
+
 	auto last = lastEngineerRepairTicks.find(key);
 	if (last != lastEngineerRepairTicks.end() && now - last->second < 3000) {
 		return;
@@ -440,6 +601,7 @@ void ScanGrandCannons(bool forceActions) {
 		HandleEnemyGrandCannonReady(building);
 	}
 
+	TickEngineerRepairTasks();
 	for (auto building : GetOwnGrandCannons()) {
 		TryEngineerRepairGrandCannon(building);
 	}
@@ -451,6 +613,7 @@ void InitGrandCannonAssist() {
 	knownOwnGrandCannons.clear();
 	knownEnemyGrandCannons.clear();
 	lastEngineerRepairTicks.clear();
+	engineerRepairTasks.clear();
 	grandCannonKnownSetReady = false;
 	lastNoEngineerMessageTick = 0;
 }

@@ -1,5 +1,8 @@
 #pragma once
 
+class EventClass;
+enum class EventType : unsigned char;
+
 bool IsGameRunning();
 bool IsGaming();
 
@@ -51,3 +54,4 @@ void ApplySelectedFormationSquare();
 void ApplySelectedFormationVertical();
 void ApplySelectedFormationHorizontal();
 void PrintGameMessage(const wchar_t* message);
+void MakeEventClass(EventClass* eventClass, int houseIndex, EventType eventType, int id, int rtti);

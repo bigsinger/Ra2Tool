@@ -78,6 +78,11 @@ PendingPickupState g_pendingPickup;
 RouteCrateState g_routeCrate;
 AutoPickupState g_autoPickup;
 StopHoldState g_stopHold;
+bool g_stopKeyWasDown = false;
+
+std::vector<FootClass*> CollectAutoPickupUnits();
+void CancelAutoPickupByStop();
+bool HasStopEventForUnits(const std::vector<FootClass*>& units);
 
 int AbsInt(int value) {
 	return value < 0 ? -value : value;
@@ -865,13 +870,12 @@ bool IsAutoPickupStopRequested() {
 	}
 
 	__try {
-		for (auto unit : g_autoPickup.Units) {
-			if (unit && (unit->CurrentMission == Mission::Stop || unit->QueuedMission == Mission::Stop)) {
-				return true;
-			}
+		const auto units = CollectAutoPickupUnits();
+		if (HasStopEventForUnits(units)) {
+			return true;
 		}
 
-		for (auto unit : g_pendingPickup.Units) {
+		for (auto unit : units) {
 			if (unit && (unit->CurrentMission == Mission::Stop || unit->QueuedMission == Mission::Stop)) {
 				return true;
 			}
@@ -880,6 +884,14 @@ bool IsAutoPickupStopRequested() {
 	}
 
 	return false;
+}
+
+bool IsStopHotkeyTriggered() {
+	const SHORT state = GetAsyncKeyState('S');
+	const bool keyDown = (state & 0x8000) != 0;
+	const bool triggered = (state & 0x0001) != 0 || (keyDown && !g_stopKeyWasDown);
+	g_stopKeyWasDown = keyDown;
+	return triggered;
 }
 
 std::vector<FootClass*> CollectAutoPickupUnits() {
@@ -899,6 +911,104 @@ std::vector<FootClass*> CollectAutoPickupUnits() {
 	}
 
 	return FilterLiveUnits(units);
+}
+
+bool TargetMatchesFoot(const TargetClass& target, FootClass* unit) {
+	if (!unit || target.m_ID != static_cast<int>(unit->UniqueID)) {
+		return false;
+	}
+
+	return target.m_RTTI == static_cast<unsigned char>(AbstractType::Abstract)
+		|| target.m_RTTI == static_cast<unsigned char>(AbstractType::Unit)
+		|| target.m_RTTI == static_cast<unsigned char>(AbstractType::Infantry)
+		|| target.m_RTTI == static_cast<unsigned char>(AbstractType::Aircraft);
+}
+
+bool TargetMatchesAnyFoot(const TargetClass& target, const std::vector<FootClass*>& units) {
+	for (auto unit : units) {
+		if (TargetMatchesFoot(target, unit)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool EventIsStopForUnits(const EventClass& event, const std::vector<FootClass*>& units) {
+	if (event.HouseIndex != HouseClass::CurrentPlayer->ArrayIndex) {
+		return false;
+	}
+
+	const unsigned char stopMission = static_cast<unsigned char>(Mission::Stop);
+	if (event.Type == EventType::MegaMission) {
+		return event.MegaMission.Mission == stopMission
+			&& TargetMatchesAnyFoot(event.MegaMission.Whom, units);
+	}
+
+	if (event.Type == EventType::MegaMissionF) {
+		return event.MegaMissionF.Mission == stopMission
+			&& TargetMatchesAnyFoot(event.MegaMissionF.Whom, units);
+	}
+
+	if (event.Type == EventType::Idle) {
+		return TargetMatchesAnyFoot(event.Idle.Whom, units);
+	}
+
+	return false;
+}
+
+template<int Size>
+bool QueueHasStopEventForUnits(QueueClass<EventClass, Size>& queue, const std::vector<FootClass*>& units) {
+	for (int i = 0; i < queue.Count; ++i) {
+		if (EventIsStopForUnits(queue[i], units)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool HasStopEventForUnits(const std::vector<FootClass*>& units) {
+	if (units.empty() || !HouseClass::CurrentPlayer) {
+		return false;
+	}
+
+	__try {
+		return QueueHasStopEventForUnits(EventClass::OutList, units)
+			|| QueueHasStopEventForUnits(EventClass::DoList, units)
+			|| QueueHasStopEventForUnits(EventClass::MegaMissionList, units);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return false;
+	}
+}
+
+bool HasSelectedAutoPickupUnit() {
+	const auto selected = GetSelectedFootUnits();
+	const auto tracked = CollectAutoPickupUnits();
+	for (auto selectedUnit : selected) {
+		for (auto trackedUnit : tracked) {
+			if (selectedUnit == trackedUnit) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void TickAutoPickupManualStop() {
+	if (!g_autoPickup.Active) {
+		IsStopHotkeyTriggered();
+		return;
+	}
+
+	const auto units = CollectAutoPickupUnits();
+	const bool stopHotkey = IsStopHotkeyTriggered();
+	if (HasStopEventForUnits(units)
+		|| (stopHotkey && HasSelectedAutoPickupUnit())) {
+		CancelAutoPickupByStop();
+		Utils::Log("CrateAssist auto pickup stopped by player stop command.");
+	}
 }
 
 void IssueStopForUnits(const std::vector<FootClass*>& units) {
@@ -1454,6 +1564,7 @@ void ToggleRouteCratePickup() {
 
 void TickCrateAssist() {
 	TickStopHold();
+	TickAutoPickupManualStop();
 
 	if (g_routeCrate.Capturing) {
 		if (!g_routeCrate.Area.Valid) {

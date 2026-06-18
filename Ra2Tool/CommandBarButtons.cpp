@@ -8,6 +8,7 @@
 #include <Unsorted.h>
 #include "Utils.h"
 #include "Ra2Header.h"
+#include "Ra2Helper.h"
 
 namespace {
 
@@ -56,7 +57,8 @@ int g_lastCreateFrame = 0;
 void CreateCommandButtons();
 
 void OnCommandButtonPreset1() {
-	Utils::Log("CommandBar preset button 1 callback.");
+	Utils::Log("CommandBar preset button 1 callback: PickCrate");
+	StartOptimalCratePickup();
 }
 
 void OnCommandButtonPreset2() {
