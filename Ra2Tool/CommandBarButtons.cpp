@@ -1,11 +1,12 @@
 #include <windows.h>
 #include <stdint.h>
-#include <algorithm>
 #include <vector>
-#include <FileFormats/SHP.h>
-#include <FileSystem.h>
-#include <ShapeButtonClass.h>
+#include <algorithm>
 #include <Unsorted.h>
+#include <FileSystem.h>
+#include <SessionClass.h>
+#include <FileFormats/SHP.h>
+#include <ShapeButtonClass.h>
 #include "Utils.h"
 #include "Ra2Header.h"
 #include "Ra2Helper.h"
@@ -335,6 +336,11 @@ void CreateCommandButtons() {
 }
 
 void InitCommandBarButtons() {
+	if (SessionClass::IsMultiplayer()) {
+		Utils::Log("预制按钮在多人模式下会平行世界，本次不会开启，推荐在单人模式下使用。");
+		return;
+	}
+
 	if (g_initialized) {
 		return;
 	}
